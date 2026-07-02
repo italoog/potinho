@@ -52,9 +52,10 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       targets: ["base_mesh"],
     },
     {
-      key: "color_bowl",
+      // Parte "AZUL" do 3MF: faixa decorativa inferior da base (a tigela é de inox, não impressa)
+      key: "color_band",
       type: "color",
-      label: "Cor da tigela",
+      label: "Cor da faixa",
       options: [
         { label: "Azul", hex: "#1E5AA8" },
         { label: "Rosa", hex: "#E85D9A" },
