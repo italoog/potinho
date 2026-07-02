@@ -1,0 +1,16 @@
+# Dev local: banco PostgreSQL do Forja3D
+# Uso: docker compose up -d && cd web && npm run db:migrate && npm run db:seed
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: forja3d
+      POSTGRES_PASSWORD: forja3d
+      POSTGRES_DB: forja3d
+    ports:
+      - "5432:5432"
+    volumes:
+      - forja3d_pgdata:/var/lib/postgresql/data
+
+volumes:
+  forja3d_pgdata:
