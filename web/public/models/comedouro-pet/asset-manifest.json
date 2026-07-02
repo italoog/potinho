@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-02T21:06:51.403Z",
+  "source3mf": "..\\ARQUIVO DIMENCIONADO com nome centralizado 15cm.3mf",
+  "variantRef": "15cm",
+  "units": "meters",
+  "coordinateSystem": "gltf (Y-up)",
+  "dimensions": [
+    0.18593846261501312,
+    0.13708007568493485,
+    0.185939222574234
+  ],
+  "meshes": [
+    {
+      "name": "base_mesh",
+      "originalName": "CINZA"
+    },
+    {
+      "name": "bowl_mesh",
+      "originalName": "AZUL"
+    }
+  ],
+  "anchor": {
+    "node": "name_slot",
+    "position": [
+      -0.07157958171295899,
+      0.076884937139205,
+      -0.016970768332118306
+    ],
+    "outwardNormal": [
+      -0.9730262726831785,
+      0,
+      -0.2306943273430897
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "sampleText": "CHARLIE",
+    "sampleTextSize": [
+      0.021924011409282684,
+      0.025525003671646118,
+      0.09995875507593155
+    ],
+    "engraveDepthM": 0.002
+  },
+  "fonts": {
+    "production": "Impact",
+    "productionSize": 28.00003433227539,
+    "web": "Anton",
+    "webFile": "/fonts/Anton-Regular.ttf"
+  }
+}

@@ -27,8 +27,8 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
 
     // JSONB round-trip preserva o schema de parâmetros do PRD §8
     const parsedParams = productParamSchema.parse(row.paramSchema);
-    expect(parsedParams).toHaveLength(3);
-    expect(parsedParams.map((p) => p.type)).toEqual(["text", "color", "select"]);
+    expect(parsedParams).toHaveLength(5);
+    expect(parsedParams.map((p) => p.type)).toEqual(["text", "color", "color", "color", "select"]);
 
     const parsedVariants = variantsSchema.parse(row.variants);
     expect(parsedVariants[0].ref).toBe("15cm");

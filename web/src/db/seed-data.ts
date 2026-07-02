@@ -10,7 +10,11 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
   description:
     "Comedouro elevado impresso em 3D com o nome do seu pet gravado. " +
     "Personalize o nome, a cor e o tamanho — e veja o resultado em 3D antes de comprar.",
-  photos: [],
+  photos: [
+    "/products/comedouro-pet/montado.png",
+    "/products/comedouro-pet/IMG20260309141237.webp",
+    "/products/comedouro-pet/tigela.webp",
+  ],
   basePrice: 8990, // R$ 89,90
   status: "published",
   variants: [
@@ -30,13 +34,27 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       label: "Nome do pet",
       min: 2,
       max: 10,
-      font: "Poppins-Bold",
+      // Fonte web (aprox. da Impact usada na produção — ver asset-manifest.json)
+      font: "Anton",
       anchor: "name_slot",
     },
     {
-      key: "color",
+      key: "color_base",
       type: "color",
-      label: "Cor",
+      label: "Cor da base",
+      options: [
+        { label: "Cinza", hex: "#9E9E9E" },
+        { label: "Azul", hex: "#1E5AA8" },
+        { label: "Rosa", hex: "#E85D9A" },
+        { label: "Preto", hex: "#1A1A1A" },
+        { label: "Branco", hex: "#F4F4F4" },
+      ],
+      targets: ["base_mesh"],
+    },
+    {
+      key: "color_bowl",
+      type: "color",
+      label: "Cor da tigela",
       options: [
         { label: "Azul", hex: "#1E5AA8" },
         { label: "Rosa", hex: "#E85D9A" },
@@ -44,7 +62,18 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
         { label: "Branco", hex: "#F4F4F4" },
         { label: "Verde", hex: "#2E8B57" },
       ],
-      targets: ["base_mesh"],
+      targets: ["bowl_mesh"],
+    },
+    {
+      key: "color_name",
+      type: "color",
+      label: "Cor do nome",
+      options: [
+        { label: "Branco", hex: "#F4F4F4" },
+        { label: "Preto", hex: "#1A1A1A" },
+        { label: "Amarelo", hex: "#F2C511" },
+      ],
+      targets: ["name_text"],
     },
     {
       key: "size",
