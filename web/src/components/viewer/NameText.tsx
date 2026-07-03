@@ -126,7 +126,10 @@ export default function NameText({ manifest, text }: NameTextProps) {
     // ideal. A peça impressa de verdade usa o 3MF original (gerador de produção — Épico 5),
     // não esta malha do preview: isso só afeta a visualização no navegador.
     const cutDepth = 0.003;
-    const outsideMargin = 0.0006;
+    // Folga generosa pra FORA (fica no ar, não aprofunda o corte na peça): a parede real não
+    // é o cone perfeito do modelo de revolução — com folga apertada a face frontal do cortador
+    // caía DENTRO da casca no topo das letras e a gravação saía rasa/serrilhada ali.
+    const outsideMargin = 0.004;
     const geometry = buildTextGeometry(font, text, {
       targetHeight: sampleH,
       maxWidth,
