@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# banco dev local (PGlite) e uploads de dev
+.data/
+/public/uploads/
