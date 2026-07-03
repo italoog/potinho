@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Font } from "opentype.js";
 import { Brush, Evaluator, SUBTRACTION } from "three-bvh-csg";
 import type { AssetManifest } from "@/lib/asset-manifest";
-import { buildTextGlyphGeometries, loadFont, type GlyphGeometry } from "./textGeometry";
+import { buildTextGeometry, loadFont, wrapAroundYAxis } from "./textGeometry";
 import { createEngravingMaterial } from "./engravingMaterial";
 
 interface NameTextProps {
@@ -44,60 +43,6 @@ interface SurfaceAnchor {
   normal: THREE.Vector3;
   /** "para cima" real do texto (vem do manifest) — a parede afunila, não é o eixo Y do mundo */
   up: THREE.Vector3;
-  /** direção horizontal (largura do texto) tangente à superfície no ponto de ancoragem */
-  right: THREE.Vector3;
-}
-
-const UP_FALLBACK = new THREE.Vector3(0, 1, 0);
-
-/**
- * Acha o ponto e a normal REAIS da casca em cada letra (raycast individual) em vez de uma
- * curvatura matemática única para a palavra toda — a peça não é um cilindro perfeito (afunila,
- * tem recortes de alça), então cada letra pode estar a uma distância/ângulo levemente diferente
- * da âncora central. Letras que caem num vão (alça) simplesmente não são cortadas. Cada letra já
- * sai com a transform "assada" nos próprios vértices (não precisa de Brush.position/quaternion
- * depois) — assim dá pra juntar todas numa geometria só e fazer UMA subtração booleana atômica,
- * em vez de N operações sequenciais (a lib de CSG experimental acumula imprecisão a cada
- * subtração feita em cima do resultado da anterior).
- */
-function placeGlyphs(glyphs: GlyphGeometry[], anchor: SurfaceAnchor, targets: THREE.Object3D[]): THREE.BufferGeometry[] {
-  const raycaster = new THREE.Raycaster();
-  raycaster.near = 0;
-  raycaster.far = 0.4;
-  const placed: THREE.BufferGeometry[] = [];
-
-  for (const { geometry, centerX } of glyphs) {
-    const probeOrigin = anchor.position
-      .clone()
-      .addScaledVector(anchor.right, centerX)
-      .addScaledVector(anchor.normal, 0.2);
-    raycaster.set(probeOrigin, anchor.normal.clone().negate());
-    const hit = raycaster.intersectObjects(targets, false)[0];
-    if (!hit) {
-      geometry.dispose();
-      continue;
-    }
-
-    const localNormal =
-      hit.face?.normal.clone().transformDirection(hit.object.matrixWorld).normalize() ?? anchor.normal;
-    // mantém o "up" global, só reprojeta pra ficar perpendicular à normal local (Gram-Schmidt) —
-    // evita que o texto rotacione em torno do próprio eixo entre uma letra e outra.
-    const localUp = anchor.up
-      .clone()
-      .addScaledVector(localNormal, -anchor.up.dot(localNormal))
-      .normalize();
-    const upVector = localUp.lengthSq() > 0.5 ? localUp : UP_FALLBACK;
-
-    const target = hit.point.clone().add(localNormal);
-    const m = new THREE.Matrix4().lookAt(target, hit.point, upVector);
-    m.setPosition(hit.point);
-    // O ponto do raycast JÁ está deslocado centerX ao longo da largura — zera o offset interno
-    // do glifo antes de posicionar, senão a letra anda 2x e as das pontas caem fora da casca.
-    geometry.translate(-centerX, 0, 0);
-    geometry.applyMatrix4(m);
-    placed.push(geometry);
-  }
-  return placed;
 }
 
 // Instância NOVA a cada corte (não reutilizar um Evaluator entre chamadas): o estado interno
@@ -158,8 +103,7 @@ export default function NameText({ manifest, text }: NameTextProps) {
         // "up" real do manifest: a parede afunila (não é vertical de verdade), o corte tem
         // que acompanhar essa inclinação em vez de ficar sempre perpendicular ao chão.
         const up = new THREE.Vector3(...anchor.up).normalize();
-        const right = new THREE.Vector3().crossVectors(up, normal).normalize();
-        setSurface({ position: hit.point.clone(), normal, up, right });
+        setSurface({ position: hit.point.clone(), normal, up });
       } else if (tries++ < 90) {
         requestAnimationFrame(probe); // modelo ainda carregando
       }
@@ -170,9 +114,9 @@ export default function NameText({ manifest, text }: NameTextProps) {
     };
   }, [manifest.anchor, scene]);
 
-  // Uma geometria por letra (não uma só para a palavra toda — mais robusto pro CSG e permite
-  // posicionar cada uma na superfície real via raycast individual em placeGlyphs).
-  const glyphGeometries = useMemo(() => {
+  // Palavra inteira numa única geometria plana, empurrada para DENTRO da parede (negativo),
+  // com uma folga pequena para fora garantindo que a subtração atravesse a superfície.
+  const flatGeometry = useMemo(() => {
     if (!font || !text || !manifest.anchor) return null;
     const [, sampleH, sampleW] = manifest.anchor.sampleTextSize;
     const maxWidth = Math.max(sampleW, sampleH * 2) * 1.05;
@@ -183,23 +127,22 @@ export default function NameText({ manifest, text }: NameTextProps) {
     // não esta malha do preview: isso só afeta a visualização no navegador.
     const cutDepth = 0.003;
     const outsideMargin = 0.0006;
-    const glyphs = buildTextGlyphGeometries(font, text, {
+    const geometry = buildTextGeometry(font, text, {
       targetHeight: sampleH,
       maxWidth,
       depth: cutDepth + outsideMargin,
     });
-    if (glyphs.length === 0) return null;
+    if (!geometry) return null;
     // desloca de [-D/2, D/2] (centrado) para [-cutDepth, +outsideMargin] (para dentro da peça)
-    const shiftZ = (outsideMargin - cutDepth) / 2;
-    glyphs.forEach((g) => g.geometry.translate(0, 0, shiftZ));
-    return glyphs;
+    geometry.translate(0, 0, (outsideMargin - cutDepth) / 2);
+    return geometry;
   }, [font, text, manifest.anchor]);
 
   useEffect(() => {
     return () => {
-      glyphGeometries?.forEach((g) => g.geometry.dispose());
+      flatGeometry?.dispose();
     };
-  }, [glyphGeometries]);
+  }, [flatGeometry]);
 
   // Aplica/desfaz a subtração booleana no base_mesh de verdade — sempre a partir da geometria
   // original (nunca acumula cortes de nomes anteriores).
@@ -244,33 +187,25 @@ export default function NameText({ manifest, text }: NameTextProps) {
       targetMesh.updateMatrix();
     }
 
-    if (!glyphGeometries || !surface) {
+    if (!flatGeometry || !surface) {
       restore();
       return;
     }
 
-    const targets: THREE.Object3D[] = [];
-    scene.traverse((o) => {
-      if (o instanceof THREE.Mesh && o.name === "base_mesh") targets.push(o);
+    // Revoluciona a palavra em torno do eixo vertical real da peça, ancorada no ponto de hit
+    // (ver wrapAroundYAxis) — não usa a outwardNormal do manifest para orientar, só o hit
+    // (raio/ângulo/altura) e o up (inclinação da parede).
+    const radius = Math.hypot(surface.position.x, surface.position.z);
+    const theta0 = Math.atan2(surface.position.x, surface.position.z);
+    const radialDir = new THREE.Vector3(surface.position.x, 0, surface.position.z).normalize();
+    const cutter = flatGeometry.clone();
+    wrapAroundYAxis(cutter, {
+      radius,
+      theta0,
+      baseY: surface.position.y,
+      cosTilt: surface.up.y,
+      sinTilt: -surface.up.dot(radialDir),
     });
-    const placed = placeGlyphs(glyphGeometries, surface, targets);
-    if (placed.length === 0) {
-      restore();
-      return;
-    }
-
-    // Congela a pose real (incluindo a desquantização) direto nos vértices, deixando a malha A
-    // na identidade — é o padrão recomendado pela lib de CSG e evita descompasso de escala com
-    // o cortador, que já está posicionado em coordenadas reais (via raycast). Também achata
-    // os atributos intercalados/quantizados do glTF comprimido (ver toPlainFloat32Geometry).
-    targetMesh.updateMatrixWorld(true);
-    const baked = toPlainFloat32Geometry(pristineData.geometry).applyMatrix4(targetMesh.matrixWorld);
-
-    // Junta todas as letras (já posicionadas na superfície real) numa geometria só e faz UMA
-    // subtração booleana atômica — mais robusto que N subtrações em sequência, onde cada corte
-    // atua em cima do resultado (já com pequenas imprecisões) do anterior.
-    const mergedCutter = mergeGeometries(placed, false) as THREE.BufferGeometry;
-    placed.forEach((g) => g.dispose());
 
     // Material das faces do corte = cor da casca escurecida (sombra do rebaixo, como na peça
     // real). O Evaluator com useGroups distribui: triângulos vindos da casca → material dela;
@@ -279,17 +214,25 @@ export default function NameText({ manifest, text }: NameTextProps) {
       | THREE.MeshStandardMaterial
       | undefined;
     if (!shellMaterial || !(shellMaterial instanceof THREE.MeshStandardMaterial)) {
+      cutter.dispose();
       restore();
       return;
     }
     const engravingMaterial = createEngravingMaterial(shellMaterial);
 
+    // Congela a pose real (incluindo a desquantização) direto nos vértices, deixando a malha A
+    // na identidade — é o padrão recomendado pela lib de CSG e evita descompasso de escala com
+    // o cortador, que já está posicionado em coordenadas reais (via raycast). Também achata
+    // os atributos intercalados/quantizados do glTF comprimido (ver toPlainFloat32Geometry).
+    targetMesh.updateMatrixWorld(true);
+    const baked = toPlainFloat32Geometry(pristineData.geometry).applyMatrix4(targetMesh.matrixWorld);
+
     const baseBrush = new Brush(baked, shellMaterial);
-    const cutterBrush = new Brush(mergedCutter, engravingMaterial);
+    const cutterBrush = new Brush(cutter, engravingMaterial);
     cutterBrush.updateMatrixWorld(true);
     const result = createEvaluator().evaluate(baseBrush, cutterBrush, SUBTRACTION);
     baked.dispose();
-    mergedCutter.dispose();
+    cutter.dispose();
 
     targetMesh.geometry = result.geometry;
     targetMesh.material = result.material;
@@ -303,7 +246,7 @@ export default function NameText({ manifest, text }: NameTextProps) {
       result.geometry.dispose();
       engravingMaterial.dispose();
     };
-  }, [glyphGeometries, surface, scene]);
+  }, [flatGeometry, surface, scene]);
 
   return null;
 }

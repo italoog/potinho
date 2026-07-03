@@ -82,7 +82,12 @@ function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
     // espera manifest E controls prontos — OrbitControls registra async no store
     if (!manifest?.anchor || !controls?.target || applied.current) return;
     applied.current = true;
-    const [nx, , nz] = manifest.anchor.outwardNormal;
+    // Direção RADIAL da âncora (a peça é de revolução centrada na origem) — a outwardNormal
+    // do manifest desvia ~16° da radial e deixava a câmera de viés em relação ao nome gravado.
+    const [ax, , az] = manifest.anchor.position;
+    const len = Math.hypot(ax, az) || 1;
+    const nx = ax / len;
+    const nz = az / len;
     const height = manifest.dimensions[1];
     const dist = Math.max(...manifest.dimensions) * 2.1;
     camera.position.set(nx * dist, height * 1.1, nz * dist);
