@@ -237,8 +237,38 @@ async function main() {
   // --- Âncora name_slot: derivada do mesh real do texto de exemplo ---
   let anchorManifest: Record<string, unknown> | null = null;
   if (textAnchor) {
-    const center = centroidOf(textAnchor.positions);
     const tb = bboxOf(textAnchor.positions);
+
+    // Centro ANGULAR do texto em torno do eixo vertical da peça (montagem centrada na origem),
+    // não o centroide de vértices: letras curvas (C, S, R…) têm muito mais vértices e puxam a
+    // média ~13° pro lado — o nome digitado saía visivelmente descentralizado das alças.
+    const c = centroidOf(textAnchor.positions);
+    const thetaRef = Math.atan2(c[0], c[2]);
+    let dMin = Infinity;
+    let dMax = -Infinity;
+    let rSum = 0;
+    const count = textAnchor.positions.length / 3;
+    for (let i = 0; i < textAnchor.positions.length; i += 3) {
+      const x = textAnchor.positions[i];
+      const z = textAnchor.positions[i + 2];
+      let d = Math.atan2(x, z) - thetaRef;
+      if (d > Math.PI) d -= 2 * Math.PI;
+      if (d < -Math.PI) d += 2 * Math.PI;
+      dMin = Math.min(dMin, d);
+      dMax = Math.max(dMax, d);
+      rSum += Math.hypot(x, z);
+    }
+    const thetaCenter = thetaRef + (dMin + dMax) / 2;
+    const radius = rSum / count;
+    const centerY = (tb.min[1] + tb.max[1]) / 2;
+    const center = [radius * Math.sin(thetaCenter), centerY, radius * Math.cos(thetaCenter)];
+
+    // Normal para fora no centro angular: radial + inclinação da parede (derivada do up real)
+    const radialDir = [Math.sin(thetaCenter), 0, Math.cos(thetaCenter)];
+    const up = textAnchor.up;
+    const sinTilt = -(up[0] * radialDir[0] + up[2] * radialDir[2]);
+    const cosTilt = up[1];
+    const outwardNormal = [radialDir[0] * cosTilt, sinTilt, radialDir[2] * cosTilt];
 
     const anchorNode = doc.createNode("name_slot").setTranslation([center[0], center[1], center[2]]);
     scene.addChild(anchorNode);
@@ -246,9 +276,8 @@ async function main() {
     anchorManifest = {
       node: "name_slot",
       position: center,
-      // Normal e up REAIS (não uma aproximação horizontal): vêm dos eixos do próprio volume
-      // de texto, exatamente como o Bambu o orientou ao colar na parede afunilada/inclinada.
-      outwardNormal: textAnchor.normal,
+      outwardNormal,
+      // up REAL do volume de texto, como o Bambu o orientou na parede afunilada/inclinada
       up: textAnchor.up,
       // Caixa do texto de exemplo ("CHARLIE") — o visualizador ajusta o nome digitado a esta altura
       sampleText: textInfoMatch?.[1] ?? null,
