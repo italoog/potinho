@@ -8,6 +8,7 @@ import type { Font } from "opentype.js";
 import { Brush, Evaluator, SUBTRACTION } from "three-bvh-csg";
 import type { AssetManifest } from "@/lib/asset-manifest";
 import { buildTextGlyphGeometries, loadFont, type GlyphGeometry } from "./textGeometry";
+import { createEngravingMaterial } from "./engravingMaterial";
 
 interface NameTextProps {
   manifest: AssetManifest;
@@ -90,6 +91,9 @@ function placeGlyphs(glyphs: GlyphGeometry[], anchor: SurfaceAnchor, targets: TH
     const target = hit.point.clone().add(localNormal);
     const m = new THREE.Matrix4().lookAt(target, hit.point, upVector);
     m.setPosition(hit.point);
+    // O ponto do raycast JÁ está deslocado centerX ao longo da largura — zera o offset interno
+    // do glifo antes de posicionar, senão a letra anda 2x e as das pontas caem fora da casca.
+    geometry.translate(-centerX, 0, 0);
     geometry.applyMatrix4(m);
     placed.push(geometry);
   }
@@ -100,9 +104,11 @@ function placeGlyphs(glyphs: GlyphGeometry[], anchor: SurfaceAnchor, targets: TH
 // dele (buffers de atributo, BVH cacheada na própria geometria) não zera 100% entre operações
 // mesmo com clear() — reaproveitar causava resultados inconsistentes de um nome pro outro
 // (às vezes um corte simples de 2-3 letras saía sem gravar nada, sem erro nenhum no console).
+// useGroups: as faces que vêm do cortador (paredes/fundo da gravação) ficam num group próprio
+// com material mais escuro — sem isso a gravação fica da cor da casca e quase invisível.
 function createEvaluator(): Evaluator {
   const evaluator = new Evaluator();
-  evaluator.useGroups = false;
+  evaluator.useGroups = true;
   evaluator.attributes = ["position", "normal"];
   return evaluator;
 }
@@ -209,11 +215,18 @@ export default function NameText({ manifest, text }: NameTextProps) {
     // de base_mesh de identidade para uma transform de "desquantização". Guardamos a pose
     // original completa (não só a geometria) pra restaurar direito depois do corte.
     let pristine = targetMesh.userData.pristine as
-      | { geometry: THREE.BufferGeometry; position: THREE.Vector3; quaternion: THREE.Quaternion; scale: THREE.Vector3 }
+      | {
+          geometry: THREE.BufferGeometry;
+          material: THREE.Material | THREE.Material[];
+          position: THREE.Vector3;
+          quaternion: THREE.Quaternion;
+          scale: THREE.Vector3;
+        }
       | undefined;
     if (!pristine) {
       pristine = {
         geometry: targetMesh.geometry,
+        material: targetMesh.material,
         position: targetMesh.position.clone(),
         quaternion: targetMesh.quaternion.clone(),
         scale: targetMesh.scale.clone(),
@@ -224,6 +237,7 @@ export default function NameText({ manifest, text }: NameTextProps) {
 
     function restore() {
       targetMesh.geometry = pristineData.geometry;
+      targetMesh.material = pristineData.material;
       targetMesh.position.copy(pristineData.position);
       targetMesh.quaternion.copy(pristineData.quaternion);
       targetMesh.scale.copy(pristineData.scale);
@@ -258,14 +272,27 @@ export default function NameText({ manifest, text }: NameTextProps) {
     const mergedCutter = mergeGeometries(placed, false) as THREE.BufferGeometry;
     placed.forEach((g) => g.dispose());
 
-    const baseBrush = new Brush(baked);
-    const cutterBrush = new Brush(mergedCutter);
+    // Material das faces do corte = cor da casca escurecida (sombra do rebaixo, como na peça
+    // real). O Evaluator com useGroups distribui: triângulos vindos da casca → material dela;
+    // triângulos vindos do cortador → material de gravação.
+    const shellMaterial = (Array.isArray(pristineData.material) ? pristineData.material[0] : pristineData.material) as
+      | THREE.MeshStandardMaterial
+      | undefined;
+    if (!shellMaterial || !(shellMaterial instanceof THREE.MeshStandardMaterial)) {
+      restore();
+      return;
+    }
+    const engravingMaterial = createEngravingMaterial(shellMaterial);
+
+    const baseBrush = new Brush(baked, shellMaterial);
+    const cutterBrush = new Brush(mergedCutter, engravingMaterial);
     cutterBrush.updateMatrixWorld(true);
     const result = createEvaluator().evaluate(baseBrush, cutterBrush, SUBTRACTION);
     baked.dispose();
     mergedCutter.dispose();
 
     targetMesh.geometry = result.geometry;
+    targetMesh.material = result.material;
     targetMesh.position.set(0, 0, 0);
     targetMesh.quaternion.identity();
     targetMesh.scale.set(1, 1, 1);
@@ -274,6 +301,7 @@ export default function NameText({ manifest, text }: NameTextProps) {
     return () => {
       restore();
       result.geometry.dispose();
+      engravingMaterial.dispose();
     };
   }, [glyphGeometries, surface, scene]);
 

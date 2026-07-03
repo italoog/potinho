@@ -17,6 +17,7 @@ import {
 } from "@/store/personalization";
 import NameText from "./NameText";
 import { setCanvasState } from "./canvasState";
+import { darkenHex, isEngravingMaterial } from "./engravingMaterial";
 
 /** Aplica cores da paleta às malhas nomeadas (V-03) sem recriar materiais a cada frame */
 function ColoredModel({ url, colors }: { url: string; colors: Record<string, string> }) {
@@ -34,9 +35,15 @@ function ColoredModel({ url, colors }: { url: string; colors: Record<string, str
 
   useEffect(() => {
     prepared.traverse((obj) => {
-      if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
-        const hex = colors[obj.name];
-        if (hex) obj.material.color.set(hex);
+      if (!(obj instanceof THREE.Mesh)) return;
+      const hex = colors[obj.name];
+      if (!hex) return;
+      // Com nome gravado, o mesh vira multi-material (casca + faces internas da gravação,
+      // que ficam num tom escurecido da mesma cor — sombra do rebaixo).
+      const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const material of materials) {
+        if (!(material instanceof THREE.MeshStandardMaterial)) continue;
+        material.color.set(isEngravingMaterial(material) ? darkenHex(hex) : hex);
       }
     });
   }, [prepared, colors]);
