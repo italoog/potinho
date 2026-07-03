@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-02T21:06:51.403Z",
-  "source3mf": "..\\ARQUIVO DIMENCIONADO com nome centralizado 15cm.3mf",
+  "generatedAt": "2026-07-03T16:24:51.688Z",
+  "source3mf": "../ARQUIVO DIMENCIONADO com nome centralizado 15cm.3mf",
   "variantRef": "15cm",
   "units": "meters",
   "coordinateSystem": "gltf (Y-up)",
@@ -27,14 +27,14 @@
       -0.016970768332118306
     ],
     "outwardNormal": [
-      -0.9730262726831785,
-      0,
-      -0.2306943273430897
+      -0.9783382324518937,
+      0.19609337263382204,
+      0.06634524950587913
     ],
     "up": [
-      0,
-      1,
-      0
+      0.19634788337285203,
+      0.9805112091012671,
+      -0.006728857389775326
     ],
     "sampleText": "CHARLIE",
     "sampleTextSize": [

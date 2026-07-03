@@ -24,6 +24,7 @@ import {
   parseMeshFromModelXml,
   parseTransform,
   toGltfSpace,
+  transformDirection,
   type Mesh3mf,
   type Transform3mf,
 } from "./lib3mf";
@@ -81,6 +82,12 @@ function centroidOf(positions: Float32Array): [number, number, number] {
   return [x / n, y / n, z / n];
 }
 
+function toGltfDir(v: [number, number, number]): [number, number, number] {
+  const [gx, gy, gz] = toGltfSpace(v[0], v[1], v[2]);
+  const len = Math.hypot(gx, gy, gz) || 1;
+  return [gx / len, gy / len, gz / len];
+}
+
 function bboxOf(positions: Float32Array) {
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
@@ -134,7 +141,8 @@ async function main() {
   const textInfoMatch = settings.match(/<text_info text="([^"]*)" font_name="([^"]*)"[^>]*font_size="([^"]*)"[^>]*thickness="([^"]*)"/);
 
   const parts: NamedPart[] = [];
-  let textAnchor: { positions: Float32Array } | null = null;
+  let textAnchor: { positions: Float32Array; normal: [number, number, number]; up: [number, number, number] } | null =
+    null;
 
   let om: RegExpExecArray | null;
   while ((om = objectRe.exec(rootModel))) {
@@ -156,7 +164,14 @@ async function main() {
 
       if (info?.subtype === "negative_part") {
         // Parte negativa = texto gravado (Text Tool). Vira a âncora `name_slot`, não malha.
-        textAnchor = { positions: transformToGltfPositions(mesh, world) };
+        // A peça afunila (parede não é vertical) — a normal/up REAIS vêm dos eixos locais
+        // do próprio volume de texto (como o Bambu o orientou ao colar na superfície),
+        // não de uma aproximação horizontal, senão o texto fica desalinhado do ângulo da parede.
+        textAnchor = {
+          positions: transformToGltfPositions(mesh, world),
+          normal: toGltfDir(transformDirection(world, 0, 0, 1)),
+          up: toGltfDir(transformDirection(world, 0, 1, 0)),
+        };
         continue;
       }
       parts.push({ name: info?.name ?? `part_${componentObjectId}`, mesh, transform: world });
@@ -224,14 +239,6 @@ async function main() {
   if (textAnchor) {
     const center = centroidOf(textAnchor.positions);
     const tb = bboxOf(textAnchor.positions);
-    // Normal para fora: do eixo vertical do produto em direção ao texto (plano XZ)
-    const allBbox = bboxOf(concat(overallPositions));
-    const productCenter = [(allBbox.min[0] + allBbox.max[0]) / 2, 0, (allBbox.min[2] + allBbox.max[2]) / 2];
-    let nx = center[0] - productCenter[0];
-    let nz = center[2] - productCenter[2];
-    const nLen = Math.hypot(nx, nz) || 1;
-    nx /= nLen;
-    nz /= nLen;
 
     const anchorNode = doc.createNode("name_slot").setTranslation([center[0], center[1], center[2]]);
     scene.addChild(anchorNode);
@@ -239,8 +246,10 @@ async function main() {
     anchorManifest = {
       node: "name_slot",
       position: center,
-      outwardNormal: [nx, 0, nz],
-      up: [0, 1, 0],
+      // Normal e up REAIS (não uma aproximação horizontal): vêm dos eixos do próprio volume
+      // de texto, exatamente como o Bambu o orientou ao colar na parede afunilada/inclinada.
+      outwardNormal: textAnchor.normal,
+      up: textAnchor.up,
       // Caixa do texto de exemplo ("CHARLIE") — o visualizador ajusta o nome digitado a esta altura
       sampleText: textInfoMatch?.[1] ?? null,
       sampleTextSize: tb.size,

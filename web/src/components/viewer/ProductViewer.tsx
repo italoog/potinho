@@ -9,7 +9,6 @@ import { useShallow } from "zustand/react/shallow";
 import * as THREE from "three";
 import type { Variant } from "@/db/types";
 import { fetchAssetManifest, type AssetManifest } from "@/lib/asset-manifest";
-import { darkenHex } from "@/lib/money";
 import {
   selectActiveVariant,
   selectCustomText,
@@ -99,10 +98,6 @@ function SceneContent({ variant, manifest }: { variant: Variant; manifest: Asset
     return () => clearTimeout(t);
   }, [customTextValue]);
 
-  // Gravação negativa: sem cor própria — tom escurecido da cor da base simula a sombra.
-  // (Se um produto definir target "name_text" no schema, a cor explícita vence.)
-  const nameColor = colors["name_text"] ?? darkenHex(colors["base_mesh"] ?? "#9E9E9E");
-
   return (
     <>
       <CanvasStateBridge />
@@ -111,9 +106,7 @@ function SceneContent({ variant, manifest }: { variant: Variant; manifest: Asset
       <directionalLight position={[2, 4, 3]} intensity={1.4} />
       <directionalLight position={[-3, 2, -2]} intensity={0.9} />
       <ColoredModel url={variant.modelUrl} colors={colors} />
-      {manifest?.anchor && debouncedText && (
-        <NameText manifest={manifest} text={debouncedText} color={nameColor} />
-      )}
+      {manifest?.anchor && debouncedText && <NameText manifest={manifest} text={debouncedText} />}
       <ContactShadows position={[0, 0.001, 0]} opacity={0.35} scale={0.8} blur={2.2} far={0.4} />
     </>
   );

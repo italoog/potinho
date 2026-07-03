@@ -31,6 +31,11 @@ export function applyTransform(t: Transform3mf, x: number, y: number, z: number)
   ];
 }
 
+/** Só a parte linear (rotação+escala), sem translação — para transformar direções/eixos locais, não pontos. */
+export function transformDirection(t: Transform3mf, x: number, y: number, z: number): [number, number, number] {
+  return [x * t[0] + y * t[3] + z * t[6], x * t[1] + y * t[4] + z * t[7], x * t[2] + y * t[5] + z * t[8]];
+}
+
 /** a ∘ b: aplica b primeiro, depois a (p * b * a na convenção row-vector) */
 export function composeTransforms(a: Transform3mf, b: Transform3mf): Transform3mf {
   const r = new Array<number>(12);
