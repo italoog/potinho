@@ -1,12 +1,15 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 import { Canvas, useThree } from "@react-three/fiber";
-import { ContactShadows, Html, OrbitControls, useGLTF } from "@react-three/drei";
+import { ContactShadows, OrbitControls, useGLTF, useProgress } from "@react-three/drei";
 import { useShallow } from "zustand/react/shallow";
 import * as THREE from "three";
 import type { Variant } from "@/db/types";
 import { fetchAssetManifest, type AssetManifest } from "@/lib/asset-manifest";
+import { darkenHex } from "@/lib/money";
 import {
   selectActiveVariant,
   selectCustomText,
@@ -42,15 +45,25 @@ function ColoredModel({ url, colors }: { url: string; colors: Record<string, str
   return <primitive object={prepared} />;
 }
 
-function LoadingSkeleton() {
+/** Overlay CSS FORA do Canvas — <Html> como fallback de Suspense quebra o root R3F */
+function LoadingOverlay() {
+  const { active } = useProgress();
+  if (!active) return null;
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-2 text-zinc-500">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
-        <span className="text-sm">Carregando 3D…</span>
-      </div>
-    </Html>
+    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-500">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
+      <span className="text-sm">Carregando 3D…</span>
+    </div>
   );
+}
+
+/** Expõe o estado do Canvas para o snapshot (V-07) — useThree é garantido dentro do Canvas */
+function CanvasStateBridge() {
+  const state = useThree();
+  useEffect(() => {
+    setCanvasState(state);
+  }, [state]);
+  return null;
 }
 
 /** Posiciona a câmera de frente para a gravação do nome quando o manifest carrega */
@@ -86,10 +99,13 @@ function SceneContent({ variant, manifest }: { variant: Variant; manifest: Asset
     return () => clearTimeout(t);
   }, [customTextValue]);
 
-  const nameColor = colors["name_text"] ?? "#F4F4F4";
+  // Gravação negativa: sem cor própria — tom escurecido da cor da base simula a sombra.
+  // (Se um produto definir target "name_text" no schema, a cor explícita vence.)
+  const nameColor = colors["name_text"] ?? darkenHex(colors["base_mesh"] ?? "#9E9E9E");
 
   return (
     <>
+      <CanvasStateBridge />
       <CameraRig manifest={manifest} />
       <ambientLight intensity={0.7} />
       <directionalLight position={[2, 4, 3]} intensity={1.4} />
@@ -103,9 +119,17 @@ function SceneContent({ variant, manifest }: { variant: Variant; manifest: Asset
   );
 }
 
-export default function ProductViewer() {
-  const variant = usePersonalization(selectActiveVariant);
+export default function ProductViewer({ variants }: { variants: Variant[] }) {
+  const storeVariant = usePersonalization(selectActiveVariant);
+  const variant = storeVariant ?? variants[0];
   const [manifest, setManifest] = useState<AssetManifest | null>(null);
+  // O Canvas R3F não pode participar da hidratação SSR (root falha em silêncio):
+  // false no server/hidratação, true no client — sem setState em effect.
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     if (!variant) return;
@@ -124,6 +148,12 @@ export default function ProductViewer() {
 
   if (!variant) return null;
 
+  if (!mounted) {
+    return (
+      <div className="relative h-[55vh] min-h-80 w-full rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200" />
+    );
+  }
+
   return (
     <div className="relative h-[55vh] min-h-80 w-full touch-none rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200">
       <Canvas
@@ -132,7 +162,7 @@ export default function ProductViewer() {
         gl={{ preserveDrawingBuffer: true, antialias: true }}
         onCreated={setCanvasState}
       >
-        <Suspense fallback={<LoadingSkeleton />}>
+        <Suspense fallback={null}>
           <SceneContent variant={variant} manifest={manifest} />
         </Suspense>
         <OrbitControls
@@ -144,6 +174,7 @@ export default function ProductViewer() {
           target={[0, 0.07, 0]}
         />
       </Canvas>
+      <LoadingOverlay />
       <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-zinc-500">
         Arraste para girar · pinça para zoom
       </span>

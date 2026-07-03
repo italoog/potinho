@@ -6,7 +6,6 @@ const validConfig = {
   pet_name: "THOR",
   color_base: "#1E5AA8",
   color_band: "#E85D9A",
-  color_name: "#F4F4F4",
   size: "15cm",
 };
 
@@ -66,7 +65,7 @@ describe("validateConfiguration (nunca confiar no front)", () => {
   it("descarta chaves desconhecidas (whitelist do schema)", () => {
     const clean = validateConfiguration(comedouroPet, { ...validConfig, __proto__x: "hack" });
     expect(Object.keys(clean).sort()).toEqual(
-      ["pet_name", "color_base", "color_band", "color_name", "size"].sort(),
+      ["pet_name", "color_base", "color_band", "size"].sort(),
     );
   });
 });

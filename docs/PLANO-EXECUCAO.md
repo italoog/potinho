@@ -12,12 +12,14 @@ O PRD foi shardado em **6 épicos** (5 do PRD + Épico 0 de fundação):
 
 | Épico | Nome | Semanas | Requisitos | Status |
 |-------|------|---------|-----------|--------|
-| [0](prd/epic-0-fundacao.md) | Fundação & Infra | 1 | — | 🔵 Pronto para iniciar |
-| [1](prd/epic-1-visualizador-3d.md) | Visualizador 3D Interativo ⭐ | 1–2 | V-01…V-09 | 🔵 Pronto para iniciar |
-| [2](prd/epic-2-catalogo-personalizacao.md) | Catálogo e Motor de Personalização | 3 | C-01…C-06 | ⚪ Aguardando Épico 1 |
-| [3](prd/epic-3-pedido-pagamento.md) | Pedido e Pagamento (Stripe) | 4 | P-01…P-07 | ⚪ Aguardando Épico 2 |
-| [4](prd/epic-4-dashboard-lojista.md) | Dashboard do Lojista | 5 | D-01…D-06 | ⚪ Aguardando Épico 3 |
-| [5](prd/epic-5-geracao-3mf.md) | Geração Automática 3MF ⭐ | 7–10 | G-01…G-08 | ⚪ Fase 1.5 |
+| [0](prd/epic-0-fundacao.md) | Fundação & Infra | 1 | — | ✅ Concluído (pendências externas: Vercel, Postgres prod, R2) |
+| [1](prd/epic-1-visualizador-3d.md) | Visualizador 3D Interativo ⭐ | 1–2 | V-01…V-09 | ✅ Concluído (V-09 fallback pendente; teste Instagram manual) |
+| [2](prd/epic-2-catalogo-personalizacao.md) | Catálogo e Motor de Personalização | 3 | C-01…C-06 | 🟡 Motor/preço/página/OG prontos; falta admin CRUD de produto (2.1) |
+| [3](prd/epic-3-pedido-pagamento.md) | Pedido e Pagamento (Stripe) | 4 | P-01…P-07 | ✅ Código completo (falta chave Stripe real + webhook em prod) |
+| [4](prd/epic-4-dashboard-lojista.md) | Dashboard do Lojista | 5 | D-01…D-06 | ✅ Concluído (funil de métricas D-05 parcial) |
+| [5](prd/epic-5-geracao-3mf.md) | Geração Automática 3MF ⭐ | 7–10 | G-01…G-08 | ⚪ Fase 1.5 — não iniciado |
+
+> **2026-07-02 — Execução YOLO:** fluxo completo verificado no navegador em BUILD DE PRODUÇÃO: personalização 3D com nome gravado em negativo → snapshot → checkout → pedido pago (dev-mode) → página de status com imagem → dashboard com spec completa. Banco dev = PGlite automático (sem Docker); prod = DATABASE_URL.
 
 **Semana 6** = hardening: teste no in-app browser do Instagram, performance, beta com 5–10 clientes, lançamento M0 (checklist no final deste documento).
 

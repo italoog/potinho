@@ -2,7 +2,7 @@ import { getDb, products } from "./index";
 import { comedouroPet } from "./seed-data";
 
 async function main() {
-  const db = getDb();
+  const db = await getDb();
   await db
     .insert(products)
     .values(comedouroPet)

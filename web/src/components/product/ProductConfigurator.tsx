@@ -11,6 +11,7 @@ import {
   usePersonalization,
 } from "@/store/personalization";
 import ProductViewer from "@/components/viewer/ProductViewer";
+import { captureSnapshot } from "@/components/viewer/snapshot";
 import PersonalizationForm from "./PersonalizationForm";
 
 /**
@@ -32,9 +33,15 @@ export default function ProductConfigurator({ product }: { product: Product }) {
 
   function goToCheckout() {
     const config = selectConfiguration(usePersonalization.getState());
+    const snapshotDataUrl = captureSnapshot() ?? undefined; // V-07
     sessionStorage.setItem(
       "forja3d:checkout",
-      JSON.stringify({ productId: product.id, slug: product.slug, configuration: config }),
+      JSON.stringify({
+        productId: product.id,
+        slug: product.slug,
+        configuration: config,
+        snapshotDataUrl,
+      }),
     );
   }
 
@@ -44,7 +51,7 @@ export default function ProductConfigurator({ product }: { product: Product }) {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10">
       <div className="lg:sticky lg:top-6 lg:h-fit lg:flex-1">
-        <ProductViewer />
+        <ProductViewer variants={product.variants} />
       </div>
 
       <div className="flex flex-col gap-6 lg:w-96">

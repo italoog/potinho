@@ -65,17 +65,8 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       ],
       targets: ["bowl_mesh"],
     },
-    {
-      key: "color_name",
-      type: "color",
-      label: "Cor do nome",
-      options: [
-        { label: "Branco", hex: "#F4F4F4" },
-        { label: "Preto", hex: "#1A1A1A" },
-        { label: "Amarelo", hex: "#F2C511" },
-      ],
-      targets: ["name_text"],
-    },
+    // O nome é GRAVADO em negativo no produto (não é colorido) —
+    // o visualizador simula a gravação com um tom mais escuro da cor da base.
     {
       key: "size",
       type: "select",

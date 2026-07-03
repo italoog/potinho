@@ -109,9 +109,10 @@ export default function NameText({ manifest, text, color }: NameTextProps) {
 
   return (
     <group position={orientation.position} quaternion={orientation.quaternion}>
-      {/* metade da profundidade para dentro: texto em relevo raso, como a gravação real */}
-      <mesh geometry={geometry} position={[0, 0, -0.0004]}>
-        <meshStandardMaterial color={color} roughness={0.55} metalness={0} />
+      {/* gravação negativa simulada: corpo da extrusão dentro da parede,
+          face frontal 0,3mm à frente para não ser ocluída; cor escura = sombra do rebaixo */}
+      <mesh geometry={geometry} position={[0, 0, 0.0003]}>
+        <meshStandardMaterial color={color} roughness={0.8} metalness={0} />
       </mesh>
     </group>
   );
