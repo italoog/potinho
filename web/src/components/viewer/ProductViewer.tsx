@@ -20,7 +20,7 @@ import { setCanvasState } from "./canvasState";
 import { darkenHex, isEngravingMaterial } from "./engravingMaterial";
 
 /** Aplica cores da paleta às malhas nomeadas (V-03) sem recriar materiais a cada frame */
-function ColoredModel({ url, colors }: { url: string; colors: Record<string, string> }) {
+export function ColoredModel({ url, colors }: { url: string; colors: Record<string, string> }) {
   const { scene } = useGLTF(url);
 
   const prepared = useMemo(() => {
@@ -52,7 +52,7 @@ function ColoredModel({ url, colors }: { url: string; colors: Record<string, str
 }
 
 /** Overlay CSS FORA do Canvas — <Html> como fallback de Suspense quebra o root R3F */
-function LoadingOverlay() {
+export function LoadingOverlay() {
   const { active } = useProgress();
   if (!active) return null;
   return (
@@ -73,7 +73,7 @@ function CanvasStateBridge() {
 }
 
 /** Posiciona a câmera de frente para a gravação do nome quando o manifest carrega */
-function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
+export function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
   const camera = useThree((s) => s.camera);
   const controls = useThree((s) => s.controls) as { target?: THREE.Vector3; update?: () => void } | null;
   const applied = useRef(false);
