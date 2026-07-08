@@ -1,0 +1,1 @@
+ALTER TABLE "notify_requests" ADD COLUMN "notified_at" timestamp with time zone;

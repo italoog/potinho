@@ -8,6 +8,9 @@ export default defineConfig({
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     globals: false,
+    // PGlite (WASM) inicializa em cada arquivo de teste em paralelo — sob contenção
+    // de CPU (muitos arquivos ao mesmo tempo) o boot pode passar dos 10s default.
+    hookTimeout: 30_000,
   },
   resolve: {
     alias: {

@@ -188,6 +188,8 @@ export const notifyRequests = pgTable(
     email: text("email").notNull(),
     /** Hex da cor esgotada (fonte: colorOptionSchema do produto) */
     colorId: text("color_id").notNull(),
+    /** Preenchido quando o admin dispara "avisar todos" pra essa cor (9.5 AC3) */
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("notify_requests_email_color_idx").on(t.email, t.colorId)],

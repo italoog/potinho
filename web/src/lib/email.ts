@@ -71,6 +71,18 @@ export async function sendMagicLinkEmail(email: string, url: string): Promise<vo
   );
 }
 
+export async function sendColorBackInStockEmail(email: string, colorLabel: string): Promise<void> {
+  await send(
+    email,
+    `${colorLabel} voltou! 🐾`,
+    `
+    <h2>a cor ${colorLabel.toLowerCase()} voltou ao estoque 🎉</h2>
+    <p>é só entrar e montar o potinho do seu jeito.</p>
+    <p><a href="${appUrl()}">montar meu potinho</a></p>
+    `,
+  );
+}
+
 export async function sendOrderConfirmation(order: OrderRow, items: OrderEmailItem[]): Promise<void> {
   const customer = order.customer as Customer;
   const statusUrl = `${appUrl()}/pedido/${order.publicToken}`;

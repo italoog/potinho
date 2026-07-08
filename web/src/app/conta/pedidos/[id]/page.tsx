@@ -6,18 +6,9 @@ import { getAuth } from "@/lib/auth";
 import { getOrderForUser } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
 import type { OrderEventType, OrderStatus } from "@/db/types";
-import { STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
+import { EVENT_LABEL, STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
 
 export const metadata = { title: "seu pedido — potinho", robots: { index: false } };
-
-const EVENT_LABEL: Partial<Record<OrderEventType, string>> = {
-  created: "pedido recebido",
-  paid: "pagamento confirmado",
-  status_changed: "status atualizado",
-  label_created: "etiqueta de envio gerada",
-  payment_rejected: "pagamento recusado",
-  refunded: "pagamento estornado",
-};
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

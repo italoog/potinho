@@ -8,7 +8,7 @@ export interface OrderItemWithProduct extends OrderItemRow {
   productName: string;
 }
 
-async function getItemsWithProductNames(orderId: string): Promise<OrderItemWithProduct[]> {
+export async function getItemsWithProductNames(orderId: string): Promise<OrderItemWithProduct[]> {
   const db = await getDb();
   const rows = await db
     .select({ item: orderItems, productName: products.name })
@@ -129,6 +129,21 @@ export async function getOrderForUser(
     .from(orders)
     .where(and(eq(orders.id, orderId), eq(orders.userId, userId)))
     .limit(1);
+  if (!order) return null;
+  const events = await db
+    .select()
+    .from(orderEvents)
+    .where(eq(orderEvents.orderId, order.id))
+    .orderBy(desc(orderEvents.createdAt));
+  return { order, items: await getItemsWithProductNames(order.id), events };
+}
+
+/** Detalhe do pedido para o admin (9.3 AC2) — sem filtro de dono, a checagem de role já aconteceu na rota. */
+export async function getOrderForAdmin(
+  orderId: string,
+): Promise<{ order: OrderRow; items: OrderItemWithProduct[]; events: OrderEventRow[] } | null> {
+  const db = await getDb();
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
   if (!order) return null;
   const events = await db
     .select()
