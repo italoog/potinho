@@ -3,6 +3,7 @@ import { markOrderPaid } from "@/lib/orders";
 
 /**
  * Webhook Stripe (P-04): checkout.session.completed → pedido "Pago".
+ * Redundância desativada — só recebe tráfego real com PAYMENT_PROVIDER=stripe (ver src/lib/payments).
  * Assinatura SEMPRE verificada; idempotência garantida em markOrderPaid.
  */
 export async function POST(request: Request) {

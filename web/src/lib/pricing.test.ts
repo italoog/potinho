@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateTotalCents, validateConfiguration } from "./pricing";
+import { calculateTotalCents, validateCartItems, validateConfiguration } from "./pricing";
 import { comedouroPet } from "@/db/seed-data";
 
 const validConfig = {
@@ -11,7 +11,7 @@ const validConfig = {
 
 describe("calculateTotalCents (preço é lei no servidor)", () => {
   it("calcula preço base + deltas de variante", () => {
-    expect(calculateTotalCents(comedouroPet, validConfig)).toBe(8990);
+    expect(calculateTotalCents(comedouroPet, validConfig)).toBe(14900); // G — 15cm
   });
 
   it("soma priceDelta de opção e de variante", () => {
@@ -67,5 +67,27 @@ describe("validateConfiguration (nunca confiar no front)", () => {
     expect(Object.keys(clean).sort()).toEqual(
       ["pet_name", "color_base", "color_band", "size"].sort(),
     );
+  });
+});
+
+describe("validateCartItems (carrinho multi-item)", () => {
+  it("valida e precifica cada item pelo schema do seu próprio produto", () => {
+    const result = validateCartItems([
+      { product: comedouroPet, configuration: validConfig },
+      { product: comedouroPet, configuration: { ...validConfig, pet_name: "LUNA" } },
+    ]);
+    expect(result).toHaveLength(2);
+    expect(result[0].unitPrice).toBe(14900);
+    expect(result[1].configuration.pet_name).toBe("LUNA");
+  });
+
+  it("rejeita carrinho vazio", () => {
+    expect(() => validateCartItems([])).toThrow(/vazio/);
+  });
+
+  it("propaga erro de validação de qualquer item do carrinho", () => {
+    expect(() =>
+      validateCartItems([{ product: comedouroPet, configuration: { ...validConfig, pet_name: "A" } }]),
+    ).toThrow();
   });
 });

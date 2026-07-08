@@ -1,23 +1,17 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import type { SizeId } from "@/lib/site-config";
+import { type CartCheckoutItem, clearCart, readCart, writeCart } from "@/lib/cart-storage";
 
-export interface CartItem {
-  id: string;
-  sizeId: SizeId;
-  sizeLabel: string;
-  colorTopId: string;
-  colorBottomId: string;
-  petName: string;
-  priceCents: number;
+export interface CartEntry extends CartCheckoutItem {
+  cartId: string;
 }
 
 interface CartState {
-  items: CartItem[];
+  items: CartEntry[];
   isOpen: boolean;
-  addItem: (item: Omit<CartItem, "id">) => void;
-  removeItem: (id: string) => void;
+  addItem: (item: CartCheckoutItem) => void;
+  removeItem: (cartId: string) => void;
   clear: () => void;
   open: () => void;
   close: () => void;
@@ -25,46 +19,44 @@ interface CartState {
 
 const CartContext = createContext<CartState | null>(null);
 
-const STORAGE_KEY = "potinho-cart-demo";
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartEntry[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  // Só persiste depois que a hidratação inicial resolveu — senão o efeito de persistência
+  // roda antes do rAF abaixo e grava [] por cima do carrinho real (setState assíncrono).
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    // lê SÍNCRONO (antes do effect de persistência gravar []), aplica ASSÍNCRONO
-    // (setState direto no corpo do effect dispara renders em cascata — regra do lint)
-    let stored: CartItem[] | null = null;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) stored = JSON.parse(raw);
-    } catch {
-      // carrinho demo: ignora storage corrompido
+    const stored = readCart() as CartEntry[];
+    if (stored.length === 0) {
+      setHydrated(true);
+      return;
     }
-    if (!stored?.length) return;
-    const loaded = stored;
-    const raf = requestAnimationFrame(() => setItems(loaded));
+    const raf = requestAnimationFrame(() => {
+      setItems(stored);
+      setHydrated(true);
+    });
     return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    } catch {
-      // quota/privado: segue sem persistir
-    }
-  }, [items]);
+    if (!hydrated) return;
+    writeCart(items);
+  }, [items, hydrated]);
 
-  const addItem = useCallback((item: Omit<CartItem, "id">) => {
-    setItems((prev) => [...prev, { ...item, id: crypto.randomUUID() }]);
+  const addItem = useCallback((item: CartCheckoutItem) => {
+    setItems((prev) => [...prev, { ...item, cartId: crypto.randomUUID() }]);
     setIsOpen(true);
   }, []);
 
-  const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = useCallback((cartId: string) => {
+    setItems((prev) => prev.filter((i) => i.cartId !== cartId));
   }, []);
 
-  const clear = useCallback(() => setItems([]), []);
+  const clear = useCallback(() => {
+    setItems([]);
+    clearCart();
+  }, []);
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
 

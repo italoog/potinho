@@ -31,11 +31,11 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
     expect(parsedParams.map((p) => p.type)).toEqual(["text", "color", "color", "select"]);
 
     const parsedVariants = variantsSchema.parse(row.variants);
-    expect(parsedVariants[0].ref).toBe("15cm");
-    expect(row.basePrice).toBe(8990);
+    expect(parsedVariants.map((v) => v.ref)).toEqual(["5cm", "10cm", "15cm"]);
+    expect(row.basePrice).toBe(9900);
   });
 
-  it("pedido persiste configuration imutável + customer + snapshot", async () => {
+  it("pedido persiste customer + N itens com configuration imutável + snapshot", async () => {
     const [product] = await db.select().from(schema.products).limit(1);
 
     const configuration = { pet_name: "THOR", color: "#1E5AA8", size: "15cm" };
@@ -55,19 +55,22 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
 
     const [order] = await db
       .insert(schema.orders)
+      .values({ totalAmount: 8990, shippingAmount: 1500, customer })
+      .returning();
+    const [item] = await db
+      .insert(schema.orderItems)
       .values({
+        orderId: order.id,
         productId: product.id,
-        totalAmount: 8990,
-        shippingAmount: 1500,
-        customer,
         configuration,
+        unitPrice: 8990,
         snapshotUrl: "/uploads/snapshots/test.png",
       })
       .returning();
 
     expect(order.status).toBe("pending");
     expect(order.publicToken).toBeTruthy();
-    expect(orderConfigurationSchema.parse(order.configuration)).toEqual(configuration);
+    expect(orderConfigurationSchema.parse(item.configuration)).toEqual(configuration);
     expect(customerSchema.parse(order.customer).address.state).toBe("SP");
   });
 
@@ -75,10 +78,8 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
     await expect(db.insert(schema.products).values(comedouroPet)).rejects.toThrow();
   });
 
-  it("stripe_session_id é único quando presente (idempotência do webhook)", async () => {
-    const [product] = await db.select().from(schema.products).limit(1);
+  it("provider_payment_id é único quando presente (idempotência do webhook)", async () => {
     const base = {
-      productId: product.id,
       totalAmount: 1000,
       customer: {
         name: "Teste",
@@ -93,11 +94,10 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
           zip: "01234-567",
         },
       },
-      configuration: { pet_name: "REX" },
     };
-    await db.insert(schema.orders).values({ ...base, stripeSessionId: "cs_test_dup" });
+    await db.insert(schema.orders).values({ ...base, providerPaymentId: "cs_test_dup" });
     await expect(
-      db.insert(schema.orders).values({ ...base, stripeSessionId: "cs_test_dup" }),
+      db.insert(schema.orders).values({ ...base, providerPaymentId: "cs_test_dup" }),
     ).rejects.toThrow();
   });
 });

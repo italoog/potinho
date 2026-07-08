@@ -18,6 +18,10 @@
   --color-potinho-fundo: #faf8f5;
   --color-potinho-cinza: #b7aea5;
   --color-potinho-texto: #2d2d2d;
+
+  /* Sombras da marca (tom chocolate, nunca preto puro) */
+  --shadow-potinho-card: 0 10px 45px -18px rgb(90 64 50 / 0.38);
+  --shadow-potinho-media: 0 20px 60px -25px rgb(90 64 50 / 0.5);
 }
 
 @media (prefers-color-scheme: dark) {

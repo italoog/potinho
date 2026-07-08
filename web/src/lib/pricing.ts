@@ -74,3 +74,20 @@ export function validateConfiguration(
   }
   return clean;
 }
+
+/** Um item do carrinho antes da validação server-side. */
+export interface CartItemInput {
+  product: PriceInput;
+  configuration: Record<string, unknown>;
+}
+
+/** Valida cada item do carrinho contra o schema do SEU produto e soma o total (carrinho multi-item). */
+export function validateCartItems(
+  items: CartItemInput[],
+): { configuration: OrderConfiguration; unitPrice: number }[] {
+  if (items.length === 0) throw new Error("Carrinho vazio");
+  return items.map(({ product, configuration }) => {
+    const clean = validateConfiguration(product, configuration);
+    return { configuration: clean, unitPrice: calculateTotalCents(product, clean) };
+  });
+}

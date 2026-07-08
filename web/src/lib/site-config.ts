@@ -14,24 +14,6 @@ export const dropCountdown = {
   label: "primeiro drop",
 } as const;
 
-export type SizeId = "P" | "M" | "G";
-
-export interface SizeOption {
-  id: SizeId;
-  label: string;
-  dimensions: string;
-  /** Preço em centavos (evita float). */
-  priceCents: number;
-  /** true enquanto o preço ainda não foi confirmado pelo lojista. */
-  provisional: boolean;
-}
-
-export const sizes: SizeOption[] = [
-  { id: "P", label: "Pequeno", dimensions: "±10 cm", priceCents: 9900, provisional: true },
-  { id: "M", label: "Médio", dimensions: "±15 cm", priceCents: 11900, provisional: true },
-  { id: "G", label: "Grande", dimensions: "±20 cm", priceCents: 14900, provisional: false },
-];
-
 export interface StockColor {
   id: string;
   label: string;
@@ -53,8 +35,6 @@ export const stockColors: StockColor[] = [
   { id: "marrom", label: "Marrom", hex: "#5A4032" },
   { id: "verde-oliva", label: "Verde-oliva", hex: "#708238", soldOut: true },
 ];
-
-export const petNameRules = { min: 2, max: 10 } as const;
 
 export interface TurntableClip {
   id: string;
@@ -116,10 +96,6 @@ export const marqueePhrases = [
   "impresso com carinho",
   "tigela de inox removível",
 ];
-
-export function formatBRL(cents: number): string {
-  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
 export function getColor(id: string): StockColor {
   const c = stockColors.find((c) => c.id === id);

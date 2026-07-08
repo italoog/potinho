@@ -1,23 +1,16 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-
-const emptySubscribe = () => () => {};
-import { Canvas, useThree } from "@react-three/fiber";
-import { ContactShadows, OrbitControls, useGLTF, useProgress } from "@react-three/drei";
-import { useShallow } from "zustand/react/shallow";
+import { useEffect, useMemo, useRef } from "react";
+import { useThree } from "@react-three/fiber";
+import { useGLTF, useProgress } from "@react-three/drei";
 import * as THREE from "three";
-import type { Variant } from "@/db/types";
-import { fetchAssetManifest, type AssetManifest } from "@/lib/asset-manifest";
-import {
-  selectActiveVariant,
-  selectCustomText,
-  selectMeshColors,
-  usePersonalization,
-} from "@/store/personalization";
-import NameText from "./NameText";
-import { setCanvasState } from "./canvasState";
+import type { AssetManifest } from "@/lib/asset-manifest";
 import { darkenHex, isEngravingMaterial } from "./engravingMaterial";
+
+/**
+ * Peças reaproveitadas pelo preview 3D ao vivo da home (PotinhoViewer) — a página de
+ * produto standalone (/p/[slug]) foi removida, a home é o único ponto de compra.
+ */
 
 /** Aplica cores da paleta às malhas nomeadas (V-03) sem recriar materiais a cada frame */
 export function ColoredModel({ url, colors }: { url: string; colors: Record<string, string> }) {
@@ -63,15 +56,6 @@ export function LoadingOverlay() {
   );
 }
 
-/** Expõe o estado do Canvas para o snapshot (V-07) — useThree é garantido dentro do Canvas */
-function CanvasStateBridge() {
-  const state = useThree();
-  useEffect(() => {
-    setCanvasState(state);
-  }, [state]);
-  return null;
-}
-
 /** Posiciona a câmera de frente para a gravação do nome quando o manifest carrega */
 export function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
   const camera = useThree((s) => s.camera);
@@ -97,92 +81,4 @@ export function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
   }, [manifest, camera, controls]);
 
   return null;
-}
-
-function SceneContent({ variant, manifest }: { variant: Variant; manifest: AssetManifest | null }) {
-  const colors = usePersonalization(useShallow(selectMeshColors));
-  const customTextValue = usePersonalization((s) => selectCustomText(s)?.value ?? "");
-  const [debouncedText, setDebouncedText] = useState("");
-
-  // Debounce leve: mantém a percepção < 500ms (V-02) sem gerar geometria a cada tecla
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedText(customTextValue), 120);
-    return () => clearTimeout(t);
-  }, [customTextValue]);
-
-  return (
-    <>
-      <CanvasStateBridge />
-      <CameraRig manifest={manifest} />
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[2, 4, 3]} intensity={1.4} />
-      <directionalLight position={[-3, 2, -2]} intensity={0.9} />
-      <ColoredModel url={variant.modelUrl} colors={colors} />
-      {manifest?.anchor && debouncedText && <NameText manifest={manifest} text={debouncedText} />}
-      <ContactShadows position={[0, 0.001, 0]} opacity={0.35} scale={0.8} blur={2.2} far={0.4} />
-    </>
-  );
-}
-
-export default function ProductViewer({ variants }: { variants: Variant[] }) {
-  const storeVariant = usePersonalization(selectActiveVariant);
-  const variant = storeVariant ?? variants[0];
-  const [manifest, setManifest] = useState<AssetManifest | null>(null);
-  // O Canvas R3F não pode participar da hidratação SSR (root falha em silêncio):
-  // false no server/hidratação, true no client — sem setState em effect.
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-
-  useEffect(() => {
-    if (!variant) return;
-    let alive = true;
-    fetchAssetManifest(variant.modelUrl)
-      .then((m) => alive && setManifest(m))
-      .catch(() => alive && setManifest(null));
-    return () => {
-      alive = false;
-    };
-  }, [variant]);
-
-  useEffect(() => {
-    if (variant) useGLTF.preload(variant.modelUrl);
-  }, [variant]);
-
-  if (!variant) return null;
-
-  if (!mounted) {
-    return (
-      <div className="relative h-[55vh] min-h-80 w-full rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200" />
-    );
-  }
-
-  return (
-    <div className="relative h-[55vh] min-h-80 w-full touch-none rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200">
-      <Canvas
-        camera={{ position: [0.28, 0.18, 0.28], fov: 40, near: 0.01, far: 10 }}
-        dpr={[1, 2]}
-        gl={{ preserveDrawingBuffer: true, antialias: true }}
-        onCreated={setCanvasState}
-      >
-        <Suspense fallback={null}>
-          <SceneContent variant={variant} manifest={manifest} />
-        </Suspense>
-        <OrbitControls
-          makeDefault
-          enablePan={false}
-          minDistance={0.18}
-          maxDistance={0.6}
-          maxPolarAngle={Math.PI / 2 + 0.15}
-          target={[0, 0.07, 0]}
-        />
-      </Canvas>
-      <LoadingOverlay />
-      <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-zinc-500">
-        Arraste para girar · pinça para zoom
-      </span>
-    </div>
-  );
 }

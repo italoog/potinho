@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getOrderByToken } from "@/lib/orders";
-import { getProductById } from "@/lib/products";
 import { formatBRL } from "@/lib/money";
 import type { OrderStatus } from "@/db/types";
 
@@ -27,10 +26,10 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 
 export default async function OrderStatusPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const order = await getOrderByToken(token).catch(() => null);
-  if (!order) notFound();
+  const result = await getOrderByToken(token).catch(() => null);
+  if (!result) notFound();
+  const { order, items } = result;
 
-  const product = await getProductById(order.productId);
   const currentIndex = STATUS_STEPS.findIndex((s) => s.key === order.status);
 
   return (
@@ -62,32 +61,42 @@ export default async function OrderStatusPage({ params }: { params: Promise<{ to
           </ol>
         )}
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
-          {order.snapshotUrl && (
-            <Image
-              src={order.snapshotUrl}
-              alt="Seu produto personalizado"
-              width={640}
-              height={480}
-              className="mb-4 w-full rounded-xl"
-              unoptimized
-            />
-          )}
-          <h2 className="mb-2 font-semibold text-zinc-900">{product?.name}</h2>
-          <dl className="space-y-1 text-sm">
-            {Object.entries(order.configuration).map(([k, v]) => (
-              <div key={k} className="flex justify-between">
-                <dt className="text-zinc-500">{k}</dt>
-                <dd className="font-medium text-zinc-900">{v}</dd>
-              </div>
-            ))}
-            <div className="flex justify-between border-t border-zinc-100 pt-2">
-              <dt className="text-zinc-600">Total</dt>
-              <dd className="font-bold text-zinc-900">{formatBRL(order.totalAmount)}</dd>
+        <section className="space-y-4">
+          {items.map((item) => (
+            <div key={item.id} className="rounded-2xl bg-white p-5 shadow-sm">
+              {item.snapshotUrl && (
+                <Image
+                  src={item.snapshotUrl}
+                  alt="Seu produto personalizado"
+                  width={640}
+                  height={480}
+                  className="mb-4 w-full rounded-xl"
+                  unoptimized
+                />
+              )}
+              <h2 className="mb-2 font-semibold text-zinc-900">{item.productName}</h2>
+              <dl className="space-y-1 text-sm">
+                {Object.entries(item.configuration).map(([k, v]) => (
+                  <div key={k} className="flex justify-between">
+                    <dt className="text-zinc-500">{k}</dt>
+                    <dd className="font-medium text-zinc-900">{v}</dd>
+                  </div>
+                ))}
+                <div className="flex justify-between border-t border-zinc-100 pt-2">
+                  <dt className="text-zinc-600">Preço</dt>
+                  <dd className="font-bold text-zinc-900">{formatBRL(item.unitPrice)}</dd>
+                </div>
+              </dl>
             </div>
-          </dl>
+          ))}
+
+          <div className="flex justify-between rounded-2xl bg-white p-5 text-sm shadow-sm">
+            <dt className="text-zinc-600">Total (com frete)</dt>
+            <dd className="font-bold text-zinc-900">{formatBRL(order.totalAmount)}</dd>
+          </div>
+
           {order.trackingCode && (
-            <p className="mt-3 rounded-xl bg-zinc-100 px-4 py-3 text-sm">
+            <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm">
               Código de rastreio: <strong>{order.trackingCode}</strong>
             </p>
           )}

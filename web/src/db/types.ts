@@ -24,6 +24,8 @@ export const colorOptionSchema = z.object({
   hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   /** Referência ao filamento real do lojista (Épico 5, M2) */
   filamentRef: z.string().optional(),
+  /** Esgotada → seletor mostra badge e captura e-mail em vez de deixar escolher (Épico 6.4) */
+  soldOut: z.boolean().optional(),
 });
 
 export const colorParamSchema = z.object({
@@ -59,6 +61,13 @@ export const paramSchema = z.discriminatedUnion("type", [
 
 export const productParamSchema = z.array(paramSchema);
 
+export const shippingPackageSchema = z.object({
+  widthCm: z.number().positive(),
+  heightCm: z.number().positive(),
+  lengthCm: z.number().positive(),
+  weightKg: z.number().positive(),
+});
+
 export const variantSchema = z.object({
   /** Identificador estável referenciado por selectOption.variantRef */
   ref: z.string().min(1),
@@ -70,6 +79,8 @@ export const variantSchema = z.object({
   priceDelta: z.number().int().default(0),
   /** Ex: "15cm de largura" — exibido no visualizador (V-04) */
   dimensions: z.string().min(1),
+  /** Caixa de envio (Melhor Envio) — opcional: sem isso, o item cai no frete fixo por UF */
+  shipping: shippingPackageSchema.optional(),
 });
 
 export const variantsSchema = z.array(variantSchema).min(1);
@@ -98,6 +109,7 @@ export type SelectParam = z.infer<typeof selectParamSchema>;
 export type Param = z.infer<typeof paramSchema>;
 export type ProductParamSchema = z.infer<typeof productParamSchema>;
 export type Variant = z.infer<typeof variantSchema>;
+export type ShippingPackage = z.infer<typeof shippingPackageSchema>;
 export type OrderConfiguration = z.infer<typeof orderConfigurationSchema>;
 export type Customer = z.infer<typeof customerSchema>;
 
@@ -113,3 +125,19 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const PRODUCT_STATUSES = ["draft", "published"] as const;
 export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
+
+/** Mercado Pago é o gateway principal; Stripe fica implementado como redundância desativada. */
+export const PAYMENT_PROVIDERS = ["mercadopago", "stripe"] as const;
+export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
+
+/** Trilha de auditoria do pedido (A6) — toda transição relevante vira um evento. */
+export const ORDER_EVENT_TYPES = [
+  "created",
+  "paid",
+  "status_changed",
+  "label_created",
+  "email_sent",
+  "payment_rejected",
+  "refunded",
+] as const;
+export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number];

@@ -1,20 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { formatBRL, getColor } from "@/lib/site-config";
-import { useCart } from "./CartContext";
+import { useRouter } from "next/navigation";
+import { formatBRL } from "@/lib/money";
+import { calculateTotalCents } from "@/lib/pricing";
+import { useCart, type CartEntry } from "./CartContext";
 import { PawIcon } from "./Marquee";
 
-/** Botão de carrinho fixo (sticky) + gaveta com checkout de demonstração. */
+/** Rótulo legível de uma cor a partir do hex escolhido (busca no próprio paramSchema do item). */
+function colorLabel(item: CartEntry, paramKey: string): string | null {
+  const param = item.paramSchema.find((p) => p.key === paramKey);
+  if (!param || param.type !== "color") return null;
+  const hex = item.configuration[paramKey];
+  return param.options.find((o) => o.hex.toUpperCase() === hex?.toUpperCase())?.label ?? null;
+}
+
+/** Botão de carrinho fixo (sticky) + gaveta com checkout real (Stripe/Mercado Pago). */
 export default function CartUI() {
-  const { items, isOpen, open, close, removeItem, clear } = useCart();
-  const [confirmed, setConfirmed] = useState(false);
+  const { items, isOpen, open, close, removeItem } = useCart();
+  const router = useRouter();
 
-  const total = items.reduce((sum, i) => sum + i.priceCents, 0);
+  const total = items.reduce((sum, i) => sum + calculateTotalCents(i, i.configuration), 0);
 
-  function handleDemoCheckout() {
-    setConfirmed(true);
-    clear();
+  function handleCheckout() {
+    close();
+    router.push("/checkout");
   }
 
   return (
@@ -59,17 +68,7 @@ export default function CartUI() {
             </header>
 
             <div className="flex-1 overflow-y-auto p-5">
-              {confirmed && items.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                  <PawIcon className="h-12 w-12 text-potinho-chocolate" />
-                  <p className="text-lg font-semibold lowercase text-potinho-texto">
-                    pedido demo confirmado!
-                  </p>
-                  <p className="text-sm text-potinho-texto/60">
-                    isto é um checkout de demonstração — nenhum pagamento foi processado.
-                  </p>
-                </div>
-              ) : items.length === 0 ? (
+              {items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
                   <PawIcon className="h-12 w-12 text-potinho-cinza" />
                   <p className="text-sm text-potinho-texto/60">
@@ -79,36 +78,44 @@ export default function CartUI() {
               ) : (
                 <ul className="flex flex-col gap-4">
                   {items.map((item) => {
-                    const top = getColor(item.colorTopId);
-                    const bottom = getColor(item.colorBottomId);
+                    const petName = item.configuration.pet_name;
+                    const sizeLabel =
+                      item.paramSchema
+                        .find((p) => p.type === "select")
+                        ?.options.find((o) => o.value === item.configuration.size)?.label ?? "";
+                    const base = colorLabel(item, "color_base");
+                    const band = colorLabel(item, "color_band");
                     return (
                       <li
-                        key={item.id}
+                        key={item.cartId}
                         className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm"
                       >
                         <div className="flex -space-x-1">
-                          {[top, bottom].map((c) => (
-                            <span
-                              key={c.id}
-                              className={`h-8 w-8 rounded-full ${c.light ? "ring-1 ring-potinho-cinza" : ""}`}
-                              style={{ backgroundColor: c.hex }}
-                            />
-                          ))}
+                          {[item.configuration.color_base, item.configuration.color_band].map(
+                            (hex, i) => (
+                              <span
+                                key={i}
+                                className="h-8 w-8 rounded-full ring-1 ring-potinho-cinza/40"
+                                style={{ backgroundColor: hex }}
+                              />
+                            ),
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-semibold uppercase tracking-wider text-potinho-texto">
-                            {item.petName}
+                            {petName}
                           </p>
                           <p className="text-xs text-potinho-texto/60">
-                            {item.sizeLabel} · {top.label.toLowerCase()} + {bottom.label.toLowerCase()}
+                            {sizeLabel}
+                            {base && band ? ` · ${base.toLowerCase()} + ${band.toLowerCase()}` : ""}
                           </p>
                         </div>
                         <span className="font-bold text-potinho-chocolate">
-                          {formatBRL(item.priceCents)}
+                          {formatBRL(calculateTotalCents(item, item.configuration))}
                         </span>
                         <button
                           type="button"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.cartId)}
                           aria-label="remover item"
                           className="rounded-full p-1.5 text-potinho-cinza hover:bg-potinho-bege hover:text-potinho-chocolate"
                         >
@@ -135,14 +142,14 @@ export default function CartUI() {
                 </div>
                 <button
                   type="button"
-                  onClick={handleDemoCheckout}
-                  data-testid="demo-checkout"
+                  onClick={handleCheckout}
+                  data-testid="go-to-checkout"
                   className="w-full rounded-full bg-potinho-chocolate py-4 text-base font-semibold lowercase text-potinho-bege hover:bg-potinho-texto"
                 >
-                  finalizar pedido (demonstração)
+                  finalizar pedido
                 </button>
                 <p className="mt-2 text-center text-xs text-potinho-texto/50">
-                  sem processamento real de pagamento
+                  frete calculado no pagamento
                 </p>
               </footer>
             )}

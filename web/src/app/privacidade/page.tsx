@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <h2>O que NÃO fazemos</h2>
         <ul>
           <li>Não vendemos nem compartilhamos seus dados com terceiros para marketing;</li>
-          <li>Não armazenamos dados de cartão — o pagamento é processado integralmente pela Stripe.</li>
+          <li>Não armazenamos dados de cartão — o pagamento é processado integralmente pelo Mercado Pago.</li>
         </ul>
         <h2>Seus direitos (LGPD)</h2>
         <p>

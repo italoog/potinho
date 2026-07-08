@@ -4,13 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
-import {
-  getColor,
-  heroVideo,
-  macroVideo,
-  turntableClips,
-  type TurntableClip,
-} from "@/lib/site-config";
+import type { Product } from "@/lib/products";
+import { getColor, heroVideo, macroVideo, turntableClips, type TurntableClip } from "@/lib/site-config";
 import { CartProvider } from "./CartContext";
 import CartUI from "./CartUI";
 import Countdown from "./Countdown";
@@ -26,19 +21,28 @@ const PotinhoViewer = dynamic(() => import("./PotinhoViewer"), {
   ),
 });
 
-export default function PotinhoHome() {
-  const [selection, setSelection] = useState<CustomizerSelection>({
-    colorTopId: "bege",
-    colorBottomId: "marrom",
-  });
+/** Resolve o hex real (paramSchema do produto) a partir do rótulo de cor do clip de marketing. */
+function hexForLabel(product: Product, paramKey: string, label: string): string | undefined {
+  const param = product.paramSchema.find((p) => p.key === paramKey);
+  if (!param || param.type !== "color") return undefined;
+  return param.options.find((o) => o.label.toLowerCase() === label.toLowerCase())?.hex;
+}
+
+export default function PotinhoHome({ product }: { product: Product }) {
+  const [selection, setSelection] = useState<CustomizerSelection>(() => ({
+    colorBaseHex: hexForLabel(product, "color_base", "Bege") ?? "#E8D9C8",
+    colorBandHex: hexForLabel(product, "color_band", "Marrom") ?? "#5A4032",
+  }));
   const [petName, setPetName] = useState("");
   const customizerRef = useRef<HTMLDivElement>(null);
 
-  const top = getColor(selection.colorTopId);
-  const bottom = getColor(selection.colorBottomId);
-
   function customizeFromClip(clip: TurntableClip) {
-    setSelection({ colorTopId: clip.colorTopId, colorBottomId: clip.colorBottomId });
+    const topLabel = getColor(clip.colorTopId).label;
+    const bottomLabel = getColor(clip.colorBottomId).label;
+    setSelection({
+      colorBaseHex: hexForLabel(product, "color_base", topLabel) ?? selection.colorBaseHex,
+      colorBandHex: hexForLabel(product, "color_band", bottomLabel) ?? selection.colorBandHex,
+    });
     customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -111,7 +115,7 @@ export default function PotinhoHome() {
           {/* preview 3D à esquerda no desktop; no celular fica ACIMA do formulário */}
           <div className="mt-14 grid items-start gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
             <div className="flex flex-col gap-2 lg:sticky lg:top-24">
-              <PotinhoViewer topHex={top.hex} bottomHex={bottom.hex} petName={petName} />
+              <PotinhoViewer topHex={selection.colorBaseHex} bottomHex={selection.colorBandHex} petName={petName} />
               <p className="text-center text-xs text-potinho-texto/55">
                 prévia em tempo real: as cores e o nome que você escolher aparecem aqui na hora.
               </p>
@@ -119,6 +123,7 @@ export default function PotinhoHome() {
 
             <Customizer
               ref={customizerRef}
+              product={product}
               selection={selection}
               onSelectionChange={setSelection}
               petName={petName}
@@ -135,12 +140,13 @@ export default function PotinhoHome() {
                 cada potinho é impresso sob demanda com as cores que você escolher e o nome do seu
                 pet em relevo. a tigela de inox sai para lavar em segundos.
               </p>
-              <Link
-                href="/p/comedouro-pet"
+              <button
+                type="button"
+                onClick={() => customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
                 className="w-fit rounded-full border-2 border-potinho-chocolate px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege"
               >
-                abrir a loja 3D →
-              </Link>
+                montar o meu potinho →
+              </button>
             </div>
             <ul className="flex flex-col gap-3 text-sm font-medium text-potinho-texto/80">
               {[
@@ -163,7 +169,7 @@ export default function PotinhoHome() {
         {/* ===== PERSONALIZAÇÃO / MANIFESTO ===== */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
           <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-3xl shadow-[0_20px_60px_-25px_rgba(90,64,50,0.5)]">
+            <div className="overflow-hidden rounded-3xl shadow-potinho-media">
               <video
                 className="aspect-video h-full w-full object-cover"
                 src={macroVideo.src}
@@ -213,16 +219,15 @@ export default function PotinhoHome() {
               produtos para pets, feitos com carinho e impressos sob medida no Brasil.
             </p>
             <div className="mt-2 flex gap-6 text-sm">
-              <Link href="/p/comedouro-pet" className="hover:underline">
-                loja 3D
+              <Link href="#produto" className="hover:underline">
+                monte o seu potinho
               </Link>
               <Link href="/privacidade" className="hover:underline">
                 privacidade
               </Link>
             </div>
             <p className="mt-4 text-xs text-potinho-bege/60">
-              © {new Date().getFullYear()} potinho · site de demonstração — checkout sem
-              processamento real
+              © {new Date().getFullYear()} potinho · produtos para pets impressos sob medida
             </p>
           </div>
         </footer>

@@ -8,6 +8,34 @@
       "when": 1783026020254,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783485426098,
+      "tag": "0001_order_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783486438494,
+      "tag": "0002_payment_provider_add",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783486639204,
+      "tag": "0003_payment_provider_drop_stripe_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783495087874,
+      "tag": "0004_order_events_notify_requests",
+      "breakpoints": true
     }
   ]
 }
