@@ -130,6 +130,10 @@ export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 export const PAYMENT_PROVIDERS = ["mercadopago", "stripe"] as const;
 export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
+/** Promoção automática no login quando o e-mail está em ADMIN_EMAILS (A2). */
+export const USER_ROLES = ["customer", "admin"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
 /** Trilha de auditoria do pedido (A6) — toda transição relevante vira um evento. */
 export const ORDER_EVENT_TYPES = [
   "created",

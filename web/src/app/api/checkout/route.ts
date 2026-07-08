@@ -10,6 +10,7 @@ import { decodePngDataUrl, storeFile } from "@/lib/storage";
 import { activeProvider, createPaymentSession, providerConfigured } from "@/lib/payments";
 import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { recordOrderEvent } from "@/lib/order-events";
+import { linkOrderToAccountIfExists } from "@/lib/orders";
 
 /**
  * Cria o pedido (1..N itens) + sessão de pagamento (P-01..P-03, carrinho multi-item).
@@ -90,6 +91,7 @@ export async function POST(request: Request) {
       })),
     );
     await recordOrderEvent(order.id, "created", "system", { itemCount: validated.length });
+    await linkOrderToAccountIfExists(order.id, body.customer.email);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
     const provider = activeProvider();

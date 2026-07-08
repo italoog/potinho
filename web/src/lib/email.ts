@@ -17,7 +17,8 @@ export interface OrderEmailItem {
 async function send(to: string, subject: string, html: string): Promise<void> {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    console.log(`[email:dev] para=${to} assunto="${subject}"`);
+    const link = html.match(/href="([^"]+)"/)?.[1];
+    console.log(`[email:dev] para=${to} assunto="${subject}"${link ? ` link=${link}` : ""}`);
     return;
   }
   const { Resend } = await import("resend");
@@ -55,6 +56,19 @@ function itemsBlock(items: OrderEmailItem[]): string {
       </div>`;
     })
     .join("");
+}
+
+export async function sendMagicLinkEmail(email: string, url: string): Promise<void> {
+  await send(
+    email,
+    "seu link de entrada 🐾",
+    `
+    <h2>oi! 🐾</h2>
+    <p>é só clicar no link abaixo pra entrar na sua conta potinho — sem senha, sem complicação.</p>
+    <p><a href="${url}">entrar na minha conta</a></p>
+    <p style="color:#666;font-size:13px">o link expira em 15 minutos e só funciona uma vez. se não foi você, pode ignorar este e-mail.</p>
+    `,
+  );
 }
 
 export async function sendOrderConfirmation(order: OrderRow, items: OrderEmailItem[]): Promise<void> {

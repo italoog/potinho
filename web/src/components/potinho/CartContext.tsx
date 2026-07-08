@@ -28,12 +28,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = readCart() as CartEntry[];
-    if (stored.length === 0) {
-      setHydrated(true);
-      return;
-    }
     const raf = requestAnimationFrame(() => {
-      setItems(stored);
+      if (stored.length > 0) setItems(stored);
       setHydrated(true);
     });
     return () => cancelAnimationFrame(raf);

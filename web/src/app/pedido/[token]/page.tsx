@@ -105,6 +105,11 @@ export default async function OrderStatusPage({ params }: { params: Promise<{ to
         <p className="text-center text-xs text-zinc-500">
           Guarde este link para acompanhar seu pedido. Dúvidas? Responda o e-mail de confirmação.
         </p>
+        <p className="text-center text-xs text-zinc-500">
+          <a href="/conta" className="underline">
+            Criar conta para acompanhar seus pedidos
+          </a>
+        </p>
       </div>
     </main>
   );

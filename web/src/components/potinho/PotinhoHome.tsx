@@ -222,6 +222,9 @@ export default function PotinhoHome({ product }: { product: Product }) {
               <Link href="#produto" className="hover:underline">
                 monte o seu potinho
               </Link>
+              <Link href="/conta" className="hover:underline">
+                minha conta
+              </Link>
               <Link href="/privacidade" className="hover:underline">
                 privacidade
               </Link>

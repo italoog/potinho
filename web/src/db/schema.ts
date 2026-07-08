@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -16,8 +17,84 @@ import type {
   PaymentProvider,
   ProductParamSchema,
   ProductStatus,
+  UserRole,
   Variant,
 } from "./types";
+
+/**
+ * Tabelas do Better Auth (7.1) — nomes/campos conferidos manualmente contra os
+ * schemas zod internos do pacote (node_modules/@better-auth/core/dist/db/schema/*),
+ * já que a CLI de geração não pôde ser executada neste ambiente. `usePlural: true`
+ * no drizzleAdapter (web/src/lib/auth.ts) mapeia os nomes de modelo singulares
+ * (user/session/account/verification) para estas tabelas plurais (R6).
+ */
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    image: text("image"),
+    /** 'customer'|'admin' — promovido automaticamente via ADMIN_EMAILS no login (A2) */
+    role: text("role").$type<UserRole>().notNull().default("customer"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("users_email_idx").on(t.email)],
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("sessions_token_idx").on(t.token), index("sessions_user_idx").on(t.userId)],
+);
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    providerId: text("provider_id").notNull(),
+    accountId: text("account_id").notNull(),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("accounts_user_idx").on(t.userId)],
+);
+
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("verifications_identifier_idx").on(t.identifier)],
+);
 
 export const products = pgTable(
   "products",
@@ -54,6 +131,8 @@ export const orders = pgTable(
     shippingAmount: integer("shipping_amount").notNull().default(0),
     customer: jsonb("customer").$type<Customer>().notNull(),
     trackingCode: text("tracking_code"),
+    /** Vínculo opcional com a conta (7.1/7.3) — guest checkout continua com userId NULL */
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
   },
@@ -62,6 +141,7 @@ export const orders = pgTable(
     uniqueIndex("orders_public_token_idx").on(t.publicToken),
     index("orders_status_idx").on(t.status),
     index("orders_created_at_idx").on(t.createdAt),
+    index("orders_user_idx").on(t.userId),
   ],
 );
 
@@ -121,5 +201,7 @@ export type OrderItemRow = typeof orderItems.$inferSelect;
 export type NewOrderItemRow = typeof orderItems.$inferInsert;
 export type OrderEventRow = typeof orderEvents.$inferSelect;
 export type NewOrderEventRow = typeof orderEvents.$inferInsert;
+export type UserRow = typeof users.$inferSelect;
+export type NewUserRow = typeof users.$inferInsert;
 export type NotifyRequestRow = typeof notifyRequests.$inferSelect;
 export type NewNotifyRequestRow = typeof notifyRequests.$inferInsert;

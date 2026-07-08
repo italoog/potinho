@@ -13,7 +13,9 @@ vi.mock("@/db", async () => {
   return { ...actual, getDb: async () => testDb };
 });
 
-const { markOrderPaid, markOrderRejected, markOrderRefunded } = await import("./orders");
+const { markOrderPaid, markOrderRejected, markOrderRefunded, linkOrderToAccountIfExists } = await import(
+  "./orders"
+);
 
 const CUSTOMER = {
   name: "Mariana Silva",
@@ -86,5 +88,28 @@ describe("markOrderRefunded (6.2 AC2)", () => {
     // reentrega — idempotente
     await markOrderRefunded(order.id, "pay_789", "charged_back");
     expect((await eventsFor(order.id)).filter((e) => e.type === "refunded")).toHaveLength(1);
+  });
+});
+
+describe("linkOrderToAccountIfExists (7.1)", () => {
+  it("vincula o pedido quando já existe conta com o mesmo e-mail", async () => {
+    const order = await createOrder();
+    const [account] = await testDb
+      .insert(schema.users)
+      .values({ name: "Mariana", email: CUSTOMER.email })
+      .returning();
+
+    await linkOrderToAccountIfExists(order.id, CUSTOMER.email);
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.userId).toBe(account.id);
+  });
+
+  it("mantém userId nulo (guest) quando não há conta com o e-mail", async () => {
+    const order = await createOrder();
+    await linkOrderToAccountIfExists(order.id, "ninguem@example.com");
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.userId).toBeNull();
   });
 });
