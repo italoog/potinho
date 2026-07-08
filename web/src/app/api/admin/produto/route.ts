@@ -15,7 +15,7 @@ const bodySchema = z.object({
 /** Edição de preço/envio/status e soldOut por cor (9.5 AC1/AC2). */
 export async function PATCH(request: Request) {
   const session = await requireAdminSession();
-  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+  if (!session) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
 
   try {
     const body = bodySchema.parse(await request.json());

@@ -12,7 +12,7 @@ function csvCell(value: string): string {
 /** Export CSV dos pedidos filtrados (9.3 AC4) — repõe a funcionalidade removida do épico 4. */
 export async function GET(request: Request) {
   const session = await requireAdminSession();
-  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+  if (!session) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
 
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? undefined;

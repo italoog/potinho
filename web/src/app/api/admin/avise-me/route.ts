@@ -8,7 +8,7 @@ const bodySchema = z.object({ colorId: z.string().min(1), colorLabel: z.string()
 /** "Avisar todos" de uma cor que voltou ao estoque (9.5 AC3). */
 export async function POST(request: Request) {
   const session = await requireAdminSession();
-  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+  if (!session) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
 
   try {
     const body = bodySchema.parse(await request.json());

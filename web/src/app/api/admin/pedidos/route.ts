@@ -28,7 +28,7 @@ const bodySchema = z.object({
 
 export async function POST(request: Request) {
   const session = await requireAdminSession();
-  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+  if (!session) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
 
   try {
     const body = bodySchema.parse(await request.json());

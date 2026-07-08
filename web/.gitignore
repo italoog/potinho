@@ -43,3 +43,9 @@ next-env.d.ts
 # banco dev local (PGlite) e uploads de dev
 .data/
 /public/uploads/
+
+# playwright (10.1)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
