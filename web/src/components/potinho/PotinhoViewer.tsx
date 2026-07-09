@@ -13,7 +13,7 @@ import { CameraRig, ColoredModel, LoadingOverlay } from "@/components/viewer/Pro
 const MODEL_URL = "/models/comedouro-pet/15cm.glb";
 
 interface Props {
-  /** Cor da parte de cima (corpo da peça, onde o nome é gravado). */
+  /** Cor de cima (corpo da peça, onde o nome é gravado). */
   topHex: string;
   /** Cor da base (faixa inferior). */
   bottomHex: string;
@@ -74,8 +74,8 @@ export default function PotinhoViewer({ topHex, bottomHex, petName }: Props) {
       >
         <Suspense fallback={null}>
           <CameraRig manifest={manifest} />
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[2, 4, 3]} intensity={1.4} />
+          <ambientLight intensity={0.45} />
+          <directionalLight position={[2, 4, 3]} intensity={1.8} />
           <directionalLight position={[-3, 2, -2]} intensity={0.9} />
           <ColoredModel url={MODEL_URL} colors={colors} />
           {manifest?.anchor && debouncedName && (

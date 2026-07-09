@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatBRL } from "@/lib/money";
 import { calculateTotalCents } from "@/lib/pricing";
@@ -47,6 +48,19 @@ export default function CartUI() {
           </span>
         )}
       </button>
+
+      {/* Minha conta */}
+      <Link
+        href="/conta"
+        aria-label="minha conta"
+        data-testid="account-button"
+        className="fixed right-5 top-[88px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-potinho-bege text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+          <circle cx="12" cy="8" r="3.2" />
+          <path d="M5 20c0-3.9 3.13-7 7-7s7 3.1 7 7" strokeLinecap="round" />
+        </svg>
+      </Link>
 
       {/* Gaveta */}
       {isOpen && (

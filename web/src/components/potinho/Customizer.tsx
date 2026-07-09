@@ -44,7 +44,11 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
 
   const trimmed = petName.trim();
   const nameOk = trimmed.length >= textParam.min && trimmed.length <= textParam.max;
-  const canBuy = nameOk;
+  const hasSoldOutColor =
+    colorBase.options.find((o) => o.hex.toUpperCase() === selection.colorBaseHex.toUpperCase())?.soldOut ||
+    colorBand.options.find((o) => o.hex.toUpperCase() === selection.colorBandHex.toUpperCase())?.soldOut ||
+    false;
+  const canBuy = nameOk && !hasSoldOutColor;
 
   const configuration = {
     pet_name: trimmed.toUpperCase(),
@@ -61,6 +65,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
         : { ...selection, colorBandHex: hex };
     onSelectionChange(next);
     setSlot(slot === "base" ? "band" : "base");
+    setNotifyHex(null);
   }
 
   function handleAdd() {
@@ -137,7 +142,10 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
               <button
                 key={key}
                 type="button"
-                onClick={() => setSlot(key)}
+                onClick={() => {
+                  setSlot(key);
+                  setNotifyHex(null);
+                }}
                 aria-pressed={slot === key}
                 className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-medium lowercase transition-colors ${
                   slot === key
@@ -164,13 +172,19 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
                 <button
                   key={c.hex}
                   type="button"
-                  title={`${c.label} — esgotada, clique para avisar quando voltar`}
-                  aria-label={`${c.label} esgotada — avise-me quando voltar`}
-                  onClick={() => setNotifyHex(c.hex)}
-                  className="relative h-10 w-10 rounded-full opacity-40 ring-1 ring-potinho-cinza/30"
+                  title={`${c.label} — esgotada, dá pra ver no 3D mas não pra comprar ainda`}
+                  aria-label={`${c.label} esgotada — ver no 3D e avisar quando voltar`}
+                  aria-pressed={active}
+                  onClick={() => {
+                    pickColor(c.hex);
+                    setNotifyHex(c.hex);
+                  }}
+                  className={`relative h-10 w-10 rounded-full opacity-40 ring-1 ring-potinho-cinza/30 ${
+                    active ? "outline outline-[3px] outline-offset-2 outline-potinho-chocolate" : ""
+                  }`}
                   style={{ backgroundColor: c.hex }}
                 >
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-potinho-texto text-[9px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
                     !
                   </span>
                 </button>
@@ -204,9 +218,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
           </div>
         )}
         <p className="mt-4 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs leading-relaxed text-potinho-texto/70">
-          as cores na tela são apenas uma referência de tom: cada aparelho exibe as cores de um
-          jeito e cada lote de filamento pode ter pequenas variações. essas diferenças são naturais
-          do processo de impressão 3D e não caracterizam defeito.
+          as cores na tela são só uma referência — pequenas variações de tela e de lote são normais.
         </p>
       </fieldset>
 
@@ -250,6 +262,9 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
         <p className="-mt-4 text-xs text-rose-500">
           o nome precisa ter entre {textParam.min} e {textParam.max} caracteres.
         </p>
+      )}
+      {nameOk && hasSoldOutColor && (
+        <p className="-mt-4 text-xs text-rose-500">essa cor está esgotada — escolha outra pra adicionar ao carrinho.</p>
       )}
     </div>
   );

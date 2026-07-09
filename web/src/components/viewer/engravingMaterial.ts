@@ -8,7 +8,7 @@ import * as THREE from "three";
  * do corte CSG recebem um material próprio com a cor da casca escurecida.
  */
 
-export function darkenHex(hex: string, factor = 0.45): string {
+export function darkenHex(hex: string, factor = 0.2): string {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex);
   if (!m) return "#4a4a4a";
   const n = parseInt(m[1], 16);

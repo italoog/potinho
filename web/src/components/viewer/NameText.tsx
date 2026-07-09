@@ -120,12 +120,10 @@ export default function NameText({ manifest, text }: NameTextProps) {
     if (!font || !text || !manifest.anchor) return null;
     const [, sampleH, sampleW] = manifest.anchor.sampleTextSize;
     const maxWidth = Math.max(sampleW, sampleH * 2) * 1.05;
-    // O 3MF original grava a 2mm (thickness do Text Tool do Bambu). 3mm é o menor valor
-    // testado que a lib de CSG (three-bvh-csg, experimental) corta de forma confiável pra
-    // qualquer tamanho de nome — ainda uma fração pequena da parede, mas um pouco mais que o
-    // ideal. A peça impressa de verdade usa o 3MF original (gerador de produção — Épico 5),
-    // não esta malha do preview: isso só afeta a visualização no navegador.
-    const cutDepth = 0.003;
+    // O 3MF original grava a 2mm (thickness do Text Tool do Bambu) — a peça impressa de
+    // verdade usa o 3MF original (gerador de produção — Épico 5), não esta malha do preview:
+    // isso só afeta a visualização no navegador. Preview alinhado ao mesmo valor.
+    const cutDepth = 0.002;
     // Folga generosa pra FORA (fica no ar, não aprofunda o corte na peça): a parede real não
     // é o cone perfeito do modelo de revolução — com folga apertada a face frontal do cortador
     // caía DENTRO da casca no topo das letras e a gravação saía rasa/serrilhada ali.

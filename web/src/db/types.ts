@@ -103,6 +103,7 @@ export const customerSchema = z.object({
   }),
 });
 
+export type ColorOption = z.infer<typeof colorOptionSchema>;
 export type TextParam = z.infer<typeof textParamSchema>;
 export type ColorParam = z.infer<typeof colorParamSchema>;
 export type SelectParam = z.infer<typeof selectParamSchema>;

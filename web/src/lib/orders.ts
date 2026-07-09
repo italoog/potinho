@@ -1,21 +1,28 @@
 import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { getDb, orderEvents, orderItems, orders, products, users } from "@/db";
 import type { OrderEventRow, OrderItemRow, OrderRow } from "@/db/schema";
+import type { ProductParamSchema } from "@/db/types";
 import { sendNewOrderNotification, sendOrderConfirmation, sendRefundNotification } from "./email";
 import { recordOrderEvent } from "./order-events";
 
 export interface OrderItemWithProduct extends OrderItemRow {
   productName: string;
+  /** paramSchema do produto no momento da consulta — usado p.ex. pra traduzir hex de cor em nome (P-07). */
+  paramSchema: ProductParamSchema;
 }
 
 export async function getItemsWithProductNames(orderId: string): Promise<OrderItemWithProduct[]> {
   const db = await getDb();
   const rows = await db
-    .select({ item: orderItems, productName: products.name })
+    .select({ item: orderItems, productName: products.name, paramSchema: products.paramSchema })
     .from(orderItems)
     .leftJoin(products, eq(orderItems.productId, products.id))
     .where(eq(orderItems.orderId, orderId));
-  return rows.map(({ item, productName }) => ({ ...item, productName: productName ?? "Produto" }));
+  return rows.map(({ item, productName, paramSchema }) => ({
+    ...item,
+    productName: productName ?? "Produto",
+    paramSchema: paramSchema ?? [],
+  }));
 }
 
 /**
@@ -100,11 +107,16 @@ export async function linkOrderToAccountIfExists(orderId: string, email: string)
 
 export async function getOrderByToken(
   token: string,
-): Promise<{ order: OrderRow; items: OrderItemWithProduct[] } | null> {
+): Promise<{ order: OrderRow; items: OrderItemWithProduct[]; events: OrderEventRow[] } | null> {
   const db = await getDb();
   const [order] = await db.select().from(orders).where(eq(orders.publicToken, token)).limit(1);
   if (!order) return null;
-  return { order, items: await getItemsWithProductNames(order.id) };
+  const events = await db
+    .select()
+    .from(orderEvents)
+    .where(eq(orderEvents.orderId, order.id))
+    .orderBy(desc(orderEvents.createdAt));
+  return { order, items: await getItemsWithProductNames(order.id), events };
 }
 
 /** Lista de pedidos da conta logada (7.3 AC2) — mais recentes primeiro. Filtra por userId no servidor. */

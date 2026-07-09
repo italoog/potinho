@@ -1,9 +1,22 @@
 import type { NewProductRow } from "./schema";
+import type { ColorOption } from "./types";
 
 /**
  * Produto-piloto do MVP (PRD §1.3 e §8): Comedouro Pet Elevado com Nome Personalizado.
  * Paleta = filamentos disponíveis do lojista. Âncora/fonte = contrato com o Épico 5.
  */
+
+/** Paleta real do estoque (mesma de site-config.ts#stockColors) — base e faixa usam as mesmas cores, na mesma ordem. */
+const filamentColors: ColorOption[] = [
+  { label: "Branco", hex: "#F4F4F4" },
+  { label: "Preto", hex: "#1A1A1A" },
+  { label: "Rosa", hex: "#E88BB1" },
+  { label: "Cinza", hex: "#9E9E9E" },
+  { label: "Azul", hex: "#3D6EB5" },
+  { label: "Bege", hex: "#E8D9C8" },
+  { label: "Marrom", hex: "#5A4032" },
+  { label: "Verde-oliva", hex: "#708238", soldOut: true },
+];
 export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt"> = {
   slug: "comedouro-pet",
   name: "Comedouro Pet Elevado com Nome",
@@ -60,40 +73,8 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       font: "Anton",
       anchor: "name_slot",
     },
-    {
-      key: "color_base",
-      type: "color",
-      label: "Cor da base",
-      options: [
-        { label: "Cinza", hex: "#9E9E9E" },
-        { label: "Azul", hex: "#1E5AA8" },
-        { label: "Rosa", hex: "#E85D9A" },
-        { label: "Preto", hex: "#1A1A1A" },
-        { label: "Branco", hex: "#F4F4F4" },
-        { label: "Bege", hex: "#E8D9C8" },
-        { label: "Marrom", hex: "#5A4032" },
-      ],
-      targets: ["base_mesh"],
-    },
-    {
-      // Parte "AZUL" do 3MF: faixa decorativa inferior da base (a tigela é de inox, não impressa)
-      key: "color_band",
-      type: "color",
-      label: "Cor da faixa",
-      options: [
-        { label: "Azul", hex: "#1E5AA8" },
-        { label: "Rosa", hex: "#E85D9A" },
-        { label: "Preto", hex: "#1A1A1A" },
-        { label: "Branco", hex: "#F4F4F4" },
-        { label: "Verde", hex: "#2E8B57" },
-        { label: "Bege", hex: "#E8D9C8" },
-        { label: "Marrom", hex: "#5A4032" },
-        { label: "Cinza", hex: "#9E9E9E" },
-      ],
-      targets: ["bowl_mesh"],
-    },
     // O nome é GRAVADO em negativo no produto (não é colorido) —
-    // o visualizador simula a gravação com um tom mais escuro da cor da base.
+    // o visualizador simula a gravação com um tom mais escuro da cor de cima (color_base).
     {
       key: "size",
       type: "select",
@@ -104,6 +85,22 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
         { label: "M — 10cm", value: "10cm", variantRef: "10cm", priceDelta: 0 },
         { label: "G — 15cm", value: "15cm", variantRef: "15cm", priceDelta: 0 },
       ],
+    },
+    {
+      // base_mesh = corpo da peça, onde o nome é gravado (rótulo "de cima" — ver PotinhoViewer.tsx)
+      key: "color_base",
+      type: "color",
+      label: "Cor de cima",
+      options: filamentColors,
+      targets: ["base_mesh"],
+    },
+    {
+      // bowl_mesh = faixa decorativa inferior (a tigela em si é de inox, não impressa)
+      key: "color_band",
+      type: "color",
+      label: "Cor da base",
+      options: filamentColors,
+      targets: ["bowl_mesh"],
     },
   ],
 };

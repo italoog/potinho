@@ -4,8 +4,8 @@ import { comedouroPet } from "@/db/seed-data";
 
 const validConfig = {
   pet_name: "THOR",
-  color_base: "#1E5AA8",
-  color_band: "#E85D9A",
+  color_base: "#3D6EB5",
+  color_band: "#E88BB1",
   size: "15cm",
 };
 
