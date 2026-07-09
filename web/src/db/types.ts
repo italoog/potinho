@@ -26,6 +26,8 @@ export const colorOptionSchema = z.object({
   filamentRef: z.string().optional(),
   /** Esgotada → seletor mostra badge e captura e-mail em vez de deixar escolher (Épico 6.4) */
   soldOut: z.boolean().optional(),
+  /** 2 a 4 hex — filamento misturado; swatch mostra fatias iguais (conic-gradient) em vez de cor sólida */
+  blend: z.array(z.string().regex(/^#[0-9A-Fa-f]{6}$/)).min(2).max(4).optional(),
 });
 
 export const colorParamSchema = z.object({
@@ -76,7 +78,12 @@ export const variantSchema = z.object({
   modelUrl: z.string().min(1),
   /** Caminho do 3MF de produção (Épico 5) */
   productionFile: z.string().optional(),
-  priceDelta: z.number().int().default(0),
+  /** Preço final absoluto deste tamanho, em centavos (não é mais base + acréscimo) */
+  price: z.number().int().min(0),
+  /** Desconto opcional sobre o preço deste tamanho */
+  discountType: z.enum(["percent", "flat"]).nullable().default(null),
+  /** percent: 0-100. flat: centavos. */
+  discountValue: z.number().int().min(0).nullable().default(null),
   /** Ex: "15cm de largura" — exibido no visualizador (V-04) */
   dimensions: z.string().min(1),
   /** Caixa de envio (Melhor Envio) — opcional: sem isso, o item cai no frete fixo por UF */

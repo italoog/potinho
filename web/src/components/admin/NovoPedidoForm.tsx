@@ -117,8 +117,10 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <fieldset className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">itens</legend>
+      <fieldset>
+        <legend className="sr-only">itens</legend>
+        <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
+        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>itens</p>
         {items.map((item, i) => (
           <div key={i} className="grid grid-cols-2 gap-3 rounded-2xl bg-potinho-fundo p-4 sm:grid-cols-4">
             <input
@@ -126,12 +128,12 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
               placeholder="nome do pet"
               value={item.petName}
               onChange={(e) => updateItem(i, { petName: e.target.value })}
-              className="rounded-xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm uppercase"
+              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm uppercase"
             />
             <select
               value={item.size}
               onChange={(e) => updateItem(i, { size: e.target.value })}
-              className="rounded-xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
             >
               {sizeParam.options.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -142,7 +144,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             <select
               value={item.colorBase}
               onChange={(e) => updateItem(i, { colorBase: e.target.value })}
-              className="rounded-xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
             >
               {colorBase.options.map((o) => (
                 <option key={o.hex} value={o.hex}>
@@ -153,7 +155,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             <select
               value={item.colorBand}
               onChange={(e) => updateItem(i, { colorBand: e.target.value })}
-              className="rounded-xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
             >
               {colorBand.options.map((o) => (
                 <option key={o.hex} value={o.hex}>
@@ -182,10 +184,13 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
         <p className="text-xs text-potinho-texto/50">
           {textParam.min} a {textParam.max} caracteres por nome de pet. total dos itens: {formatBRL(itemsTotal)}
         </p>
+        </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">cliente</legend>
+      <fieldset>
+        <legend className="sr-only">cliente</legend>
+        <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
+        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>cliente</p>
         <input
           type="text"
           placeholder="nome completo"
@@ -269,10 +274,13 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             ))}
           </select>
         </div>
+        </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">frete</legend>
+      <fieldset>
+        <legend className="sr-only">frete</legend>
+        <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
+        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>frete</p>
         <input
           type="number"
           step="0.01"
@@ -281,6 +289,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
           onChange={(e) => setShippingOverride(e.target.value)}
           className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
         />
+        </div>
       </fieldset>
 
       {error && <p className="text-sm text-rose-500">{error}</p>}

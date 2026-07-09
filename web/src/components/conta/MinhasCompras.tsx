@@ -29,7 +29,7 @@ export default function MinhasCompras({ userName, orders }: Props) {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <header className="flex items-center justify-between rounded-3xl bg-white p-6 shadow-potinho-card">
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
         <div>
           <p className="text-xs uppercase tracking-widest text-potinho-texto/50">minha conta</p>
           <h1 className="text-xl font-bold lowercase text-potinho-texto">

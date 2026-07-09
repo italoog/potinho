@@ -82,9 +82,11 @@ export default function PotinhoHome({ product }: { product: Product }) {
             <Countdown />
             <a
               href="#produto"
-              className="mt-2 rounded-full bg-white px-8 py-4 text-base font-semibold lowercase text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
+              className="mt-2 flex items-center gap-2 rounded-full bg-white px-8 py-4 text-base font-semibold lowercase text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
             >
-              quero o meu 🐾
+              <PawIcon className="h-5 w-5" />
+              quero o meu
+              <PawIcon className="h-5 w-5" />
             </a>
           </div>
         </section>

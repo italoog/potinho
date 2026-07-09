@@ -5,13 +5,23 @@ import type { ProductParamSchema, OrderConfiguration, Variant } from "@/db/types
  * O servidor SEMPRE recalcula com esta função; o valor do front nunca é cobrado (PRD §6, risco #4).
  */
 export interface PriceInput {
-  basePrice: number;
   variants: Variant[];
   paramSchema: ProductParamSchema;
 }
 
+/** Preço final da variante (tamanho) já com o desconto (se houver) aplicado. */
+export function variantFinalPriceCents(variant: Variant): number {
+  let price = variant.price;
+  if (variant.discountType === "percent" && variant.discountValue) {
+    price -= Math.round((price * variant.discountValue) / 100);
+  } else if (variant.discountType === "flat" && variant.discountValue) {
+    price -= variant.discountValue;
+  }
+  return Math.max(0, price);
+}
+
 export function calculateTotalCents(product: PriceInput, configuration: OrderConfiguration): number {
-  let total = product.basePrice;
+  let total = 0;
 
   for (const param of product.paramSchema) {
     if (param.type !== "select") continue;
@@ -27,7 +37,7 @@ export function calculateTotalCents(product: PriceInput, configuration: OrderCon
       if (!variant) {
         throw new Error(`Variante inexistente: ${option.variantRef}`);
       }
-      total += variant.priceDelta;
+      total += variantFinalPriceCents(variant);
     }
   }
   return total;

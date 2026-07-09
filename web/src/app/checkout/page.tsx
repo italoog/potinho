@@ -7,7 +7,7 @@ import CheckoutForm from "@/components/checkout/CheckoutForm";
 export default function CheckoutPage() {
   return (
     <CartProvider>
-      <main className="min-h-screen bg-potinho-fundo px-4 py-10 font-[family-name:var(--font-poppins)] text-potinho-texto sm:py-16">
+      <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
         <CheckoutForm />
       </main>
     </CartProvider>

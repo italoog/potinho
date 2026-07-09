@@ -23,13 +23,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const address = (order.customer as { address: Record<string, string> }).address;
 
   return (
-    <main className="min-h-screen bg-potinho-fundo px-4 py-10 font-[family-name:var(--font-poppins)] text-potinho-texto sm:py-16">
+    <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <Link href="/conta" className="text-sm text-potinho-texto/60 hover:underline">
           ← voltar pra minha conta
         </Link>
 
-        <header className="flex items-center justify-between rounded-3xl bg-white p-6 shadow-potinho-card">
+        <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
           <div>
             <p className="text-xs uppercase tracking-widest text-potinho-texto/50">
               pedido de {new Date(order.createdAt).toLocaleDateString("pt-BR")}
@@ -53,7 +53,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <section className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">itens</h2>
           {items.map((item) => (
-            <div key={item.id} className="flex gap-4 border-t border-potinho-bege pt-4 first:border-0 first:pt-0">
+            <div
+              key={item.id}
+              className="flex flex-col gap-4 border-t border-potinho-bege pt-4 first:border-0 first:pt-0 sm:flex-row"
+            >
               {item.snapshotUrl && (
                 <Image
                   src={item.snapshotUrl}
@@ -61,7 +64,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   width={96}
                   height={96}
                   unoptimized
-                  className="h-20 w-20 rounded-2xl object-cover"
+                  className="h-32 w-full rounded-2xl object-cover sm:h-20 sm:w-20"
                 />
               )}
               <div className="min-w-0 flex-1">

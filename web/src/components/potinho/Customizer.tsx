@@ -5,6 +5,7 @@ import type { Product } from "@/lib/products";
 import type { ColorParam, SelectParam, TextParam } from "@/db/types";
 import { calculateTotalCents } from "@/lib/pricing";
 import { formatBRL } from "@/lib/money";
+import { swatchBackground } from "@/lib/color-swatch";
 import { useCart } from "./CartContext";
 import NotifyColorForm from "./NotifyColorForm";
 
@@ -153,7 +154,10 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
                     : "border-potinho-bege text-potinho-texto/70"
                 }`}
               >
-                <span className="h-4 w-4 rounded-full ring-1 ring-potinho-cinza/40" style={{ backgroundColor: hex }} />
+                <span
+                  className="h-4 w-4 rounded-full ring-1 ring-potinho-cinza/40"
+                  style={{ background: opt ? swatchBackground(opt) : hex }}
+                />
                 {label}: {opt?.label.toLowerCase() ?? "—"}
               </button>
             );
@@ -182,7 +186,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
                   className={`relative h-10 w-10 rounded-full opacity-40 ring-1 ring-potinho-cinza/30 ${
                     active ? "outline outline-[3px] outline-offset-2 outline-potinho-chocolate" : ""
                   }`}
-                  style={{ backgroundColor: c.hex }}
+                  style={{ background: swatchBackground(c) }}
                 >
                   <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
                     !
@@ -200,7 +204,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
                 className={`relative h-10 w-10 rounded-full ring-1 ring-potinho-cinza/30 transition-transform hover:scale-110 ${
                   active ? "outline outline-[3px] outline-offset-2 outline-potinho-chocolate" : ""
                 }`}
-                style={{ backgroundColor: c.hex }}
+                style={{ background: swatchBackground(c) }}
               />
             );
           })}

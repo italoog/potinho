@@ -1,13 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getOrderForAdmin } from "@/lib/orders";
+import { getOrderForAdmin, type OrderItemWithProduct } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
 import { EVENT_LABEL, STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
 import type { Customer, OrderEventType, OrderStatus } from "@/db/types";
 import OrderActions from "@/components/admin/OrderActions";
 
 export const metadata = { title: "pedido — admin potinho", robots: { index: false } };
+
+/** Rótulo legível de uma cor a partir do hex escolhido (evita mostrar o código hex cru pro admin). */
+function colorLabel(item: OrderItemWithProduct, paramKey: string): string | null {
+  const param = item.paramSchema.find((p) => p.key === paramKey);
+  if (!param || param.type !== "color") return null;
+  const hex = item.configuration[paramKey];
+  return param.options.find((o) => o.hex.toUpperCase() === hex?.toUpperCase())?.label ?? null;
+}
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -68,24 +76,40 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <section className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">itens</h2>
         {items.map((item) => (
-          <div key={item.id} className="flex gap-4 border-t border-potinho-bege pt-4 first:border-0 first:pt-0">
-            {item.snapshotUrl && (
+          <div
+            key={item.id}
+            className="flex flex-col gap-4 border-t border-potinho-bege pt-4 first:border-0 first:pt-0 sm:flex-row"
+          >
+            {item.snapshotUrl ? (
               <Image
                 src={item.snapshotUrl}
                 alt="Produto personalizado"
                 width={96}
                 height={96}
                 unoptimized
-                className="h-20 w-20 rounded-2xl object-cover"
+                className="h-32 w-full rounded-2xl object-cover sm:h-20 sm:w-20"
               />
+            ) : (
+              <div className="flex shrink-0 -space-x-1">
+                <span
+                  className="h-8 w-8 rounded-full ring-1 ring-potinho-cinza/40"
+                  style={{ backgroundColor: item.configuration.color_base }}
+                />
+                <span
+                  className="h-8 w-8 rounded-full ring-1 ring-potinho-cinza/40"
+                  style={{ backgroundColor: item.configuration.color_band }}
+                />
+              </div>
             )}
             <div className="min-w-0 flex-1">
               <p className="font-semibold uppercase tracking-wider text-potinho-texto">
                 {item.configuration.pet_name}
               </p>
               <p className="text-xs text-potinho-texto/60">
-                {item.productName} · {item.configuration.size} · {item.configuration.color_base} /{" "}
-                {item.configuration.color_band}
+                {item.productName} · {item.configuration.size}
+                {colorLabel(item, "color_base") && colorLabel(item, "color_band")
+                  ? ` · ${colorLabel(item, "color_base")!.toLowerCase()} + ${colorLabel(item, "color_band")!.toLowerCase()}`
+                  : ""}
               </p>
             </div>
             <span className="font-bold text-potinho-chocolate">{formatBRL(item.unitPrice)}</span>

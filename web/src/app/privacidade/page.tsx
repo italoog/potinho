@@ -3,7 +3,7 @@ export const metadata = { title: "Política de Privacidade — potinho" };
 /** LGPD (NFR §6, 7.3 AC4): coleta mínima, finalidade explícita, conta opcional e retenção fiscal. */
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-10">
+    <main className="min-h-screen bg-zinc-50 py-10 pl-20 pr-4">
       <article className="prose prose-zinc mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-sm">
         <h1>Política de Privacidade</h1>
         <p>

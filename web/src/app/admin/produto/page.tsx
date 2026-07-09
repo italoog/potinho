@@ -12,7 +12,7 @@ export default async function AdminProdutoPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-bold lowercase text-potinho-chocolate">produto</h1>
-      <ProdutoForm product={product} />
+      <ProdutoForm key={product.updatedAt.toISOString()} product={product} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default async function OrderStatusPage({ params }: { params: Promise<{ to
   const address = order.customer.address;
 
   return (
-    <main className="min-h-screen bg-potinho-fundo px-4 py-10 font-[family-name:var(--font-poppins)] text-potinho-texto sm:py-16">
+    <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <header className="rounded-3xl bg-white p-6 text-center shadow-potinho-card sm:p-8">
           <p className="text-xs uppercase tracking-widest text-potinho-texto/50">

@@ -12,7 +12,7 @@ export default async function ContaPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <main className="min-h-screen bg-potinho-fundo px-4 py-10 font-[family-name:var(--font-poppins)] text-potinho-texto sm:py-16">
+    <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
       {session ? (
         <MinhasCompras
           userName={session.user.name || session.user.email.split("@")[0]}

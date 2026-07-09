@@ -10,15 +10,22 @@ const validConfig = {
 };
 
 describe("calculateTotalCents (preço é lei no servidor)", () => {
-  it("calcula preço base + deltas de variante", () => {
+  it("usa o preço absoluto da variante", () => {
     expect(calculateTotalCents(comedouroPet, validConfig)).toBe(14900); // G — 15cm
   });
 
-  it("soma priceDelta de opção e de variante", () => {
+  it("soma priceDelta de opção ao preço da variante", () => {
     const product = {
-      basePrice: 1000,
       variants: [
-        { ref: "g", label: "G", modelUrl: "/g.glb", priceDelta: 500, dimensions: "20cm" },
+        {
+          ref: "g",
+          label: "G",
+          modelUrl: "/g.glb",
+          price: 1500,
+          discountType: null,
+          discountValue: null,
+          dimensions: "20cm",
+        },
       ],
       paramSchema: [
         {
@@ -30,6 +37,56 @@ describe("calculateTotalCents (preço é lei no servidor)", () => {
       ],
     };
     expect(calculateTotalCents(product, { size: "g" })).toBe(3000);
+  });
+
+  it("aplica desconto percentual sobre o preço da variante", () => {
+    const product = {
+      variants: [
+        {
+          ref: "g",
+          label: "G",
+          modelUrl: "/g.glb",
+          price: 10000,
+          discountType: "percent" as const,
+          discountValue: 10,
+          dimensions: "20cm",
+        },
+      ],
+      paramSchema: [
+        {
+          key: "size",
+          type: "select" as const,
+          label: "Tamanho",
+          options: [{ label: "G", value: "g", variantRef: "g", priceDelta: 0 }],
+        },
+      ],
+    };
+    expect(calculateTotalCents(product, { size: "g" })).toBe(9000);
+  });
+
+  it("aplica desconto de valor fixo sobre o preço da variante", () => {
+    const product = {
+      variants: [
+        {
+          ref: "g",
+          label: "G",
+          modelUrl: "/g.glb",
+          price: 10000,
+          discountType: "flat" as const,
+          discountValue: 1000,
+          dimensions: "20cm",
+        },
+      ],
+      paramSchema: [
+        {
+          key: "size",
+          type: "select" as const,
+          label: "Tamanho",
+          options: [{ label: "G", value: "g", variantRef: "g", priceDelta: 0 }],
+        },
+      ],
+    };
+    expect(calculateTotalCents(product, { size: "g" })).toBe(9000);
   });
 
   it("rejeita opção de select inexistente", () => {

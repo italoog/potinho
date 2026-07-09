@@ -107,7 +107,7 @@ export default async function AdminPedidosPage({
               key={p}
               href={`/admin/pedidos?${new URLSearchParams({ ...(q ? { q } : {}), ...(validStatus ? { status: validStatus } : {}), page: String(p) }).toString()}`}
               className={`rounded-full px-3 py-1.5 text-sm ${
-                p === page ? "bg-potinho-chocolate text-potinho-bege" : "bg-white text-potinho-texto/60 shadow-sm"
+                p === page ? "bg-potinho-chocolate text-potinho-bege" : "bg-white text-potinho-texto/60 shadow-potinho-card"
               }`}
             >
               {p}

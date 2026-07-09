@@ -28,7 +28,7 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
     "/products/comedouro-pet/IMG20260309141237.webp",
     "/products/comedouro-pet/tigela.webp",
   ],
-  basePrice: 9900, // R$ 99,00 — variante P (entrada)
+  basePrice: 0, // não é mais usado no cálculo — cada tamanho tem seu preço final em variants[].price
   status: "published",
   variants: [
     {
@@ -36,7 +36,9 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       label: "P — 5cm",
       // ponytail: reaproveita o GLB de 15cm até o arquivo real de 5cm chegar (2 novos tamanhos a caminho)
       modelUrl: "/models/comedouro-pet/15cm.glb",
-      priceDelta: 0,
+      price: 9900, // R$ 99,00
+      discountType: null,
+      discountValue: null,
       dimensions: "5cm de altura",
       // ponytail: caixa/peso estimados — troque pelas medidas reais da embalagem (cota Melhor Envio)
       shipping: { widthCm: 12, heightCm: 10, lengthCm: 12, weightKg: 0.3 },
@@ -46,7 +48,9 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       label: "M — 10cm",
       // ponytail: idem — placeholder até o GLB de 10cm chegar
       modelUrl: "/models/comedouro-pet/15cm.glb",
-      priceDelta: 2000, // R$ 119,00
+      price: 11900, // R$ 119,00
+      discountType: null,
+      discountValue: null,
       dimensions: "10cm de altura",
       // ponytail: caixa/peso estimados — troque pelas medidas reais da embalagem
       shipping: { widthCm: 16, heightCm: 14, lengthCm: 16, weightKg: 0.5 },
@@ -56,7 +60,9 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
       label: "G — 15cm",
       modelUrl: "/models/comedouro-pet/15cm.glb",
       productionFile: "assets/models/comedouro-pet/15cm.3mf",
-      priceDelta: 5000, // R$ 149,00
+      price: 14900, // R$ 149,00
+      discountType: null,
+      discountValue: null,
       dimensions: "15cm de altura",
       // ponytail: caixa/peso estimados — troque pelas medidas reais da embalagem
       shipping: { widthCm: 20, heightCm: 18, lengthCm: 20, weightKg: 0.8 },

@@ -6,9 +6,16 @@ import { shippingPackageSchema } from "@/db/types";
 
 const bodySchema = z.object({
   productId: z.string().uuid(),
-  basePrice: z.number().int().min(0),
   status: z.enum(["draft", "published"]),
-  variants: z.array(z.object({ ref: z.string(), priceDelta: z.number().int(), shipping: shippingPackageSchema })),
+  variants: z.array(
+    z.object({
+      ref: z.string(),
+      price: z.number().int().min(0),
+      discountType: z.enum(["percent", "flat"]).nullable(),
+      discountValue: z.number().int().min(0).nullable(),
+      shipping: shippingPackageSchema,
+    }),
+  ),
   colorUpdates: z.array(z.object({ paramKey: z.string(), hex: z.string(), soldOut: z.boolean() })),
 });
 

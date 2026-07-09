@@ -31,7 +31,7 @@ export default function NotifyGroupRow({ colorId, colorLabel, emails }: Props) {
   }
 
   return (
-    <li className="flex items-center justify-between gap-4 rounded-2xl bg-potinho-fundo p-4">
+    <li className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-potinho-fundo p-4">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="h-4 w-4 rounded-full ring-1 ring-potinho-cinza/40" style={{ backgroundColor: colorId }} />

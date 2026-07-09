@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold lowercase text-potinho-texto/70 transition-colors hover:bg-potinho-fundo hover:text-potinho-chocolate"
+              className="whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-semibold lowercase text-potinho-texto/70 transition-colors hover:bg-potinho-fundo hover:text-potinho-chocolate"
             >
               {item.label}
             </Link>
