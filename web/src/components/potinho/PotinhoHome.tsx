@@ -155,7 +155,7 @@ export default function PotinhoHome({ product }: { product: Product }) {
               {[
                 "altura ergonômica: postura mais confortável para comer",
                 "tigela de inox removível e fácil de higienizar",
-                "impressão 3D sob demanda, sem estoque parado",
+                "material resistente pro dia a dia dele",
                 "nome do pet gravado em relevo — de verdade, na peça",
               ].map((f) => (
                 <li key={f} className="flex items-start gap-2">
