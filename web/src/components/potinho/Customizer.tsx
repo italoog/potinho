@@ -92,7 +92,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
       <header>
         <h3 className="text-2xl font-bold lowercase text-potinho-texto">monte o seu potinho</h3>
         <p className="mt-1 text-sm text-potinho-texto/70">
-          comedouro elevado com tigela de inox removível, impresso em 3D sob medida.
+          comedouro elevado, impresso em 3D sob medida — na cor e no nome que você escolher.
         </p>
       </header>
 

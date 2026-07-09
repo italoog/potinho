@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
 import type { Product } from "@/lib/products";
-import { getColor, heroVideo, macroVideo, turntableClips, type TurntableClip } from "@/lib/site-config";
+import { getColor, heroVideo, macroVideo, stockColors, turntableClips, type TurntableClip } from "@/lib/site-config";
 import { CartProvider } from "./CartContext";
 import CartUI from "./CartUI";
 import Countdown from "./Countdown";
@@ -20,6 +20,10 @@ const PotinhoViewer = dynamic(() => import("./PotinhoViewer"), {
     <div className="h-[46vh] min-h-72 w-full rounded-3xl bg-gradient-to-b from-white to-potinho-bege/60 lg:h-[62vh]" />
   ),
 });
+
+// combinações = cor de cima × cor da base, ambas com a mesma paleta — atualiza sozinho
+// conforme cores são cadastradas em stockColors (site-config.ts).
+const colorCombinations = stockColors.length * stockColors.length;
 
 /** Resolve o hex real (paramSchema do produto) a partir do rótulo de cor do clip de marketing. */
 function hexForLabel(product: Product, paramKey: string, label: string): string | undefined {
@@ -103,8 +107,8 @@ export default function PotinhoHome({ product }: { product: Product }) {
               as cores que ficam com a cara dele
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-potinho-texto/70">
-              um único comedouro, 3 tamanhos, 8 cores e o nome gravado na peça — com um toque
-              (ou o mouse), o giro completo aparece.
+              um único comedouro, {stockColors.length} cores e {colorCombinations} combinações
+              possíveis — com um toque (ou o mouse), o giro completo aparece.
             </p>
           </header>
 
@@ -136,12 +140,11 @@ export default function PotinhoHome({ product }: { product: Product }) {
           <div className="mt-16 grid items-start gap-6 rounded-3xl bg-white/70 p-6 sm:p-8 lg:grid-cols-2 lg:gap-10">
             <div className="flex flex-col gap-4">
               <h3 className="text-3xl font-bold lowercase text-potinho-chocolate">
-                do estoque pra casa dele
+                não tem dois iguais
               </h3>
               <p className="text-potinho-texto/75">
-                a maioria dos comedouros nasce em lote de mil, todos iguais, esperando alguém
-                combinar com eles. o potinho nasce depois — sob demanda, na cor escolhida, com o
-                nome do pet gravado em relevo na peça. a tigela de inox sai pra lavar em segundos.
+                cada potinho sai com a cor escolhida e o nome do seu pet gravado em relevo na
+                peça. a tigela de inox sai pra lavar em segundos.
               </p>
               <button
                 type="button"
