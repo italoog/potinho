@@ -77,7 +77,7 @@ export async function sendColorBackInStockEmail(email: string, colorLabel: strin
     `${colorLabel} voltou! 🐾`,
     `
     <h2>a cor ${colorLabel.toLowerCase()} voltou ao estoque 🎉</h2>
-    <p>é só entrar e montar o potinho do seu jeito.</p>
+    <p>você deixou o e-mail avisando que queria essa cor — ela acabou de voltar. o potinho pode ficar exatamente do jeito que ficou combinado na sua cabeça.</p>
     <p><a href="${appUrl()}">montar meu potinho</a></p>
     `,
   );

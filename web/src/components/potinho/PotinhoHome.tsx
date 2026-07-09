@@ -100,11 +100,11 @@ export default function PotinhoHome({ product }: { product: Product }) {
 
           <header className="mb-12 text-center">
             <h2 className="text-3xl font-bold lowercase text-potinho-chocolate sm:text-5xl">
-              escolha as cores dele
+              as cores que ficam com a cara dele
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-potinho-texto/70">
-              um único comedouro, do seu jeito: 3 tamanhos, 8 cores, e o nome gravado na peça.
-              toque no card (ou passe o mouse) para ver o giro completo.
+              um único comedouro, 3 tamanhos, 8 cores e o nome gravado na peça — com um toque
+              (ou o mouse), o giro completo aparece.
             </p>
           </header>
 
@@ -139,8 +139,9 @@ export default function PotinhoHome({ product }: { product: Product }) {
                 do estoque pra casa dele
               </h3>
               <p className="text-potinho-texto/75">
-                cada potinho é impresso sob demanda com as cores que você escolher e o nome do seu
-                pet em relevo. a tigela de inox sai para lavar em segundos.
+                a maioria dos comedouros nasce em lote de mil, todos iguais, esperando alguém
+                combinar com eles. o potinho nasce depois — sob demanda, na cor escolhida, com o
+                nome do pet gravado em relevo na peça. a tigela de inox sai pra lavar em segundos.
               </p>
               <button
                 type="button"

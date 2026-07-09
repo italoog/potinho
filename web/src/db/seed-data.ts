@@ -21,8 +21,9 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
   slug: "comedouro-pet",
   name: "Comedouro Pet Elevado com Nome",
   description:
-    "Comedouro elevado impresso em 3D com o nome do seu pet gravado. " +
-    "Personalize o nome, a cor e o tamanho — e veja o resultado em 3D antes de comprar.",
+    "Comedouro elevado impresso em 3D com o nome do pet gravado em relevo — não é adesivo, " +
+    "não é pintura. O nome, a cor e o tamanho ficam do jeito escolhido, e o resultado aparece " +
+    "em 3D antes da compra fechar.",
   photos: [
     "/products/comedouro-pet/montado.png",
     "/products/comedouro-pet/IMG20260309141237.webp",

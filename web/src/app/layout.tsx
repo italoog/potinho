@@ -22,7 +22,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "potinho — comedouro elevado com o nome do seu pet",
   description:
-    "Comedouros elevados impressos em 3D, personalizados com o nome do seu pet. Escolha o tamanho, as cores e receba em casa.",
+    "Comedouros elevados impressos em 3D, com o nome do pet gravado em relevo na peça — tamanho e cores na medida de cada casa, entregues na porta.",
 };
 
 export default function RootLayout({
