@@ -13,6 +13,12 @@ vi.mock("@/db", async () => {
   return { ...actual, getDb: async () => testDb };
 });
 
+// revalidateTag/unstable_cache exigem contexto de request do Next — fora dele (aqui, testes unitários), viram no-op.
+vi.mock("next/cache", () => ({
+  revalidateTag: vi.fn(),
+  unstable_cache: (fn: unknown) => fn,
+}));
+
 const { updateProductPricing } = await import("./products");
 
 let productId: string;

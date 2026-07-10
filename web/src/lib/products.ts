@@ -1,8 +1,12 @@
 import { eq } from "drizzle-orm";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { getDb, products, type ProductRow } from "@/db";
 import type { ColorOption, ProductStatus, ShippingPackage, Variant } from "@/db/types";
 
 export type Product = ProductRow;
+
+/** Tag única (loja de produto só tem 1 item) — todo write de admin invalida com revalidateTag. */
+const PRODUCTS_TAG = "products";
 
 export interface VariantPricingUpdate {
   ref: string;
@@ -18,13 +22,21 @@ export interface ColorSoldOutUpdate {
   soldOut: boolean;
 }
 
-/** Busca produto publicado por slug (C-04/C-06). */
-export async function getPublishedProductBySlug(slug: string): Promise<Product | null> {
-  const db = await getDb();
-  const [row] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
-  if (!row || row.status !== "published") return null;
-  return row;
-}
+/**
+ * Busca produto publicado por slug (C-04/C-06).
+ * Cacheada 60s (poucos produtos, muda raro) — reduz carga no banco em picos de tráfego de anúncio;
+ * writes de admin chamam revalidateTag(PRODUCTS_TAG) pra refletir na hora.
+ */
+export const getPublishedProductBySlug = unstable_cache(
+  async (slug: string): Promise<Product | null> => {
+    const db = await getDb();
+    const [row] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+    if (!row || row.status !== "published") return null;
+    return row;
+  },
+  ["published-product-by-slug"],
+  { tags: [PRODUCTS_TAG], revalidate: 60 },
+);
 
 export async function getProductById(id: string): Promise<Product | null> {
   const db = await getDb();
@@ -86,6 +98,7 @@ export async function updateProductPricing(
       updatedAt: new Date(),
     })
     .where(eq(products.id, productId));
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
 
 /** Adiciona um tamanho novo (variante + opção do select "tamanho") — 9.5 extensão. */
@@ -134,6 +147,7 @@ export async function addProductVariant(
       updatedAt: new Date(),
     })
     .where(eq(products.id, productId));
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
 
 /** Adiciona uma cor nova (comum ou misturada de 2-4 filamentos) a um param de cor — 9.5 extensão. */
@@ -159,6 +173,7 @@ export async function addProductColor(
     .update(products)
     .set({ paramSchema: newParamSchema, updatedAt: new Date() })
     .where(eq(products.id, productId));
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
 
 /** Remove um tamanho (variante + opção do select "tamanho") — 9.5 extensão. */
@@ -182,6 +197,7 @@ export async function removeProductVariant(productId: string, ref: string): Prom
       updatedAt: new Date(),
     })
     .where(eq(products.id, productId));
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
 
 /** Remove uma cor de um param de cor — 9.5 extensão. */
@@ -209,4 +225,5 @@ export async function removeProductColor(
     .update(products)
     .set({ paramSchema: newParamSchema, updatedAt: new Date() })
     .where(eq(products.id, productId));
+  revalidateTag(PRODUCTS_TAG, { expire: 0 });
 }
