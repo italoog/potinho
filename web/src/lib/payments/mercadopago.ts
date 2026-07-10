@@ -44,6 +44,7 @@ export async function createMercadoPagoSession(
       auto_return: "approved",
       notification_url: `${appUrl}/api/mercadopago/webhook`,
     }),
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) {
     throw new Error(`Mercado Pago recusou a preferência (${res.status}): ${await res.text()}`);
@@ -58,10 +59,43 @@ export async function getMercadoPagoPayment(
 ): Promise<{ status: string; externalReference: string | null }> {
   const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
     headers: { Authorization: `Bearer ${token()}` },
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`Falha ao buscar pagamento ${paymentId} (${res.status})`);
   const data = (await res.json()) as { status: string; external_reference: string | null };
   return { status: data.status, externalReference: data.external_reference };
+}
+
+/**
+ * Busca o pagamento mais recente pelo external_reference (= orderId) — usado pra reconciliar
+ * manualmente um pedido "pending" sem depender do webhook ter chegado. Diferente de
+ * getMercadoPagoPayment: aqui não se tem o payment id ainda (o providerPaymentId salvo no
+ * checkout é o id da PREFERÊNCIA, não do pagamento), então a busca é pelo pedido.
+ * ponytail: formato da resposta de /v1/payments/search inferido da doc pública — revalidar
+ * contra o sandbox real antes de operar, no mesmo espírito do aviso já existente no HMAC.
+ */
+export async function findMercadoPagoPaymentByOrderId(
+  orderId: string,
+): Promise<{ status: string; paymentId: string } | null> {
+  const url = `https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&external_reference=${encodeURIComponent(orderId)}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token()}` },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`Falha ao buscar pagamentos do pedido ${orderId} (${res.status})`);
+  const data = (await res.json()) as { results?: { id: number; status: string }[] };
+  const [latest] = data.results ?? [];
+  return latest ? { status: latest.status, paymentId: String(latest.id) } : null;
+}
+
+/** Classifica o status bruto do Mercado Pago no desfecho que o pedido precisa (P-04/6.2 AC2). */
+export type MercadoPagoOutcome = "approved" | "rejected" | "refunded" | "other";
+
+export function classifyMercadoPagoStatus(status: string): MercadoPagoOutcome {
+  if (status === "approved") return "approved";
+  if (status === "rejected" || status === "cancelled") return "rejected";
+  if (status === "refunded" || status === "charged_back") return "refunded";
+  return "other";
 }
 
 /**

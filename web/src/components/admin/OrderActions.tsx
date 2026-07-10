@@ -9,10 +9,11 @@ interface Props {
   orderId: string;
   currentStatus: OrderStatus;
   trackingCode: string | null;
+  paymentProvider: string;
 }
 
 /** Ações do admin no detalhe do pedido (9.3 AC3/AC5) — mudar status e reenviar e-mail. */
-export default function OrderActions({ orderId, currentStatus, trackingCode }: Props) {
+export default function OrderActions({ orderId, currentStatus, trackingCode, paymentProvider }: Props) {
   const router = useRouter();
   const allowed = ORDER_STATUS_TRANSITIONS[currentStatus];
   const [nextStatus, setNextStatus] = useState<OrderStatus | "">("");
@@ -20,6 +21,8 @@ export default function OrderActions({ orderId, currentStatus, trackingCode }: P
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [verifyStatus, setVerifyStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
 
   async function handleStatusSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,6 +45,22 @@ export default function OrderActions({ orderId, currentStatus, trackingCode }: P
       return;
     }
     setStatus("idle");
+  }
+
+  async function handleVerifyPayment() {
+    setVerifyStatus("loading");
+    setVerifyMessage(null);
+    try {
+      const res = await fetch(`/api/admin/pedidos/${orderId}/verificar-pagamento`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Falha ao verificar pagamento");
+      setVerifyMessage(`status no Mercado Pago: ${data.status}`);
+      setVerifyStatus("idle");
+      router.refresh();
+    } catch (err) {
+      setVerifyMessage(err instanceof Error ? err.message : "Falha ao verificar pagamento");
+      setVerifyStatus("error");
+    }
   }
 
   async function handleResend() {
@@ -102,6 +121,24 @@ export default function OrderActions({ orderId, currentStatus, trackingCode }: P
         <p className="text-sm text-potinho-texto/50">este pedido não tem mais transições disponíveis.</p>
       )}
       {error && <p className="text-sm text-rose-500">{error}</p>}
+
+      {currentStatus === "pending" && paymentProvider === "mercadopago" && (
+        <div className="border-t border-potinho-bege pt-4">
+          <button
+            type="button"
+            onClick={handleVerifyPayment}
+            disabled={verifyStatus === "loading"}
+            className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40"
+          >
+            {verifyStatus === "loading" ? "verificando…" : "verificar pagamento agora"}
+          </button>
+          {verifyMessage && (
+            <p className={`mt-2 text-sm ${verifyStatus === "error" ? "text-rose-500" : "text-potinho-texto/60"}`}>
+              {verifyMessage}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="border-t border-potinho-bege pt-4">
         <button

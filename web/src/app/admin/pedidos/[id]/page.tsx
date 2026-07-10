@@ -45,7 +45,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </span>
       </header>
 
-      <OrderActions orderId={order.id} currentStatus={status} trackingCode={order.trackingCode} />
+      <OrderActions
+        orderId={order.id}
+        currentStatus={status}
+        trackingCode={order.trackingCode}
+        paymentProvider={order.paymentProvider}
+      />
 
       <section className="rounded-3xl bg-white p-6 shadow-potinho-card">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">cliente</h2>

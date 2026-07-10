@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getMercadoPagoPayment, verifyMercadoPagoWebhookSignature } from "@/lib/payments/mercadopago";
+import {
+  classifyMercadoPagoStatus,
+  getMercadoPagoPayment,
+  verifyMercadoPagoWebhookSignature,
+} from "@/lib/payments/mercadopago";
 import { markOrderPaid, markOrderRefunded, markOrderRejected } from "@/lib/orders";
 import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
@@ -9,9 +13,6 @@ import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
  * 6.2 (S1): assinatura x-signature validada antes de qualquer processamento.
  * Idempotência garantida em markOrderPaid/markOrderRejected/markOrderRefunded.
  */
-
-const REJECTED_STATUSES = new Set(["rejected", "cancelled"]);
-const REFUNDED_STATUSES = new Set(["refunded", "charged_back"]);
 
 export async function POST(request: Request) {
   const limit = rateLimit(`mp-webhook:${clientIp(request)}`, 60, 5 * 60_000);
@@ -58,11 +59,12 @@ export async function POST(request: Request) {
     const payment = await getMercadoPagoPayment(paymentId);
     if (!payment.externalReference) return NextResponse.json({ received: true });
 
-    if (payment.status === "approved") {
+    const outcome = classifyMercadoPagoStatus(payment.status);
+    if (outcome === "approved") {
       await markOrderPaid(payment.externalReference, paymentId);
-    } else if (REJECTED_STATUSES.has(payment.status)) {
+    } else if (outcome === "rejected") {
       await markOrderRejected(payment.externalReference, paymentId, payment.status);
-    } else if (REFUNDED_STATUSES.has(payment.status)) {
+    } else if (outcome === "refunded") {
       await markOrderRefunded(payment.externalReference, paymentId, payment.status);
     }
   } catch (err) {

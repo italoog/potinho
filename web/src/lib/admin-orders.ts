@@ -2,7 +2,7 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb, orderItems, orders } from "@/db";
 import type { OrderRow } from "@/db/schema";
 import type { OrderStatus } from "@/db/types";
-import { getItemsWithProductNames, markOrderPaid } from "./orders";
+import { getItemsWithProductNames, markOrderPaid, markOrderRefunded, markOrderRejected } from "./orders";
 import { recordOrderEvent } from "./order-events";
 import { sendOrderConfirmation } from "./email";
 import { ORDER_STATUS_TRANSITIONS } from "./order-status";
@@ -108,4 +108,35 @@ export async function resendOrderConfirmation(orderId: string, actorEmail: strin
 /** Reaproveita markOrderPaid pra marcar como pago manualmente (9.4) — mesma idempotência/e-mails do webhook. */
 export async function markOrderPaidByAdmin(orderId: string, actorEmail: string): Promise<void> {
   await markOrderPaid(orderId, `manual_${crypto.randomUUID()}`, actorEmail);
+}
+
+/**
+ * Reconcilia manualmente com o Mercado Pago — cobre o caso do webhook nunca chegar e o pedido
+ * ficar "pending" pra sempre. Busca pelo orderId (external_reference), não pelo providerPaymentId
+ * salvo no checkout (esse é o id da preferência, não do pagamento).
+ */
+export async function reconcilePaymentByAdmin(
+  orderId: string,
+  actorEmail: string,
+): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
+  const db = await getDb();
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order) return { ok: false, error: "Pedido não encontrado" };
+  if (order.paymentProvider !== "mercadopago") {
+    return { ok: false, error: `Verificação automática não suportada para "${order.paymentProvider}"` };
+  }
+
+  const { classifyMercadoPagoStatus, findMercadoPagoPaymentByOrderId } = await import("./payments/mercadopago");
+  const payment = await findMercadoPagoPaymentByOrderId(orderId);
+  if (!payment) return { ok: false, error: "Nenhum pagamento encontrado no Mercado Pago para este pedido" };
+
+  const outcome = classifyMercadoPagoStatus(payment.status);
+  if (outcome === "approved") {
+    await markOrderPaid(orderId, payment.paymentId, actorEmail);
+  } else if (outcome === "rejected") {
+    await markOrderRejected(orderId, payment.paymentId, payment.status);
+  } else if (outcome === "refunded") {
+    await markOrderRefunded(orderId, payment.paymentId, payment.status);
+  }
+  return { ok: true, status: payment.status };
 }
