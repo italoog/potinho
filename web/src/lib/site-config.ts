@@ -91,7 +91,7 @@ export const macroVideo = {
 
 export const marqueePhrases = [
   "feito sob medida",
-  "direto pra casa dele",
+  "único, como ele",
   "com o nome dele",
   "impresso com carinho",
   "tigela de inox removível",
