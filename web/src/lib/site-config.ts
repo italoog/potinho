@@ -9,7 +9,7 @@
  * Para reconfigurar: mude target (ISO 8601 com fuso de Brasília).
  */
 export const dropCountdown = {
-  enabled: true,
+  enabled: false,
   target: "2026-07-31T20:00:00-03:00",
   label: "primeiro drop",
 } as const;
