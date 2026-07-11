@@ -1,8 +1,14 @@
 import { marqueePhrases } from "@/lib/site-config";
 
+// ponytail: repete o grupo 4x antes de duplicar para o loop; garante que cada metade
+// da faixa cobre a viewport inteira mesmo em telas largas. Se telas ultrawide (>3440px)
+// ainda mostrarem espaço vazio, suba esse número.
+const GROUP_REPEATS = 4;
+
 /** Faixa rolante entre seções. Duplica o conteúdo para o loop ser contínuo. */
 export default function Marquee({ inverted = false }: { inverted?: boolean }) {
-  const items = [...marqueePhrases, ...marqueePhrases];
+  const group = Array.from({ length: GROUP_REPEATS }, () => marqueePhrases).flat();
+  const items = [...group, ...group];
   return (
     <div
       aria-hidden
@@ -10,7 +16,10 @@ export default function Marquee({ inverted = false }: { inverted?: boolean }) {
         inverted ? "bg-potinho-bege text-potinho-chocolate" : "bg-potinho-chocolate text-potinho-bege"
       }`}
     >
-      <div className="potinho-marquee-track flex w-max items-center gap-8 whitespace-nowrap">
+      <div
+        className="potinho-marquee-track flex w-max items-center gap-8 whitespace-nowrap"
+        style={{ animationDuration: `${28 * GROUP_REPEATS}s` }}
+      >
         {items.map((phrase, i) => (
           <span
             key={i}
