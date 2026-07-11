@@ -78,8 +78,8 @@ export default function PotinhoViewer({ topHex, bottomHex, petName }: Props) {
           <directionalLight position={[2, 4, 3]} intensity={1.8} />
           <directionalLight position={[-3, 2, -2]} intensity={0.9} />
           <ColoredModel url={MODEL_URL} colors={colors} />
-          {manifest?.anchor && debouncedName && (
-            <NameText manifest={manifest} text={debouncedName} />
+          {manifest?.anchor && (
+            <NameText manifest={manifest} text={debouncedName || "NOME"} />
           )}
           <ContactShadows position={[0, 0.001, 0]} opacity={0.35} scale={0.8} blur={2.2} far={0.4} />
         </Suspense>
