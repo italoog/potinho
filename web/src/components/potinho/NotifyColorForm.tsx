@@ -51,7 +51,7 @@ export default function NotifyColorForm({ colorId, colorLabel, onDone }: Props) 
           onChange={(e) => setEmail(e.target.value)}
           placeholder="seu e-mail"
           data-testid="notify-color-email"
-          className="flex-1 rounded-full border-2 border-potinho-bege bg-white px-4 py-2 text-sm text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+          className="min-w-0 flex-1 rounded-full border-2 border-potinho-bege bg-white px-4 py-2 text-sm text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
         />
         <button
           type="submit"
