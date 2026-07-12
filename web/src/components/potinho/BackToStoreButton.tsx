@@ -2,11 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 
-/** Botão fixo (canto esquerdo) pra voltar pra vitrine — some na própria home e no admin (tem nav própria). */
+const subscribeNoop = () => () => {};
+/** true só depois do mount no cliente — nunca durante SSR/estático. */
+function useMounted() {
+  return useSyncExternalStore(subscribeNoop, () => true, () => false);
+}
+
+/**
+ * Botão fixo (canto esquerdo) pra voltar pra vitrine — some na própria home e no admin (tem nav própria).
+ * A home é estática e o projeto tem proxy.ts (middleware): nesse caso usePathname() hidrata com o valor
+ * de build em vez do pathname real do navegador (mismatch documentado em next/dist/docs — use-pathname.md),
+ * então o check só é confiável depois do mount.
+ */
 export default function BackToStoreButton() {
   const pathname = usePathname();
-  if (pathname === "/" || pathname.startsWith("/admin")) return null;
+  const mounted = useMounted();
+
+  if (!mounted || pathname === "/" || pathname.startsWith("/admin")) return null;
 
   return (
     <Link
