@@ -131,6 +131,10 @@ export const ORDER_STATUSES = [
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+/** Mesmo par percent/flat usado no desconto de variante (Variant.discountType) — reaproveitado no cupom. */
+export const COUPON_DISCOUNT_TYPES = ["percent", "flat"] as const;
+export type CouponDiscountType = (typeof COUPON_DISCOUNT_TYPES)[number];
+
 export const PRODUCT_STATUSES = ["draft", "published"] as const;
 export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 

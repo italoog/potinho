@@ -7,6 +7,14 @@ import { shippingCentsFor } from "./shipping";
 import { decodePngDataUrl, storeFile } from "./storage";
 import { recordOrderEvent } from "./order-events";
 import { linkOrderToAccountIfExists } from "./orders";
+import {
+  applyCoupon,
+  couponValidationError,
+  getCouponByCode,
+  normalizeCouponCode,
+  prorateProductDiscount,
+  tryConsumeCoupon,
+} from "./coupons";
 
 export interface CreateOrderItemInput {
   productId: string;
@@ -19,6 +27,8 @@ export interface CreateOrderInput {
   customer: Customer;
   /** Sobrescreve a cotação automática (9.4 AC1) — admin pode digitar o frete manualmente. */
   shippingCentsOverride?: number;
+  /** Código do cupom (opcional) — SEMPRE revalidado e reprecificado aqui, nunca confia no desconto do front. */
+  couponCode?: string;
 }
 
 export interface CreatedOrderItem {
@@ -64,19 +74,48 @@ export async function createOrderFromCart(input: CreateOrderInput, actor: string
   const packages = validated
     .map((v, i) => products[i]!.variants.find((variant) => variant.ref === v.configuration.size)?.shipping)
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
-  const shippingCents =
+  const shippingCentsBeforeDiscount =
     input.shippingCentsOverride ??
     (await shippingCentsFor(input.customer.address.zip, input.customer.address.state, packages));
 
   const itemsTotal = validated.reduce((sum, v) => sum + v.unitPrice, 0);
-  const total = itemsTotal + shippingCents;
+
+  let productDiscountCents = 0;
+  let shippingDiscountCents = 0;
+  let couponCode: string | null = null;
+  if (input.couponCode) {
+    const coupon = await getCouponByCode(input.couponCode);
+    if (!coupon) throw new Error("Cupom inválido");
+    const validationError = couponValidationError(coupon);
+    if (validationError) throw new Error(validationError);
+    const discountableItems = validated.map((v, i) => ({ product: products[i]!, configuration: v.configuration }));
+    const discount = applyCoupon(coupon, discountableItems, itemsTotal, shippingCentsBeforeDiscount);
+    // Consumo atômico do limite de uso vem por último — só depois de validar tudo o mais, e antes
+    // de criar o pedido de fato, pra não gastar uma vaga de um cupom limitado numa tentativa que ia falhar.
+    if (!(await tryConsumeCoupon(coupon.id))) throw new Error("Esse cupom atingiu o limite de usos");
+    productDiscountCents = discount.productDiscountCents;
+    shippingDiscountCents = discount.shippingDiscountCents;
+    couponCode = normalizeCouponCode(input.couponCode);
+  }
+
+  // Desconto de produto é prorateado entre os itens: o que vai pro gateway/order_items já é o preço
+  // final por item, sem desconto "escondido" só no agregado (P-06).
+  const discountedUnitPrices = prorateProductDiscount(validated.map((v) => v.unitPrice), productDiscountCents);
+  const shippingCents = shippingCentsBeforeDiscount - shippingDiscountCents;
+  const total = discountedUnitPrices.reduce((sum, p) => sum + p, 0) + shippingCents;
 
   const snapshotUrls = await Promise.all(input.items.map((item) => storeSnapshot(item.snapshotDataUrl)));
 
   const db = await getDb();
   const [order] = await db
     .insert(orders)
-    .values({ totalAmount: total, shippingAmount: shippingCents, customer: input.customer })
+    .values({
+      totalAmount: total,
+      shippingAmount: shippingCents,
+      customer: input.customer,
+      couponCode,
+      discountAmount: productDiscountCents + shippingDiscountCents,
+    })
     .returning();
 
   await db.insert(orderItems).values(
@@ -84,7 +123,7 @@ export async function createOrderFromCart(input: CreateOrderInput, actor: string
       orderId: order.id,
       productId: products[i]!.id,
       configuration: v.configuration,
-      unitPrice: v.unitPrice,
+      unitPrice: discountedUnitPrices[i],
       snapshotUrl: snapshotUrls[i],
     })),
   );
@@ -97,7 +136,7 @@ export async function createOrderFromCart(input: CreateOrderInput, actor: string
     items: validated.map((v, i) => ({
       productName: products[i]!.name,
       configuration: v.configuration,
-      unitPrice: v.unitPrice,
+      unitPrice: discountedUnitPrices[i],
     })),
   };
 }

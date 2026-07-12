@@ -24,7 +24,16 @@ const bodySchema = z.object({
   items: z.array(cartItemSchema).min(1),
   customer: customerSchema,
   consentLgpd: z.literal(true),
+  couponCode: z.string().min(1).optional(),
 });
+
+/** Mensagens de erro que podem ir direto pro cliente — o resto vira o genérico (evita vazar detalhe interno). */
+const USER_FACING_ERRORS = [
+  "Cupom inválido",
+  "Esse cupom não pode ser combinado com itens já em promoção",
+  "Esse cupom expirou",
+  "Esse cupom atingiu o limite de usos",
+];
 
 export async function POST(request: Request) {
   const limit = rateLimit(`checkout:${clientIp(request)}`, 10, 5 * 60_000);
@@ -33,7 +42,7 @@ export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await request.json());
     const { order, shippingCents, items } = await createOrderFromCart(
-      { items: body.items, customer: body.customer },
+      { items: body.items, customer: body.customer, couponCode: body.couponCode },
       "system",
     );
 
@@ -75,8 +84,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.redirectUrl });
   } catch (err) {
     console.error("Checkout falhou:", err);
-    const message = err instanceof z.ZodError ? "Dados inválidos" : "Não foi possível concluir o pedido";
     const status = err instanceof Error && err.message === "Produto indisponível" ? 404 : 400;
-    return NextResponse.json({ error: err instanceof Error && status === 404 ? err.message : message }, { status });
+    const passthrough = err instanceof Error && (status === 404 || USER_FACING_ERRORS.includes(err.message));
+    const message = err instanceof z.ZodError ? "Dados inválidos" : "Não foi possível concluir o pedido";
+    return NextResponse.json({ error: passthrough ? (err as Error).message : message }, { status });
   }
 }

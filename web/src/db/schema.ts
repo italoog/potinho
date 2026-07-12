@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type {
   Customer,
+  CouponDiscountType,
   OrderConfiguration,
   OrderEventType,
   OrderStatus,
@@ -133,6 +134,10 @@ export const orders = pgTable(
     trackingCode: text("tracking_code"),
     /** Vínculo opcional com a conta (7.1/7.3) — guest checkout continua com userId NULL */
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    /** Snapshot do código do cupom usado (se houver) — não é FK: histórico sobrevive mesmo se o cupom for apagado */
+    couponCode: text("coupon_code"),
+    /** Total descontado em centavos (produto + frete) — já embutido em totalAmount/shippingAmount */
+    discountAmount: integer("discount_amount").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
   },
@@ -195,6 +200,33 @@ export const notifyRequests = pgTable(
   (t) => [uniqueIndex("notify_requests_email_color_idx").on(t.email, t.colorId)],
 );
 
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull(),
+    active: boolean("active").notNull().default(true),
+    /** null = cupom não desconta o subtotal dos produtos */
+    productDiscountType: text("product_discount_type").$type<CouponDiscountType | null>(),
+    /** percent: 0-100. flat: centavos. */
+    productDiscountValue: integer("product_discount_value"),
+    /** null = cupom não desconta o frete */
+    shippingDiscountType: text("shipping_discount_type").$type<CouponDiscountType | null>(),
+    shippingDiscountValue: integer("shipping_discount_value"),
+    /** Se falso, o cupom é recusado quando algum item do carrinho já tem desconto de variante ativo */
+    cumulative: boolean("cumulative").notNull().default(false),
+    /** null = uso ilimitado. Caso contrário, cupom para de valer quando usageCount atinge esse número. */
+    usageLimit: integer("usage_limit"),
+    /** Quantas vezes o cupom já foi usado em pedidos — incrementado atomicamente na criação do pedido. */
+    usageCount: integer("usage_count").notNull().default(0),
+    /** null = sem validade. Cupom para de valer a partir desse instante. */
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("coupons_code_idx").on(t.code)],
+);
+
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 export type OrderRow = typeof orders.$inferSelect;
@@ -207,3 +239,5 @@ export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type NotifyRequestRow = typeof notifyRequests.$inferSelect;
 export type NewNotifyRequestRow = typeof notifyRequests.$inferInsert;
+export type CouponRow = typeof coupons.$inferSelect;
+export type NewCouponRow = typeof coupons.$inferInsert;

@@ -50,6 +50,20 @@
       "when": 1783526814286,
       "tag": "0006_notify_requests_notified_at",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783886730928,
+      "tag": "0007_clumsy_nextwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783888328486,
+      "tag": "0008_tan_sunspot",
+      "breakpoints": true
     }
   ]
 }

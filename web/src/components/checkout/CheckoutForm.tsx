@@ -66,8 +66,63 @@ export default function CheckoutForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [couponInput, setCouponInput] = useState("");
+  const [couponStatus, setCouponStatus] = useState<"idle" | "loading" | "applied" | "error">("idle");
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    productDiscountCents: number;
+    shippingDiscountCents: number;
+    /** Carrinho/frete no momento da aplicação — se mudar depois, o desconto salvo fica desatualizado (sem useEffect). */
+    itemsLength: number;
+    shippingCentsAtApply: number | null;
+  } | null>(null);
+
   const itemsTotal = items.reduce((sum, i) => sum + calculateTotalCents(i, i.configuration), 0);
-  const total = itemsTotal + (shippingCents ?? 0);
+  const couponStale =
+    appliedCoupon !== null &&
+    (appliedCoupon.itemsLength !== items.length || appliedCoupon.shippingCentsAtApply !== shippingCents);
+  const couponApplied = couponStatus === "applied" && appliedCoupon !== null && !couponStale;
+  const productDiscountCents = couponApplied ? appliedCoupon!.productDiscountCents : 0;
+  const shippingDiscountCents = couponApplied ? appliedCoupon!.shippingDiscountCents : 0;
+  const shippingChargedCents = shippingCents !== null ? Math.max(0, shippingCents - shippingDiscountCents) : null;
+  const total = itemsTotal - productDiscountCents + (shippingChargedCents ?? 0);
+
+  async function handleApplyCoupon() {
+    if (!couponInput.trim() || shippingCents === null) return;
+    setCouponStatus("loading");
+    setCouponError(null);
+    try {
+      const res = await fetch("/api/checkout/cupom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          couponCode: couponInput,
+          items: items.map((i) => ({ productId: i.productId, configuration: i.configuration })),
+          shippingCents,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Cupom inválido");
+      setAppliedCoupon({
+        code: couponInput.trim().toUpperCase(),
+        productDiscountCents: data.productDiscountCents,
+        shippingDiscountCents: data.shippingDiscountCents,
+        itemsLength: items.length,
+        shippingCentsAtApply: shippingCents,
+      });
+      setCouponStatus("applied");
+    } catch (err) {
+      setCouponStatus("error");
+      setCouponError(err instanceof Error ? err.message : "Cupom inválido");
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponStatus("idle");
+    setCouponInput("");
+  }
 
   async function quoteShipping(cep: string, uf: string) {
     setShippingStatus("loading");
@@ -132,6 +187,7 @@ export default function CheckoutForm() {
           })),
           customer: { name, email, phone, address },
           consentLgpd: true,
+          couponCode: couponApplied ? appliedCoupon!.code : undefined,
         }),
       });
       const data = await res.json();
@@ -349,6 +405,49 @@ export default function CheckoutForm() {
         </span>
       </label>
 
+      {/* Cupom de desconto */}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+          cupom de desconto
+        </legend>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="código do cupom"
+            value={couponInput}
+            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+            disabled={couponApplied}
+            data-testid="checkout-coupon-input"
+            className="flex-1 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base uppercase tracking-wider text-potinho-texto placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none disabled:opacity-60"
+          />
+          {couponApplied ? (
+            <button
+              type="button"
+              onClick={handleRemoveCoupon}
+              className="rounded-full border-2 border-potinho-bege px-5 py-3.5 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-fundo"
+            >
+              remover
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              disabled={couponStatus === "loading" || !couponInput.trim() || shippingCents === null}
+              data-testid="checkout-coupon-apply"
+              className="rounded-full border-2 border-potinho-chocolate px-5 py-3.5 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {couponStatus === "loading" ? "aplicando…" : "aplicar"}
+            </button>
+          )}
+        </div>
+        {couponApplied && <p className="text-xs text-potinho-chocolate">cupom {appliedCoupon?.code} aplicado ✓</p>}
+        {couponStale && <p className="text-xs text-rose-500">o carrinho mudou — aplique o cupom de novo</p>}
+        {couponStatus === "error" && <p className="text-xs text-rose-500">{couponError}</p>}
+        {couponStatus === "idle" && !appliedCoupon && shippingCents === null && (
+          <p className="text-xs text-potinho-texto/50">informe o cep pra poder aplicar um cupom.</p>
+        )}
+      </fieldset>
+
       {/* Total + submit */}
       <div className="flex flex-col gap-4 border-t border-potinho-bege pt-5">
         <div className="flex items-center justify-between text-sm text-potinho-texto/70">
@@ -356,11 +455,17 @@ export default function CheckoutForm() {
           <span>
             {shippingStatus === "loading"
               ? "calculando…"
-              : shippingCents !== null
-                ? formatBRL(shippingCents)
+              : shippingChargedCents !== null
+                ? formatBRL(shippingChargedCents)
                 : "informe o cep"}
           </span>
         </div>
+        {couponApplied && productDiscountCents + shippingDiscountCents > 0 && (
+          <div className="flex items-center justify-between text-sm text-potinho-chocolate">
+            <span>desconto ({appliedCoupon!.code})</span>
+            <span>-{formatBRL(productDiscountCents + shippingDiscountCents)}</span>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="text-sm uppercase tracking-widest text-potinho-texto/60">total</span>
           <span className="text-2xl font-bold text-potinho-chocolate">{formatBRL(total)}</span>
