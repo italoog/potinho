@@ -100,9 +100,13 @@ export function classifyMercadoPagoStatus(status: string): MercadoPagoOutcome {
 
 /**
  * Valida o x-signature do webhook (6.2, S1) — manifest `id:{data.id};request-id:{x-request-id};ts:{ts};`
- * assinado com HMAC-SHA256 e o secret do painel do MP. Formato confirmado via múltiplas fontes da
- * comunidade/SDK oficial (a doc pública atual só documenta o `WebhookSignatureValidator` do SDK,
- * que não usamos aqui por ser API REST simples — R2: revalidar com o simulador de webhook do painel).
+ * assinado com HMAC-SHA256 e o secret do painel do MP. Formato validado contra o simulador do painel
+ * e contra webhooks reais (pagamento aprovado e estorno).
+ *
+ * Pegadinha do sandbox: o MP assina com o secret da app DONA do pagamento. Testar com as credenciais
+ * de teste auto-geradas faz o pagamento pertencer à app do vendedor de teste — cujo secret não é
+ * acessível — e toda assinatura falha. Para testar, MERCADOPAGO_ACCESS_TOKEN e MERCADOPAGO_WEBHOOK_SECRET
+ * precisam ser os da MESMA app (ver webhook do painel logado como o vendedor de teste).
  */
 export function verifyMercadoPagoWebhookSignature(params: {
   xSignature: string | null;
@@ -126,10 +130,5 @@ export function verifyMercadoPagoWebhookSignature(params: {
 
   const expectedBuf = Buffer.from(expected, "hex");
   const hashBuf = Buffer.from(hash, "hex");
-  const lengthMatches = expectedBuf.length === hashBuf.length;
-  const valid = lengthMatches && timingSafeEqual(expectedBuf, hashBuf);
-  if (!valid) {
-    console.error("Webhook Mercado Pago: debug assinatura", { manifest, expected, received: hash });
-  }
-  return valid;
+  return expectedBuf.length === hashBuf.length && timingSafeEqual(expectedBuf, hashBuf);
 }

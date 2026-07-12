@@ -46,12 +46,7 @@ export async function POST(request: Request) {
       secret,
     });
     if (!valid) {
-      console.error("Webhook Mercado Pago: assinatura inválida", {
-        paymentId,
-        dataId: dataId ?? paymentId,
-        xSignature: request.headers.get("x-signature"),
-        xRequestId: request.headers.get("x-request-id"),
-      });
+      console.error("Webhook Mercado Pago: assinatura inválida", { paymentId });
       return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
     }
   } else if (process.env.NODE_ENV === "production") {
