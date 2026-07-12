@@ -28,6 +28,8 @@ async function createAuth() {
     session: {
       expiresIn: 60 * 60 * 24 * 30, // 30 dias
       updateAge: 60 * 60 * 24, // renovação deslizante diária
+      // evita 1 query no banco por request de cliente logado (economiza compute-hours do Neon free)
+      cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
     user: {
       additionalFields: {

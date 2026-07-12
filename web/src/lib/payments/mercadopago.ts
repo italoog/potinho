@@ -126,6 +126,10 @@ export function verifyMercadoPagoWebhookSignature(params: {
 
   const expectedBuf = Buffer.from(expected, "hex");
   const hashBuf = Buffer.from(hash, "hex");
-  if (expectedBuf.length !== hashBuf.length) return false;
-  return timingSafeEqual(expectedBuf, hashBuf);
+  const lengthMatches = expectedBuf.length === hashBuf.length;
+  const valid = lengthMatches && timingSafeEqual(expectedBuf, hashBuf);
+  if (!valid) {
+    console.error("Webhook Mercado Pago: debug assinatura", { manifest, expected, received: hash });
+  }
+  return valid;
 }

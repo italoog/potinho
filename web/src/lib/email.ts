@@ -24,7 +24,7 @@ async function send(to: string, subject: string, html: string): Promise<void> {
   const { Resend } = await import("resend");
   const resend = new Resend(key);
   await resend.emails.send({
-    from: process.env.EMAIL_FROM ?? "pedidos@potinho.com.br",
+    from: process.env.EMAIL_FROM ?? "pedidos@potinho.pet",
     to,
     subject,
     html,
