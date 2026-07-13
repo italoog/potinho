@@ -64,6 +64,13 @@
       "when": 1783888328486,
       "tag": "0008_tan_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783894402853,
+      "tag": "0009_puzzling_ego",
+      "breakpoints": true
     }
   ]
 }

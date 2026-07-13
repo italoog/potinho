@@ -6,6 +6,7 @@ import { formatBRL } from "@/lib/money";
 import { EVENT_LABEL, STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
 import type { Customer, OrderEventType, OrderStatus } from "@/db/types";
 import OrderActions from "@/components/admin/OrderActions";
+import ShippingLabelActions from "@/components/admin/ShippingLabelActions";
 
 export const metadata = { title: "pedido — admin potinho", robots: { index: false } };
 
@@ -50,6 +51,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         currentStatus={status}
         trackingCode={order.trackingCode}
         paymentProvider={order.paymentProvider}
+      />
+
+      <ShippingLabelActions
+        orderId={order.id}
+        recipientDocument={order.recipientDocument}
+        shippingOrderId={order.shippingOrderId}
+        shippingLabelUrl={order.shippingLabelUrl}
+        shippingLabelPriceCents={order.shippingLabelPriceCents}
+        suggestedDeclaredValueCents={order.totalAmount - order.shippingAmount}
       />
 
       <section className="rounded-3xl bg-white p-6 shadow-potinho-card">

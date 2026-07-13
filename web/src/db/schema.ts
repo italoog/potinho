@@ -138,6 +138,14 @@ export const orders = pgTable(
     couponCode: text("coupon_code"),
     /** Total descontado em centavos (produto + frete) — já embutido em totalAmount/shippingAmount */
     discountAmount: integer("discount_amount").notNull().default(0),
+    /** CPF/CNPJ do destinatário — exigido pela SuperFrete pra gerar etiqueta, coletado pelo admin na hora de gerar (não no checkout público) */
+    recipientDocument: text("recipient_document"),
+    /** ID do pedido no carrinho da SuperFrete — criado em "cotar etiqueta", consumido em "comprar etiqueta" */
+    shippingOrderId: text("shipping_order_id"),
+    /** URL do PDF da etiqueta, depois de comprada */
+    shippingLabelUrl: text("shipping_label_url"),
+    /** Quanto foi cobrado da carteira SuperFrete pela etiqueta, em centavos (pode diferir da cotação do checkout) */
+    shippingLabelPriceCents: integer("shipping_label_price_cents"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
   },
