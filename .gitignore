@@ -28,3 +28,6 @@ Thumbs.db
 .claude/settings.local.json
 .aiox/install-log.txt
 .vercel
+
+# CodeGraph — índice local (banco, pid, logs), não deve ser commitado
+.codegraph/
