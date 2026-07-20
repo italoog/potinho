@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/products";
 import { getColor, heroVideo, macroVideo, stockColors, turntableClips, type TurntableClip } from "@/lib/site-config";
 import { CartProvider } from "./CartContext";
@@ -32,21 +32,44 @@ function hexForLabel(product: Product, paramKey: string, label: string): string 
   return param.options.find((o) => o.label.toLowerCase() === label.toLowerCase())?.hex;
 }
 
-export default function PotinhoHome({ product }: { product: Product }) {
-  const [selection, setSelection] = useState<CustomizerSelection>(() => ({
-    colorBaseHex: hexForLabel(product, "color_base", "Bege") ?? "#E8D9C8",
-    colorBandHex: hexForLabel(product, "color_band", "Marrom") ?? "#5A4032",
-  }));
+/** Resolve a seleção de cor a partir de um clip de turntable (id de stockColors em cada lado). */
+function selectionForClip(product: Product, clip: TurntableClip): CustomizerSelection {
+  const topLabel = getColor(clip.colorTopId).label;
+  const bottomLabel = getColor(clip.colorBottomId).label;
+  return {
+    colorBaseHex: hexForLabel(product, "color_base", topLabel) ?? "#E8D9C8",
+    colorBandHex: hexForLabel(product, "color_band", bottomLabel) ?? "#5A4032",
+  };
+}
+
+export default function PotinhoHome({
+  product,
+  initialComboId,
+}: {
+  product: Product;
+  /** id de turntableClips vindo de ?cor= — pré-seleciona a combinação (ex: link de Story). */
+  initialComboId?: string;
+}) {
+  const [selection, setSelection] = useState<CustomizerSelection>(() => {
+    const clip = turntableClips.find((c) => c.id === initialComboId);
+    return clip
+      ? selectionForClip(product, clip)
+      : { colorBaseHex: hexForLabel(product, "color_base", "Bege") ?? "#E8D9C8", colorBandHex: hexForLabel(product, "color_band", "Marrom") ?? "#5A4032" };
+  });
   const [petName, setPetName] = useState("");
   const customizerRef = useRef<HTMLDivElement>(null);
 
+  // Deep link com cor pré-selecionada: rola até o customizer já com a combinação certa.
+  useEffect(() => {
+    if (!turntableClips.some((c) => c.id === initialComboId)) return;
+    const t = setTimeout(() => {
+      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [initialComboId]);
+
   function customizeFromClip(clip: TurntableClip) {
-    const topLabel = getColor(clip.colorTopId).label;
-    const bottomLabel = getColor(clip.colorBottomId).label;
-    setSelection({
-      colorBaseHex: hexForLabel(product, "color_base", topLabel) ?? selection.colorBaseHex,
-      colorBandHex: hexForLabel(product, "color_band", bottomLabel) ?? selection.colorBandHex,
-    });
+    setSelection(selectionForClip(product, clip));
     customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
