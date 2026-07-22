@@ -6,7 +6,9 @@ import { STATUS_LABEL } from "@/lib/order-status";
 import { ORDER_STATUSES, type OrderStatus, type Customer } from "@/db/types";
 
 function csvCell(value: string): string {
-  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  // P1-2: neutraliza fórmula (=, +, -, @, tab, CR) prefixando aspa simples.
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 /** Export CSV dos pedidos filtrados (9.3 AC4) — repõe a funcionalidade removida do épico 4. */

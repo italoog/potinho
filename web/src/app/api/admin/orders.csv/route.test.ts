@@ -76,6 +76,29 @@ describe("GET /api/admin/orders.csv", () => {
     expect(csv).toContain('"Ana ""Silva"", Jr"');
   });
 
+  it("neutraliza fórmula CSV prefixando aspa simples (P1-2)", async () => {
+    requireAdminSession.mockResolvedValue({ user: { email: "admin@potinho.com.br" } });
+    searchAdminOrders.mockResolvedValue({
+      total: 1,
+      items: [
+        {
+          order: {
+            createdAt: new Date("2026-01-15"),
+            customer: { name: "=1+1", email: "ana@example.com", phone: "11999990000" },
+            totalAmount: 9900,
+            status: "pending",
+            trackingCode: null,
+          },
+          petNames: [],
+        },
+      ],
+    });
+
+    const res = await GET(req());
+    const csv = await res.text();
+    expect(csv).toContain("'=1+1");
+  });
+
   it("repassa query e status pra searchAdminOrders", async () => {
     requireAdminSession.mockResolvedValue({ user: { email: "admin@potinho.com.br" } });
     searchAdminOrders.mockResolvedValue({ total: 0, items: [] });
