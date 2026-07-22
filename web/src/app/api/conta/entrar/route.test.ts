@@ -1,11 +1,30 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
+import * as schema from "@/db/schema";
 
 /** Login por magic link (7.2 AC1/AC2): sem senha, rate limit por e-mail, resposta idêntica sempre (sem enumeração). */
 
 const signInMagicLink = vi.fn();
 vi.mock("@/lib/auth", () => ({ getAuth: async () => ({ api: { signInMagicLink } }) }));
 
+let testDb: ReturnType<typeof drizzle<typeof schema>>;
+
+// rateLimit (P2-3) bate no Postgres — usa PGlite em memória aqui em vez do fallback dev
+// persistido em disco, que é lento demais pra caber no timeout padrão do teste.
+vi.mock("@/db", async () => {
+  const actual = await vi.importActual<typeof schema>("@/db/schema");
+  return { ...actual, getDb: async () => testDb };
+});
+
 const { POST } = await import("./route");
+
+beforeAll(async () => {
+  const client = new PGlite();
+  testDb = drizzle(client, { schema });
+  await migrate(testDb, { migrationsFolder: "./drizzle" });
+});
 
 function req(email: string): Request {
   return new Request("http://localhost/api/conta/entrar", {

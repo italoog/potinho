@@ -36,7 +36,7 @@ const USER_FACING_ERRORS = [
 ];
 
 export async function POST(request: Request) {
-  const limit = rateLimit(`checkout:${clientIp(request)}`, 10, 5 * 60_000);
+  const limit = await rateLimit(`checkout:${clientIp(request)}`, 10, 5 * 60_000);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   try {

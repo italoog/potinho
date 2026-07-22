@@ -208,6 +208,17 @@ export const notifyRequests = pgTable(
   (t) => [uniqueIndex("notify_requests_email_color_idx").on(t.email, t.colorId)],
 );
 
+export const rateLimitHits = pgTable(
+  "rate_limit_hits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Chave lógica do limite (ex.: "checkout:1.2.3.4", "magiclink:a@b.com") — ver web/src/lib/rate-limit.ts (P2-3) */
+    key: text("key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("rate_limit_hits_key_created_idx").on(t.key, t.createdAt)],
+);
+
 export const coupons = pgTable(
   "coupons",
   {

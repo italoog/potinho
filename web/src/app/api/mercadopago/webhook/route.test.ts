@@ -1,5 +1,9 @@
 import { createHmac } from "node:crypto";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
+import * as schema from "@/db/schema";
 
 /**
  * Webhook Mercado Pago (P-04, dinheiro real): assinatura, roteamento de status e rate limit.
@@ -18,7 +22,22 @@ vi.mock("@/lib/payments/mercadopago", async (importOriginal) => {
   return { ...actual, getMercadoPagoPayment };
 });
 
+let testDb: ReturnType<typeof drizzle<typeof schema>>;
+
+// rateLimit (P2-3) bate no Postgres — usa PGlite em memória aqui em vez do fallback dev
+// persistido em disco, que é lento demais pra caber no timeout padrão do teste.
+vi.mock("@/db", async () => {
+  const actual = await vi.importActual<typeof schema>("@/db/schema");
+  return { ...actual, getDb: async () => testDb };
+});
+
 const { POST } = await import("./route");
+
+beforeAll(async () => {
+  const client = new PGlite();
+  testDb = drizzle(client, { schema });
+  await migrate(testDb, { migrationsFolder: "./drizzle" });
+});
 
 const SECRET = "test-webhook-secret";
 const TOKEN = "test-access-token";

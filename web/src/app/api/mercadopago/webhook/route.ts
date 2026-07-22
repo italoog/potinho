@@ -15,7 +15,7 @@ import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
  */
 
 export async function POST(request: Request) {
-  const limit = rateLimit(`mp-webhook:${clientIp(request)}`, 60, 5 * 60_000);
+  const limit = await rateLimit(`mp-webhook:${clientIp(request)}`, 60, 5 * 60_000);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {

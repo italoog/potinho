@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   try {
     const { email } = bodySchema.parse(await request.json());
 
-    const limit = rateLimit(`conta-entrar:${email.toLowerCase()}`, 3, 60 * 60_000);
+    const limit = await rateLimit(`conta-entrar:${email.toLowerCase()}`, 3, 60 * 60_000);
     if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
     const auth = await getAuth();

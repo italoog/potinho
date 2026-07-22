@@ -17,7 +17,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const limit = rateLimit(`cupom:${clientIp(request)}`, 20, 5 * 60_000);
+  const limit = await rateLimit(`cupom:${clientIp(request)}`, 20, 5 * 60_000);
   if (!limit.ok) return rateLimitResponse(limit.retryAfterSeconds);
 
   try {
