@@ -407,6 +407,9 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
         </table>
       </div>
 
+      {/* erro de remover/toggle (fora do form de criar/editar, que já mostra o seu próprio) */}
+      {error && !creating && editingId === null && <p className="text-sm text-rose-500">{error}</p>}
+
       {creating ? (
         <CouponForm
           draft={newDraft}
