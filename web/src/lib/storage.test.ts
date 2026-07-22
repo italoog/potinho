@@ -27,6 +27,11 @@ describe("storeFile — sem S3 configurado (dev/filesystem)", () => {
     expect(mkdir).toHaveBeenCalled();
     expect(writeFile).toHaveBeenCalled();
   });
+
+  it("rejeita key com path traversal (P3-1)", async () => {
+    await expect(storeFile("../../etc/passwd", Buffer.from("x"), "text/plain")).rejects.toThrow(/key inválida/);
+    expect(writeFile).not.toHaveBeenCalled();
+  });
 });
 
 describe("storeFile — com S3 configurado", () => {

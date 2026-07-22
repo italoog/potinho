@@ -72,7 +72,7 @@ export const shippingPackageSchema = z.object({
 
 export const variantSchema = z.object({
   /** Identificador estável referenciado por selectOption.variantRef */
-  ref: z.string().min(1),
+  ref: z.string().regex(/^[a-z0-9_-]+$/i, "ref inválido"),
   label: z.string().min(1),
   /** URL do GLB otimizado para web */
   modelUrl: z.string().min(1),

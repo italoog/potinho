@@ -74,7 +74,8 @@ describe("POST /api/admin/produto/tamanho", () => {
     storeFile.mockResolvedValue({ url: "/uploads/models/comedouro-pet/20cm.glb" });
     addProductVariant.mockResolvedValue(undefined);
 
-    const file = new File([new Uint8Array([1, 2, 3])], "20cm.glb", { type: "model/gltf-binary" });
+    // Magic number "glTF" (0x67,0x6C,0x54,0x46) exigido pelo check P3-2.
+    const file = new File([new Uint8Array([0x67, 0x6c, 0x54, 0x46, 1, 2, 3])], "20cm.glb", { type: "model/gltf-binary" });
     const res = await POST(formReq(formFields(), file));
     expect(res.status).toBe(200);
     expect(storeFile).toHaveBeenCalledWith("models/comedouro-pet/20cm.glb", expect.any(Buffer), "model/gltf-binary");
@@ -82,6 +83,22 @@ describe("POST /api/admin/produto/tamanho", () => {
       productId,
       expect.objectContaining({ modelUrl: "/uploads/models/comedouro-pet/20cm.glb" }),
     );
+  });
+
+  it("rejeita arquivo que não é um GLB válido (P3-2)", async () => {
+    requireAdminSession.mockResolvedValue({ user: { email: "admin@potinho.com.br" } });
+    const file = new File([new Uint8Array([1, 2, 3, 4])], "fake.glb", { type: "model/gltf-binary" });
+    const res = await POST(formReq(formFields(), file));
+    expect(res.status).toBe(400);
+    expect(storeFile).not.toHaveBeenCalled();
+    expect(addProductVariant).not.toHaveBeenCalled();
+  });
+
+  it("rejeita ref com caracteres inválidos / path traversal (P3-1)", async () => {
+    requireAdminSession.mockResolvedValue({ user: { email: "admin@potinho.com.br" } });
+    const res = await POST(formReq(formFields({ ref: "../../evil" })));
+    expect(res.status).toBe(400);
+    expect(addProductVariant).not.toHaveBeenCalled();
   });
 
   it("repassa erro de domínio (ex.: ref duplicada)", async () => {
@@ -115,5 +132,12 @@ describe("DELETE /api/admin/produto/tamanho", () => {
     const res = await DELETE(jsonReq({ productId, ref: "20cm" }));
     expect(res.status).toBe(200);
     expect(removeProductVariant).toHaveBeenCalledWith(productId, "20cm");
+  });
+
+  it("rejeita ref com caracteres inválidos / path traversal (P3-1)", async () => {
+    requireAdminSession.mockResolvedValue({ user: { email: "admin@potinho.com.br" } });
+    const res = await DELETE(jsonReq({ productId, ref: "../../evil" }));
+    expect(res.status).toBe(400);
+    expect(removeProductVariant).not.toHaveBeenCalled();
   });
 });

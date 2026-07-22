@@ -26,6 +26,9 @@ export async function storeFile(
   data: Buffer,
   contentType: string,
 ): Promise<StoredFile> {
+  // P3-1: defesa em profundidade contra path traversal (além da validação de `ref` na rota).
+  if (key.includes("..")) throw new Error("key inválida");
+
   if (s3Configured()) {
     const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
     const client = new S3Client({

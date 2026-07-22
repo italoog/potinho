@@ -4,14 +4,17 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { addProductVariant, removeProductVariant } from "@/lib/products";
 import { storeFile } from "@/lib/storage";
 
+// P3-1: restringe a caracteres seguros pra virar chave de arquivo (`models/.../${ref}.glb`) — bloqueia path traversal.
+const refSchema = z.string().regex(/^[a-z0-9_-]+$/i, "ref inválido");
+
 const deleteBodySchema = z.object({
   productId: z.string().uuid(),
-  ref: z.string().min(1),
+  ref: refSchema,
 });
 
 const fieldsSchema = z.object({
   productId: z.string().uuid(),
-  ref: z.string().min(1),
+  ref: refSchema,
   label: z.string().min(1),
   dimensions: z.string().min(1),
   price: z.coerce.number().int().min(0),
@@ -47,6 +50,10 @@ export async function POST(request: Request) {
     let modelUrl = fields.fallbackModelUrl;
     if (file instanceof File && file.size > 0) {
       const buf = Buffer.from(await file.arrayBuffer());
+      // P3-2: confirma o magic number do GLB (glTF) antes de gravar — admin pode subir qualquer coisa.
+      if (buf.length < 4 || buf.readUInt32LE(0) !== 0x46546c67) {
+        return NextResponse.json({ error: "Arquivo não é um GLB válido" }, { status: 400 });
+      }
       const stored = await storeFile(
         `models/comedouro-pet/${fields.ref}.glb`,
         buf,
