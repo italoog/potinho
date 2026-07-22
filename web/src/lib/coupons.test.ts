@@ -1,7 +1,51 @@
-import { describe, expect, it } from "vitest";
-import { applyCoupon, couponValidationError, prorateProductDiscount, type DiscountableCartItem } from "./coupons";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
+import { eq } from "drizzle-orm";
+import * as schema from "@/db/schema";
 import { comedouroPet } from "@/db/seed-data";
 import type { CouponRow } from "@/db/schema";
+
+let testDb: ReturnType<typeof drizzle<typeof schema>>;
+
+vi.mock("@/db", async () => {
+  const actual = await vi.importActual<typeof schema>("@/db/schema");
+  return { ...actual, getDb: async () => testDb };
+});
+
+const {
+  applyCoupon,
+  couponValidationError,
+  prorateProductDiscount,
+  tryConsumeCoupon,
+  listCoupons,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon,
+} = await import("./coupons");
+type DiscountableCartItem = import("./coupons").DiscountableCartItem;
+
+beforeAll(async () => {
+  const client = new PGlite();
+  testDb = drizzle(client, { schema });
+  await migrate(testDb, { migrationsFolder: "./drizzle" });
+});
+
+function couponInput(overrides: Partial<Parameters<typeof createCoupon>[0]> = {}) {
+  return {
+    code: `cupom-${crypto.randomUUID().slice(0, 8)}`,
+    active: true,
+    productDiscountType: "percent" as const,
+    productDiscountValue: 10,
+    shippingDiscountType: null,
+    shippingDiscountValue: null,
+    cumulative: false,
+    usageLimit: null,
+    expiresAt: null,
+    ...overrides,
+  };
+}
 
 const baseCoupon: CouponRow = {
   id: "coupon-1",
@@ -117,5 +161,64 @@ describe("prorateProductDiscount", () => {
 
   it("desconto igual ao total zera todos os itens", () => {
     expect(prorateProductDiscount([9900, 14900], 24800)).toEqual([0, 0]);
+  });
+});
+
+describe("tryConsumeCoupon (consumo atômico — TOCTOU)", () => {
+  it("incrementa o uso e devolve true quando ainda há vaga", async () => {
+    const coupon = await createCoupon(couponInput({ usageLimit: 2 }));
+    expect(await tryConsumeCoupon(coupon.id)).toBe(true);
+    const [after] = await testDb.select().from(schema.coupons).where(eq(schema.coupons.id, coupon.id));
+    expect(after.usageCount).toBe(1);
+  });
+
+  it("devolve false quando o limite já foi atingido (corrida perdida)", async () => {
+    const coupon = await createCoupon(couponInput({ usageLimit: 1 }));
+    expect(await tryConsumeCoupon(coupon.id)).toBe(true);
+    expect(await tryConsumeCoupon(coupon.id)).toBe(false);
+  });
+
+  it("sem usageLimit (ilimitado) sempre devolve true", async () => {
+    const coupon = await createCoupon(couponInput({ usageLimit: null }));
+    for (let i = 0; i < 5; i++) expect(await tryConsumeCoupon(coupon.id)).toBe(true);
+  });
+});
+
+describe("CRUD de cupons (admin)", () => {
+  it("cria, lista, atualiza e apaga um cupom", async () => {
+    const created = await createCoupon(couponInput({ code: "cupom-crud" }));
+    expect(created.code).toBe("CUPOM-CRUD"); // normalizado
+
+    const all = await listCoupons();
+    expect(all.some((c) => c.id === created.id)).toBe(true);
+
+    const updated = await updateCoupon(created.id, couponInput({ code: "cupom-crud", productDiscountValue: 20 }));
+    expect(updated.productDiscountValue).toBe(20);
+
+    await deleteCoupon(created.id);
+    expect((await listCoupons()).some((c) => c.id === created.id)).toBe(false);
+  });
+
+  it("recusa código duplicado", async () => {
+    await createCoupon(couponInput({ code: "cupom-dup" }));
+    await expect(createCoupon(couponInput({ code: "cupom-dup" }))).rejects.toThrow(/já existe/i);
+  });
+
+  it("exige pelo menos um tipo de desconto configurado", async () => {
+    await expect(
+      createCoupon(couponInput({ productDiscountType: null, shippingDiscountType: null })),
+    ).rejects.toThrow(/configure desconto/i);
+  });
+
+  it("recusa desconto percentual acima de 100%", async () => {
+    await expect(createCoupon(couponInput({ productDiscountValue: 150 }))).rejects.toThrow(/não pode passar de 100/);
+  });
+
+  it("recusa usageLimit menor que 1", async () => {
+    await expect(createCoupon(couponInput({ usageLimit: 0 }))).rejects.toThrow(/pelo menos 1/);
+  });
+
+  it("updateCoupon lança quando o id não existe", async () => {
+    await expect(updateCoupon(crypto.randomUUID(), couponInput())).rejects.toThrow(/não encontrado/i);
   });
 });

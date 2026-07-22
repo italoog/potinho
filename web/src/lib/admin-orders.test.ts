@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
@@ -13,7 +13,31 @@ vi.mock("@/db", async () => {
   return { ...actual, getDb: async () => testDb };
 });
 
-const { searchAdminOrders, changeOrderStatus, resendOrderConfirmation } = await import("./admin-orders");
+const createCartOrder = vi.fn();
+const checkoutOrder = vi.fn();
+const printLabel = vi.fn();
+const cancelOrder = vi.fn();
+vi.mock("./shipping-label", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./shipping-label")>();
+  return { ...actual, createCartOrder, checkoutOrder, printLabel, cancelOrder };
+});
+
+const findMercadoPagoPaymentByOrderId = vi.fn();
+vi.mock("./payments/mercadopago", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./payments/mercadopago")>();
+  return { ...actual, findMercadoPagoPaymentByOrderId };
+});
+
+const {
+  searchAdminOrders,
+  changeOrderStatus,
+  resendOrderConfirmation,
+  markOrderPaidByAdmin,
+  reconcilePaymentByAdmin,
+  quoteShippingLabel,
+  purchaseShippingLabel,
+  cancelShippingLabel,
+} = await import("./admin-orders");
 
 let productId: string;
 
@@ -107,5 +131,171 @@ describe("resendOrderConfirmation (9.3 AC5)", () => {
       .from(schema.orderEvents)
       .where(eq(schema.orderEvents.orderId, order.id));
     expect(events.some((e) => e.type === "email_sent")).toBe(true);
+  });
+});
+
+describe("markOrderPaidByAdmin (9.4)", () => {
+  it("marca como pago manualmente, com providerPaymentId sintético", async () => {
+    const order = await createOrder("BENTO", "Gil", "gil@example.com", "pending");
+    await markOrderPaidByAdmin(order.id, "admin@potinho.com.br");
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.status).toBe("paid");
+    expect(after.providerPaymentId).toMatch(/^manual_/);
+  });
+});
+
+describe("reconcilePaymentByAdmin", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("erro quando o pedido não existe", async () => {
+    const result = await reconcilePaymentByAdmin(crypto.randomUUID(), "admin@potinho.com.br");
+    expect(result).toEqual({ ok: false, error: "Pedido não encontrado" });
+  });
+
+  it("recusa provider diferente de mercadopago", async () => {
+    const order = await createOrder("IRIS", "Hana", "hana@example.com", "pending");
+    await testDb.update(schema.orders).set({ paymentProvider: "stripe" }).where(eq(schema.orders.id, order.id));
+    const result = await reconcilePaymentByAdmin(order.id, "admin@potinho.com.br");
+    expect(result.ok).toBe(false);
+  });
+
+  it("marca como pago quando o MP confirma aprovação", async () => {
+    const order = await createOrder("JADE", "Ivo", "ivo@example.com", "pending");
+    await testDb.update(schema.orders).set({ paymentProvider: "mercadopago" }).where(eq(schema.orders.id, order.id));
+    findMercadoPagoPaymentByOrderId.mockResolvedValue({ status: "approved", paymentId: "mp-999" });
+
+    const result = await reconcilePaymentByAdmin(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: true, status: "approved" });
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.status).toBe("paid");
+  });
+
+  it("erro quando não há pagamento no MP pra esse pedido", async () => {
+    const order = await createOrder("KIRA", "Joel", "joel@example.com", "pending");
+    await testDb.update(schema.orders).set({ paymentProvider: "mercadopago" }).where(eq(schema.orders.id, order.id));
+    findMercadoPagoPaymentByOrderId.mockResolvedValue(null);
+
+    const result = await reconcilePaymentByAdmin(order.id, "admin@potinho.com.br");
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("quoteShippingLabel: erro quando o pedido não existe", async () => {
+    const result = await quoteShippingLabel(crypto.randomUUID(), {
+      recipientDocument: "12345678901",
+      service: "sedex",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 10000,
+    });
+    expect(result).toEqual({ ok: false, error: "Pedido não encontrado" });
+  });
+
+  it("quoteShippingLabel: cota e persiste recipientDocument + shippingOrderId", async () => {
+    const order = await createOrder("LUNA", "Kaká", "kaka@example.com", "pending");
+    createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-1", priceCents: 2350 });
+
+    const result = await quoteShippingLabel(order.id, {
+      recipientDocument: "12345678901",
+      service: "sedex",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 14900,
+    });
+    expect(result).toEqual({ ok: true, priceCents: 2350 });
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.recipientDocument).toBe("12345678901");
+    expect(after.shippingOrderId).toBe("sf-order-1");
+  });
+
+  it("quoteShippingLabel: erro controlado quando a SuperFrete falha", async () => {
+    const order = await createOrder("MEG", "Lia", "lia@example.com", "pending");
+    createCartOrder.mockRejectedValue(new Error("CEP inválido"));
+
+    const result = await quoteShippingLabel(order.id, {
+      recipientDocument: "12345678901",
+      service: "pac",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 9900,
+    });
+    expect(result).toEqual({ ok: false, error: "CEP inválido" });
+  });
+
+  it("purchaseShippingLabel: exige cotação prévia (sem shippingOrderId)", async () => {
+    const order = await createOrder("NOAH", "Mia", "mia@example.com", "pending");
+    const result = await purchaseShippingLabel(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: false, error: "Cote a etiqueta antes de comprar" });
+  });
+
+  it("purchaseShippingLabel: compra, preenche rastreio/label e registra evento", async () => {
+    const order = await createOrder("OLIVER", "Nara", "nara@example.com", "pending");
+    createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-2", priceCents: 2000 });
+    await quoteShippingLabel(order.id, {
+      recipientDocument: "12345678901",
+      service: "sedex",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 14900,
+    });
+
+    checkoutOrder.mockResolvedValue({ trackingCode: "BR999888777", priceCents: 2000 });
+    printLabel.mockResolvedValue("https://superfrete.example/label/sf-order-2.pdf");
+
+    const result = await purchaseShippingLabel(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: true, trackingCode: "BR999888777", labelUrl: "https://superfrete.example/label/sf-order-2.pdf" });
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.trackingCode).toBe("BR999888777");
+    expect(after.shippingLabelUrl).toBe("https://superfrete.example/label/sf-order-2.pdf");
+    expect(after.shippingLabelPriceCents).toBe(2000);
+
+    const events = await testDb.select().from(schema.orderEvents).where(eq(schema.orderEvents.orderId, order.id));
+    expect(events.some((e) => e.type === "label_created")).toBe(true);
+  });
+
+  it("cancelShippingLabel: erro quando não há etiqueta gerada", async () => {
+    const order = await createOrder("PIPPA", "Otto", "otto@example.com", "pending");
+    const result = await cancelShippingLabel(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: false, error: "Esse pedido não tem etiqueta gerada" });
+  });
+
+  it("cancelShippingLabel: cancela e limpa os campos da etiqueta", async () => {
+    const order = await createOrder("QUINN", "Pati", "pati@example.com", "pending");
+    createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-3", priceCents: 2000 });
+    await quoteShippingLabel(order.id, {
+      recipientDocument: "12345678901",
+      service: "sedex",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 14900,
+    });
+    checkoutOrder.mockResolvedValue({ trackingCode: "BR111", priceCents: 2000 });
+    printLabel.mockResolvedValue("https://superfrete.example/label/sf-order-3.pdf");
+    await purchaseShippingLabel(order.id, "admin@potinho.com.br");
+
+    cancelOrder.mockResolvedValue(undefined);
+    const result = await cancelShippingLabel(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: true });
+
+    const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
+    expect(after.shippingOrderId).toBeNull();
+    expect(after.shippingLabelUrl).toBeNull();
+    expect(after.shippingLabelPriceCents).toBeNull();
+  });
+
+  it("cancelShippingLabel: erro controlado quando a SuperFrete recusa o cancelamento", async () => {
+    const order = await createOrder("ROXY", "Quel", "quel@example.com", "pending");
+    createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-4", priceCents: 2000 });
+    await quoteShippingLabel(order.id, {
+      recipientDocument: "12345678901",
+      service: "sedex",
+      package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
+      declaredValueCents: 14900,
+    });
+    cancelOrder.mockRejectedValue(new Error("Etiqueta já foi impressa, não pode cancelar"));
+
+    const result = await cancelShippingLabel(order.id, "admin@potinho.com.br");
+    expect(result).toEqual({ ok: false, error: "Etiqueta já foi impressa, não pode cancelar" });
   });
 });

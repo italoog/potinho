@@ -11,6 +11,12 @@ export default defineConfig({
     // PGlite (WASM) inicializa em cada arquivo de teste em paralelo — sob contenção
     // de CPU (muitos arquivos ao mesmo tempo) o boot pode passar dos 10s default.
     hookTimeout: 30_000,
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json-summary"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/db/migrate.ts", "src/db/seed.ts"],
+    },
   },
   resolve: {
     alias: {

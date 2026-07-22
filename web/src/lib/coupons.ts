@@ -142,6 +142,12 @@ export async function listCoupons(): Promise<CouponRow[]> {
   return db.select().from(coupons).orderBy(desc(coupons.createdAt));
 }
 
+/** Drizzle embrulha o erro real do driver em `cause` — checar só `err.message` nunca bate (sempre é "Failed query: ..."). */
+function isDuplicateCodeError(err: unknown): boolean {
+  const cause = err instanceof Error && err.cause instanceof Error ? err.cause : err;
+  return cause instanceof Error && /duplicate key|unique constraint/i.test(cause.message);
+}
+
 export async function createCoupon(input: CouponInput): Promise<CouponRow> {
   validateCouponInput(input);
   const db = await getDb();
@@ -152,9 +158,7 @@ export async function createCoupon(input: CouponInput): Promise<CouponRow> {
       .returning();
     return row;
   } catch (err) {
-    if (err instanceof Error && /duplicate key|unique constraint/i.test(err.message)) {
-      throw new Error("Já existe um cupom com esse código");
-    }
+    if (isDuplicateCodeError(err)) throw new Error("Já existe um cupom com esse código");
     throw err;
   }
 }
@@ -171,9 +175,7 @@ export async function updateCoupon(id: string, input: CouponInput): Promise<Coup
     if (!row) throw new Error("Cupom não encontrado");
     return row;
   } catch (err) {
-    if (err instanceof Error && /duplicate key|unique constraint/i.test(err.message)) {
-      throw new Error("Já existe um cupom com esse código");
-    }
+    if (isDuplicateCodeError(err)) throw new Error("Já existe um cupom com esse código");
     throw err;
   }
 }

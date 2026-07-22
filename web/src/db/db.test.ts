@@ -28,11 +28,12 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
     // JSONB round-trip preserva o schema de parâmetros do PRD §8
     const parsedParams = productParamSchema.parse(row.paramSchema);
     expect(parsedParams).toHaveLength(4);
-    expect(parsedParams.map((p) => p.type)).toEqual(["text", "color", "color", "select"]);
+    expect(parsedParams.map((p) => p.key)).toEqual(["pet_name", "size", "color_base", "color_band"]);
 
     const parsedVariants = variantsSchema.parse(row.variants);
     expect(parsedVariants.map((v) => v.ref)).toEqual(["5cm", "10cm", "15cm"]);
-    expect(row.basePrice).toBe(9900);
+    // preço final mora em variants[].price (basePrice ficou 0, sem uso no cálculo)
+    expect(parsedVariants.map((v) => v.price)).toEqual([9900, 11900, 14900]);
   });
 
   it("pedido persiste customer + N itens com configuration imutável + snapshot", async () => {

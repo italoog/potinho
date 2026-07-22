@@ -13,9 +13,16 @@ vi.mock("@/db", async () => {
   return { ...actual, getDb: async () => testDb };
 });
 
-const { markOrderPaid, markOrderRejected, markOrderRefunded, linkOrderToAccountIfExists } = await import(
-  "./orders"
-);
+const {
+  markOrderPaid,
+  markOrderRejected,
+  markOrderRefunded,
+  linkOrderToAccountIfExists,
+  getOrderByToken,
+  getOrdersForUser,
+  getOrderForUser,
+  getOrderForAdmin,
+} = await import("./orders");
 
 const CUSTOMER = {
   name: "Mariana Silva",
@@ -111,5 +118,53 @@ describe("linkOrderToAccountIfExists (7.1)", () => {
 
     const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
     expect(after.userId).toBeNull();
+  });
+});
+
+describe("getOrderByToken (página pública /pedido/[token])", () => {
+  it("devolve pedido + itens + eventos pelo publicToken", async () => {
+    const order = await createOrder();
+    const result = await getOrderByToken(order.publicToken!);
+    expect(result?.order.id).toBe(order.id);
+  });
+
+  it("devolve null quando o token não existe", async () => {
+    expect(await getOrderByToken(crypto.randomUUID())).toBeNull();
+  });
+});
+
+describe("getOrdersForUser / getOrderForUser (7.3 AC2/AC3 — isolamento por dono)", () => {
+  it("lista só os pedidos do userId informado", async () => {
+    const [dono] = await testDb.insert(schema.users).values({ name: "Dona", email: "dona@example.com" }).returning();
+    const meu = await createOrder();
+    await testDb.update(schema.orders).set({ userId: dono.id }).where(eq(schema.orders.id, meu.id));
+    await createOrder(); // pedido de outro dono (userId nulo)
+
+    const list = await getOrdersForUser(dono.id);
+    expect(list).toHaveLength(1);
+    expect(list[0].order.id).toBe(meu.id);
+  });
+
+  it("getOrderForUser nunca devolve pedido de outro usuário (defesa em profundidade)", async () => {
+    const [dono] = await testDb.insert(schema.users).values({ name: "Fulano", email: "fulano@example.com" }).returning();
+    const [outro] = await testDb.insert(schema.users).values({ name: "Ciclano", email: "ciclano@example.com" }).returning();
+    const pedido = await createOrder();
+    await testDb.update(schema.orders).set({ userId: dono.id }).where(eq(schema.orders.id, pedido.id));
+
+    expect(await getOrderForUser(pedido.id, outro.id)).toBeNull();
+    const own = await getOrderForUser(pedido.id, dono.id);
+    expect(own?.order.id).toBe(pedido.id);
+  });
+});
+
+describe("getOrderForAdmin (9.3 AC2)", () => {
+  it("devolve o pedido sem exigir dono (checagem de role já feita na rota)", async () => {
+    const order = await createOrder();
+    const result = await getOrderForAdmin(order.id);
+    expect(result?.order.id).toBe(order.id);
+  });
+
+  it("devolve null quando o pedido não existe", async () => {
+    expect(await getOrderForAdmin(crypto.randomUUID())).toBeNull();
   });
 });
