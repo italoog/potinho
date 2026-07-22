@@ -27,6 +27,8 @@ export default defineConfig({
     env: {
       ALLOW_DEV_CHECKOUT: "true",
       ADMIN_EMAILS: "admin@potinho.com.br",
+      // Habilita /api/test/last-verification (P2-2) — nunca setar em produção/preview.
+      ALLOW_E2E_ENDPOINTS: "true",
     },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

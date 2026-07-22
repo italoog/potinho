@@ -8,7 +8,8 @@ import { getDb, verifications } from "@/db";
  * padrão de guarda do ALLOW_DEV_CHECKOUT (6.3 S4).
  */
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === "production") {
+  // Só habilitado com flag explícita E fora de produção (P2-2). Dupla trava.
+  if (process.env.NODE_ENV === "production" || process.env.ALLOW_E2E_ENDPOINTS !== "true") {
     return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
   }
 
