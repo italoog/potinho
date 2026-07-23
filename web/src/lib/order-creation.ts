@@ -3,7 +3,7 @@ import type { OrderRow } from "@/db/schema";
 import type { Customer, OrderConfiguration } from "@/db/types";
 import { getProductById } from "./products";
 import { validateCartItems, type CartItemInput } from "./pricing";
-import { shippingCentsFor } from "./shipping";
+import { isFreeShippingEligible, shippingCentsFor } from "./shipping";
 import { decodePngDataUrl, storeFile } from "./storage";
 import { recordOrderEvent } from "./order-events";
 import { linkOrderToAccountIfExists } from "./orders";
@@ -76,7 +76,9 @@ export async function createOrderFromCart(input: CreateOrderInput, actor: string
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const shippingCentsBeforeDiscount =
     input.shippingCentsOverride ??
-    (await shippingCentsFor(input.customer.address.zip, input.customer.address.state, packages));
+    (isFreeShippingEligible(input.items.length)
+      ? 0
+      : await shippingCentsFor(input.customer.address.zip, input.customer.address.state, packages));
 
   const itemsTotal = validated.reduce((sum, v) => sum + v.unitPrice, 0);
 

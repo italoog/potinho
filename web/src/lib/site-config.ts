@@ -14,6 +14,17 @@ export const dropCountdown = {
   label: "primeiro drop",
 } as const;
 
+/**
+ * Frete grátis a partir de N unidades no carrinho — promoção automática (não é cupom).
+ * minQuantity é a única fonte de verdade: alimenta o cálculo real do frete
+ * (web/src/lib/shipping.ts, order-creation.ts, api/shipping/quote/route.ts) e o texto
+ * da FreeShippingBar. Mudar o número aqui já atualiza os dois.
+ */
+export const freeShipping = {
+  enabled: true,
+  minQuantity: 2,
+} as const;
+
 export interface StockColor {
   id: string;
   label: string;

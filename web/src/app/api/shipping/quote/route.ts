@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getProductById } from "@/lib/products";
-import { shippingCentsFor } from "@/lib/shipping";
+import { isFreeShippingEligible, shippingCentsFor } from "@/lib/shipping";
 import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
@@ -27,7 +27,9 @@ export async function POST(request: Request) {
       .map((item, i) => products[i]?.variants.find((v) => v.ref === item.size)?.shipping)
       .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-    const shippingCents = await shippingCentsFor(body.cep, body.uf, packages);
+    const shippingCents = isFreeShippingEligible(body.items.length)
+      ? 0
+      : await shippingCentsFor(body.cep, body.uf, packages);
     return NextResponse.json({ shippingCents });
   } catch (err) {
     console.error("Cotação de frete falhou:", err);

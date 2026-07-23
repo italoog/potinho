@@ -35,7 +35,7 @@ export default function CartUI() {
         onClick={open}
         aria-label={`abrir carrinho (${items.length} itens)`}
         data-testid="cart-button"
-        className="fixed right-5 top-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-potinho-chocolate text-potinho-bege shadow-lg transition-transform hover:scale-105"
+        className="fixed right-5 top-14 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-potinho-chocolate text-potinho-bege shadow-lg transition-transform hover:scale-105"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
           <circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none" />
@@ -54,7 +54,7 @@ export default function CartUI() {
         href="/conta"
         aria-label="minha conta"
         data-testid="account-button"
-        className="fixed right-5 top-[88px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-potinho-bege text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
+        className="fixed right-5 top-[124px] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-potinho-bege text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
           <circle cx="12" cy="8" r="3.2" />

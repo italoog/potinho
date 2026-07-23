@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import BackToStoreButton from "@/components/potinho/BackToStoreButton";
+import FreeShippingBar from "@/components/potinho/FreeShippingBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,6 +37,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <FreeShippingBar />
         <BackToStoreButton />
         {children}
       </body>

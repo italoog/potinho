@@ -1,4 +1,5 @@
 import type { ShippingPackage } from "@/db/types";
+import { freeShipping } from "./site-config";
 
 /**
  * Frete (8.1): SuperFrete cota em tempo real quando configurado
@@ -83,6 +84,11 @@ async function quoteSuperFrete(
     console.warn("SuperFrete indisponível, caindo pra tabela fixa por UF:", err);
     return null;
   }
+}
+
+/** Carrinho elegível pra promoção automática de frete grátis (ver site-config.ts). */
+export function isFreeShippingEligible(itemCount: number): boolean {
+  return freeShipping.enabled && itemCount >= freeShipping.minQuantity;
 }
 
 /** Preço do frete em centavos: cotação real (mais barata) se configurado, senão tabela fixa por UF. */

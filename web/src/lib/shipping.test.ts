@@ -1,7 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { shippingCentsFor } from "./shipping";
+import { isFreeShippingEligible, shippingCentsFor } from "./shipping";
 
 const PACKAGE = [{ widthCm: 20, heightCm: 18, lengthCm: 20, weightKg: 0.8 }];
+
+describe("isFreeShippingEligible", () => {
+  it("libera a partir de 2 itens no carrinho (freeShipping.minQuantity)", () => {
+    expect(isFreeShippingEligible(1)).toBe(false);
+    expect(isFreeShippingEligible(2)).toBe(true);
+    expect(isFreeShippingEligible(3)).toBe(true);
+  });
+});
 
 describe("shippingCentsFor (sem SuperFrete configurado, cai na tabela fixa)", () => {
   it("usa o valor padrão quando a UF não está na tabela", async () => {

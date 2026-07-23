@@ -79,3 +79,8 @@ body {
 .potinho-fade-up {
   animation: potinho-fade-up 0.9s ease-out both;
 }
+
+/* FreeShippingBar (root layout) some no admin — ferramenta interna, não é vitrine. */
+body:has(#admin-root) .free-shipping-bar {
+  display: none;
+}
