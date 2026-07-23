@@ -17,13 +17,13 @@ export default async function AdminAviseMePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold lowercase text-potinho-chocolate">avise-me</h1>
-      <section className="rounded-3xl bg-white p-6 shadow-potinho-card">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+      <h1 className="text-xl font-bold lowercase text-potinho-chocolate dark:text-potinho-caramelo">avise-me</h1>
+      <section className="rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
           pedidos pendentes por cor
         </h2>
         {groups.length === 0 ? (
-          <p className="text-sm text-potinho-texto/50">nenhum pedido pendente.</p>
+          <p className="text-sm text-potinho-texto/50 dark:text-potinho-bege/50">nenhum pedido pendente.</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {groups.map((group) => (

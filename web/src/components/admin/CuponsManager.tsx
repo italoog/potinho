@@ -34,6 +34,9 @@ const EMPTY_DRAFT: CouponDraft = {
   expiresAt: "",
 };
 
+const FIELD_INPUT_CLASS = "rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+const FIELD_LABEL_CLASS = "flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60";
+
 function draftFromCoupon(c: CouponRow): CouponDraft {
   return {
     code: c.code,
@@ -96,12 +99,12 @@ interface DiscountFieldsProps {
 function DiscountFields({ label, type, value, onTypeChange, onValueChange }: DiscountFieldsProps) {
   return (
     <div className="flex flex-wrap items-end gap-3">
-      <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+      <label className={FIELD_LABEL_CLASS}>
         {label}
         <select
           value={type}
           onChange={(e) => onTypeChange(e.target.value as DiscountTypeDraft)}
-          className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+          className={FIELD_INPUT_CLASS}
         >
           <option value="">sem desconto</option>
           <option value="percent">porcentagem</option>
@@ -109,7 +112,7 @@ function DiscountFields({ label, type, value, onTypeChange, onValueChange }: Dis
         </select>
       </label>
       {type && (
-        <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+        <label className={FIELD_LABEL_CLASS}>
           {type === "percent" ? "% de desconto" : "desconto (R$)"}
           <input
             type="number"
@@ -118,7 +121,7 @@ function DiscountFields({ label, type, value, onTypeChange, onValueChange }: Dis
             step={type === "percent" ? "1" : "0.01"}
             value={value}
             onChange={(e) => onValueChange(e.target.value)}
-            className="w-32 rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+            className={`w-32 ${FIELD_INPUT_CLASS}`}
           />
         </label>
       )}
@@ -138,7 +141,7 @@ interface CouponFormProps {
 
 function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabel }: CouponFormProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border-2 border-dashed border-potinho-bege p-4">
+    <div className="flex flex-col gap-4 rounded-2xl border-2 border-dashed border-potinho-bege p-4 dark:border-potinho-cinza/30">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <input
           required
@@ -146,9 +149,9 @@ function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabe
           placeholder="código (ex.: BEMVINDO10)"
           value={draft.code}
           onChange={(e) => onChange({ ...draft, code: e.target.value.toUpperCase() })}
-          className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm uppercase tracking-wider"
+          className={`${FIELD_INPUT_CLASS} uppercase tracking-wider`}
         />
-        <label className="flex items-center gap-2 self-center rounded-2xl bg-potinho-fundo px-4 py-2 text-xs font-semibold lowercase text-potinho-texto/70">
+        <label className="flex items-center gap-2 self-center rounded-2xl bg-potinho-fundo px-4 py-2 text-xs font-semibold lowercase text-potinho-texto/70 dark:bg-potinho-noite dark:text-potinho-bege/70">
           <input
             type="checkbox"
             checked={draft.active}
@@ -173,7 +176,7 @@ function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabe
         onValueChange={(v) => onChange({ ...draft, shippingDiscountValue: v })}
       />
 
-      <label className="flex items-start gap-3 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs leading-relaxed text-potinho-texto/70">
+      <label className="flex items-start gap-3 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs leading-relaxed text-potinho-texto/70 dark:bg-potinho-noite dark:text-potinho-bege/70">
         <input
           type="checkbox"
           checked={draft.cumulative}
@@ -187,7 +190,7 @@ function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabe
       </label>
 
       <div className="flex flex-wrap gap-3">
-        <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+        <label className={FIELD_LABEL_CLASS}>
           limite de uso
           <input
             type="number"
@@ -196,22 +199,22 @@ function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabe
             placeholder="ilimitado"
             value={draft.usageLimit}
             onChange={(e) => onChange({ ...draft, usageLimit: e.target.value })}
-            className="w-32 rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+            className={`w-32 ${FIELD_INPUT_CLASS}`}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+        <label className={FIELD_LABEL_CLASS}>
           válido até
           <input
             type="date"
             placeholder="sem validade"
             value={draft.expiresAt}
             onChange={(e) => onChange({ ...draft, expiresAt: e.target.value })}
-            className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+            className={FIELD_INPUT_CLASS}
           />
         </label>
       </div>
 
-      {error && <p className="text-xs text-rose-500">{error}</p>}
+      {error && <p className="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
 
       <div className="flex gap-3">
         <button
@@ -225,7 +228,7 @@ function CouponForm({ draft, onChange, onSave, onCancel, saving, error, saveLabe
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white"
+          className="rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           cancelar
         </button>
@@ -318,11 +321,11 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
+    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-potinho-bege text-xs uppercase tracking-widest text-potinho-texto/50">
+            <tr className="border-b border-potinho-bege text-xs uppercase tracking-widest text-potinho-texto/50 dark:border-potinho-cinza/20 dark:text-potinho-bege/50">
               <th className="px-3 py-3">código</th>
               <th className="px-3 py-3">produto</th>
               <th className="px-3 py-3">frete</th>
@@ -350,8 +353,13 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
                   </td>
                 </tr>
               ) : (
-                <tr key={coupon.id} className="border-b border-potinho-bege/50 last:border-0 hover:bg-potinho-fundo">
-                  <td className="px-3 py-3 font-semibold uppercase tracking-wider text-potinho-texto">{coupon.code}</td>
+                <tr
+                  key={coupon.id}
+                  className="border-b border-potinho-bege/50 last:border-0 hover:bg-potinho-fundo dark:border-potinho-cinza/10 dark:hover:bg-white/5"
+                >
+                  <td className="px-3 py-3 font-semibold uppercase tracking-wider text-potinho-texto dark:text-potinho-bege">
+                    {coupon.code}
+                  </td>
                   <td className="px-3 py-3">{summarizeDiscount(coupon.productDiscountType, coupon.productDiscountValue)}</td>
                   <td className="px-3 py-3">{summarizeDiscount(coupon.shippingDiscountType, coupon.shippingDiscountValue)}</td>
                   <td className="px-3 py-3 lowercase">{coupon.cumulative ? "sim" : "não"}</td>
@@ -366,7 +374,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
                       className={`rounded-full px-3 py-1 text-xs font-semibold lowercase transition-colors disabled:opacity-40 ${
                         coupon.active
                           ? "bg-potinho-bege text-potinho-chocolate"
-                          : "bg-potinho-fundo text-potinho-texto/50 ring-1 ring-potinho-cinza/40"
+                          : "bg-potinho-fundo text-potinho-texto/50 ring-1 ring-potinho-cinza/40 dark:bg-potinho-noite dark:text-potinho-bege/50"
                       }`}
                     >
                       {coupon.active ? "ativo" : "inativo"}
@@ -380,7 +388,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
                         setEditDraft(draftFromCoupon(coupon));
                         setError(null);
                       }}
-                      className="mr-3 text-xs text-potinho-chocolate hover:underline"
+                      className="mr-3 text-xs text-potinho-chocolate hover:underline dark:text-potinho-caramelo"
                     >
                       editar
                     </button>
@@ -388,7 +396,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
                       type="button"
                       onClick={() => handleDelete(coupon)}
                       disabled={busyId === coupon.id}
-                      className="text-xs text-rose-500 hover:underline disabled:opacity-40"
+                      className="text-xs text-rose-500 hover:underline disabled:opacity-40 dark:text-rose-400"
                     >
                       remover
                     </button>
@@ -398,7 +406,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
             )}
             {coupons.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-potinho-texto/50">
+                <td colSpan={8} className="px-3 py-8 text-center text-potinho-texto/50 dark:text-potinho-bege/50">
                   nenhum cupom cadastrado ainda.
                 </td>
               </tr>
@@ -408,7 +416,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
       </div>
 
       {/* erro de remover/toggle (fora do form de criar/editar, que já mostra o seu próprio) */}
-      {error && !creating && editingId === null && <p className="text-sm text-rose-500">{error}</p>}
+      {error && !creating && editingId === null && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
 
       {creating ? (
         <CouponForm
@@ -431,7 +439,7 @@ export default function CuponsManager({ coupons }: { coupons: CouponRow[] }) {
             setCreating(true);
             setError(null);
           }}
-          className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo"
+          className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           + criar cupom
         </button>

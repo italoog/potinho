@@ -24,6 +24,11 @@ interface QuoteDraft {
   declaredValue: string;
 }
 
+const INPUT_CLASS =
+  "rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm disabled:opacity-60 dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+const INPUT_CLASS_SM =
+  "rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60 dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+
 /** Compra e impressão de etiqueta via SuperFrete (9.x) — cotação sem custo, compra gasta saldo real. */
 export default function ShippingLabelActions({
   orderId,
@@ -115,9 +120,11 @@ export default function ShippingLabelActions({
 
   if (hasLabel) {
     return (
-      <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">etiqueta de envio</h2>
-        <p className="text-sm text-potinho-texto/70">
+      <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
+          etiqueta de envio
+        </h2>
+        <p className="text-sm text-potinho-texto/70 dark:text-potinho-bege/70">
           comprada por {shippingLabelPriceCents !== null ? formatBRL(shippingLabelPriceCents) : "—"}.
         </p>
         <div className="flex flex-wrap gap-3">
@@ -133,27 +140,29 @@ export default function ShippingLabelActions({
             type="button"
             onClick={handleCancel}
             disabled={status === "canceling"}
-            className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-rose-500 hover:bg-potinho-fundo disabled:opacity-40"
+            className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-rose-500 hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-rose-400 dark:hover:bg-white/5"
           >
             {status === "canceling" ? "cancelando…" : "cancelar etiqueta"}
           </button>
         </div>
-        {error && <p className="text-sm text-rose-500">{error}</p>}
+        {error && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">etiqueta de envio</h2>
-      <p className="text-xs text-potinho-texto/60">
+    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
+        etiqueta de envio
+      </h2>
+      <p className="text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
         confira o peso e as dimensões da caixa de verdade (com embalagem) antes de cotar — o cadastro do
         produto guarda só uma estimativa.
       </p>
 
       <form onSubmit={handleQuote} className="flex flex-col gap-3">
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             cpf/cnpj do destinatário
             <input
               required
@@ -161,16 +170,16 @@ export default function ShippingLabelActions({
               value={draft.recipientDocument}
               onChange={(e) => setDraft((d) => ({ ...d, recipientDocument: e.target.value }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm disabled:opacity-60"
+              className={INPUT_CLASS}
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             serviço
             <select
               value={draft.service}
               onChange={(e) => setDraft((d) => ({ ...d, service: e.target.value as QuoteDraft["service"] }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm disabled:opacity-60"
+              className={INPUT_CLASS}
             >
               <option value="pac">PAC</option>
               <option value="sedex">SEDEX</option>
@@ -180,7 +189,7 @@ export default function ShippingLabelActions({
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             largura (cm)
             <input
               required
@@ -189,10 +198,10 @@ export default function ShippingLabelActions({
               value={draft.widthCm}
               onChange={(e) => setDraft((d) => ({ ...d, widthCm: e.target.value }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60"
+              className={INPUT_CLASS_SM}
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             altura (cm)
             <input
               required
@@ -201,10 +210,10 @@ export default function ShippingLabelActions({
               value={draft.heightCm}
               onChange={(e) => setDraft((d) => ({ ...d, heightCm: e.target.value }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60"
+              className={INPUT_CLASS_SM}
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             comprimento (cm)
             <input
               required
@@ -213,10 +222,10 @@ export default function ShippingLabelActions({
               value={draft.lengthCm}
               onChange={(e) => setDraft((d) => ({ ...d, lengthCm: e.target.value }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60"
+              className={INPUT_CLASS_SM}
             />
           </label>
-          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+          <label className="flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
             peso (kg)
             <input
               required
@@ -225,12 +234,12 @@ export default function ShippingLabelActions({
               value={draft.weightKg}
               onChange={(e) => setDraft((d) => ({ ...d, weightKg: e.target.value }))}
               disabled={hasQuote}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60"
+              className={INPUT_CLASS_SM}
             />
           </label>
         </div>
 
-        <label className="flex w-fit flex-col gap-1 text-xs text-potinho-texto/60">
+        <label className="flex w-fit flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
           valor declarado (R$)
           <input
             required
@@ -239,11 +248,11 @@ export default function ShippingLabelActions({
             value={draft.declaredValue}
             onChange={(e) => setDraft((d) => ({ ...d, declaredValue: e.target.value }))}
             disabled={hasQuote}
-            className="w-40 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-3 py-2 text-sm disabled:opacity-60"
+            className={`w-40 ${INPUT_CLASS_SM}`}
           />
         </label>
 
-        {error && <p className="text-sm text-rose-500">{error}</p>}
+        {error && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
 
         {!hasQuote ? (
           <button
@@ -254,11 +263,14 @@ export default function ShippingLabelActions({
             {status === "quoting" ? "cotando…" : "cotar etiqueta"}
           </button>
         ) : (
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-potinho-fundo p-4">
-            <p className="text-sm text-potinho-texto">
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-potinho-fundo p-4 dark:bg-potinho-noite">
+            <p className="text-sm text-potinho-texto dark:text-potinho-bege">
               {quotedCents !== null ? (
                 <>
-                  cotado: <span className="font-bold text-potinho-chocolate">{formatBRL(quotedCents)}</span>
+                  cotado:{" "}
+                  <span className="font-bold text-potinho-chocolate dark:text-potinho-caramelo">
+                    {formatBRL(quotedCents)}
+                  </span>
                 </>
               ) : (
                 "cotação já registrada — confirme a compra ou cancele pra recotar."
@@ -276,7 +288,7 @@ export default function ShippingLabelActions({
               type="button"
               onClick={handleCancel}
               disabled={status === "canceling"}
-              className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white disabled:opacity-40"
+              className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
             >
               cancelar cotação
             </button>

@@ -14,9 +14,9 @@ export const STATUS_BADGE_CLASS: Record<OrderStatus, string> = {
   pending: "bg-potinho-bege text-potinho-chocolate",
   paid: "bg-potinho-chocolate text-potinho-bege",
   production: "bg-potinho-chocolate text-potinho-bege",
-  shipped: "bg-sky-100 text-sky-700",
-  delivered: "bg-emerald-100 text-emerald-700",
-  canceled: "bg-zinc-200 text-zinc-600",
+  shipped: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
+  delivered: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  canceled: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
 /** Transições válidas de status (9.3 AC3) — progressão só pra frente + cancelamento; terminais não saem. */

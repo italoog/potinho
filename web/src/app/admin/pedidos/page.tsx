@@ -20,20 +20,23 @@ export default async function AdminPedidosPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold lowercase text-potinho-chocolate">pedidos</h1>
+      <h1 className="text-xl font-bold lowercase text-potinho-chocolate dark:text-potinho-caramelo">pedidos</h1>
 
-      <form method="get" className="flex flex-wrap gap-3 rounded-3xl bg-white p-4 shadow-potinho-card">
+      <form
+        method="get"
+        className="flex flex-wrap gap-3 rounded-3xl bg-white p-4 shadow-potinho-card dark:bg-potinho-carvao"
+      >
         <input
           type="text"
           name="q"
           defaultValue={q}
           placeholder="buscar por nome, e-mail ou nome do pet"
-          className="min-w-64 flex-1 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+          className="min-w-64 flex-1 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege dark:focus:border-potinho-caramelo"
         />
         <select
           name="status"
           defaultValue={validStatus ?? ""}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none"
+          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege dark:focus:border-potinho-caramelo"
         >
           <option value="">todos os status</option>
           {ORDER_STATUSES.map((s) => (
@@ -50,16 +53,16 @@ export default async function AdminPedidosPage({
         </button>
         <a
           href={`/api/admin/orders.csv?${new URLSearchParams({ ...(q ? { q } : {}), ...(validStatus ? { status: validStatus } : {}) }).toString()}`}
-          className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo"
+          className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           exportar csv
         </a>
       </form>
 
-      <div className="overflow-x-auto rounded-3xl bg-white shadow-potinho-card">
+      <div className="overflow-x-auto rounded-3xl bg-white shadow-potinho-card dark:bg-potinho-carvao">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-potinho-bege text-xs uppercase tracking-widest text-potinho-texto/50">
+            <tr className="border-b border-potinho-bege text-xs uppercase tracking-widest text-potinho-texto/50 dark:border-potinho-cinza/20 dark:text-potinho-bege/50">
               <th className="px-5 py-3">data</th>
               <th className="px-5 py-3">cliente</th>
               <th className="px-5 py-3">pets</th>
@@ -72,26 +75,33 @@ export default async function AdminPedidosPage({
             {items.map(({ order, petNames }) => {
               const customer = order.customer as { name: string; email: string };
               return (
-                <tr key={order.id} className="border-b border-potinho-bege/50 last:border-0 hover:bg-potinho-fundo">
+                <tr
+                  key={order.id}
+                  className="border-b border-potinho-bege/50 last:border-0 hover:bg-potinho-fundo dark:border-potinho-cinza/10 dark:hover:bg-white/5"
+                >
                   <td className="px-5 py-3">
                     <Link href={`/admin/pedidos/${order.id}`} className="hover:underline">
                       {new Date(order.createdAt).toLocaleDateString("pt-BR")}
                     </Link>
                   </td>
                   <td className="px-5 py-3">
-                    <p className="font-medium text-potinho-texto">{customer.name}</p>
-                    <p className="text-xs text-potinho-texto/50">{customer.email}</p>
+                    <p className="font-medium text-potinho-texto dark:text-potinho-bege">{customer.name}</p>
+                    <p className="text-xs text-potinho-texto/50 dark:text-potinho-bege/50">{customer.email}</p>
                   </td>
                   <td className="px-5 py-3 uppercase tracking-wide">{petNames.join(", ")}</td>
-                  <td className="px-5 py-3 font-semibold text-potinho-chocolate">{formatBRL(order.totalAmount)}</td>
+                  <td className="px-5 py-3 font-semibold text-potinho-chocolate dark:text-potinho-caramelo">
+                    {formatBRL(order.totalAmount)}
+                  </td>
                   <td className="px-5 py-3 lowercase">{STATUS_LABEL[order.status]}</td>
-                  <td className="px-5 py-3 text-xs text-potinho-texto/60">{order.trackingCode ?? "—"}</td>
+                  <td className="px-5 py-3 text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
+                    {order.trackingCode ?? "—"}
+                  </td>
                 </tr>
               );
             })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-potinho-texto/50">
+                <td colSpan={6} className="px-5 py-8 text-center text-potinho-texto/50 dark:text-potinho-bege/50">
                   nenhum pedido encontrado.
                 </td>
               </tr>
@@ -107,7 +117,9 @@ export default async function AdminPedidosPage({
               key={p}
               href={`/admin/pedidos?${new URLSearchParams({ ...(q ? { q } : {}), ...(validStatus ? { status: validStatus } : {}), page: String(p) }).toString()}`}
               className={`rounded-full px-3 py-1.5 text-sm ${
-                p === page ? "bg-potinho-chocolate text-potinho-bege" : "bg-white text-potinho-texto/60 shadow-potinho-card"
+                p === page
+                  ? "bg-potinho-chocolate text-potinho-bege"
+                  : "bg-white text-potinho-texto/60 shadow-potinho-card dark:bg-potinho-carvao dark:text-potinho-bege/60"
               }`}
             >
               {p}

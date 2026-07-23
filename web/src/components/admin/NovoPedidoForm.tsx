@@ -18,6 +18,11 @@ const BR_STATES = [
   "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ];
 
+const CARD_CLASS = "rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao";
+const SECTION_LABEL_CLASS = "mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo";
+const FUNDO_INPUT_CLASS = "rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+const WHITE_INPUT_CLASS = "rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+
 /** Criação manual de pedido pelo admin (9.4) — mesma validação/preço do checkout público. */
 export default function NovoPedidoForm({ product }: { product: Product }) {
   const textParam = product.paramSchema.find((p) => p.type === "text") as TextParam;
@@ -93,22 +98,27 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
 
   if (result) {
     return (
-      <div className="rounded-3xl bg-white p-6 shadow-potinho-card">
-        <p className="font-semibold text-potinho-chocolate">pedido criado ✓</p>
+      <div className={CARD_CLASS}>
+        <p className="font-semibold text-potinho-chocolate dark:text-potinho-caramelo">pedido criado ✓</p>
         {result.paymentLink ? (
           <div className="mt-3 flex flex-col gap-2">
-            <p className="text-sm text-potinho-texto/70">envie este link de pagamento pro cliente:</p>
+            <p className="text-sm text-potinho-texto/70 dark:text-potinho-bege/70">
+              envie este link de pagamento pro cliente:
+            </p>
             <input
               readOnly
               value={result.paymentLink}
               onFocus={(e) => e.currentTarget.select()}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+              className={FUNDO_INPUT_CLASS}
             />
           </div>
         ) : (
-          <p className="mt-2 text-sm text-potinho-texto/70">marcado como pago.</p>
+          <p className="mt-2 text-sm text-potinho-texto/70 dark:text-potinho-bege/70">marcado como pago.</p>
         )}
-        <a href={`/admin/pedidos/${result.orderId}`} className="mt-4 inline-block text-sm text-potinho-chocolate underline">
+        <a
+          href={`/admin/pedidos/${result.orderId}`}
+          className="mt-4 inline-block text-sm text-potinho-chocolate underline dark:text-potinho-caramelo"
+        >
           ver pedido
         </a>
       </div>
@@ -119,21 +129,21 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
     <div className="flex flex-col gap-6">
       <fieldset>
         <legend className="sr-only">itens</legend>
-        <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>itens</p>
+        <div className={`flex flex-col gap-4 ${CARD_CLASS}`}>
+        <p className={SECTION_LABEL_CLASS} aria-hidden>itens</p>
         {items.map((item, i) => (
-          <div key={i} className="grid grid-cols-2 gap-3 rounded-2xl bg-potinho-fundo p-4 sm:grid-cols-4">
+          <div key={i} className="grid grid-cols-2 gap-3 rounded-2xl bg-potinho-fundo p-4 dark:bg-potinho-noite sm:grid-cols-4">
             <input
               type="text"
               placeholder="nome do pet"
               value={item.petName}
               onChange={(e) => updateItem(i, { petName: e.target.value })}
-              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm uppercase"
+              className={`${WHITE_INPUT_CLASS} uppercase`}
             />
             <select
               value={item.size}
               onChange={(e) => updateItem(i, { size: e.target.value })}
-              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className={WHITE_INPUT_CLASS}
             >
               {sizeParam.options.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -144,7 +154,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             <select
               value={item.colorBase}
               onChange={(e) => updateItem(i, { colorBase: e.target.value })}
-              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className={WHITE_INPUT_CLASS}
             >
               {colorBase.options.map((o) => (
                 <option key={o.hex} value={o.hex}>
@@ -155,7 +165,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             <select
               value={item.colorBand}
               onChange={(e) => updateItem(i, { colorBand: e.target.value })}
-              className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+              className={WHITE_INPUT_CLASS}
             >
               {colorBand.options.map((o) => (
                 <option key={o.hex} value={o.hex}>
@@ -167,7 +177,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={() => setItems((prev) => prev.filter((_, idx) => idx !== i))}
-                className="col-span-full text-left text-xs text-rose-500 hover:underline"
+                className="col-span-full text-left text-xs text-rose-500 hover:underline dark:text-rose-400"
               >
                 remover item
               </button>
@@ -177,11 +187,11 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
         <button
           type="button"
           onClick={() => setItems((prev) => [...prev, emptyItem()])}
-          className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo"
+          className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           + adicionar item
         </button>
-        <p className="text-xs text-potinho-texto/50">
+        <p className="text-xs text-potinho-texto/50 dark:text-potinho-bege/50">
           {textParam.min} a {textParam.max} caracteres por nome de pet. total dos itens: {formatBRL(itemsTotal)}
         </p>
         </div>
@@ -189,14 +199,14 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
 
       <fieldset>
         <legend className="sr-only">cliente</legend>
-        <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>cliente</p>
+        <div className={`flex flex-col gap-3 ${CARD_CLASS}`}>
+        <p className={SECTION_LABEL_CLASS} aria-hidden>cliente</p>
         <input
           type="text"
           placeholder="nome completo"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+          className={FUNDO_INPUT_CLASS}
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <input
@@ -204,14 +214,14 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             placeholder="e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
           <input
             type="tel"
             placeholder="telefone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
         </div>
         <div className="grid gap-3 sm:grid-cols-[140px_1fr]">
@@ -220,14 +230,14 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             placeholder="cep"
             value={address.zip}
             onChange={(e) => setAddress((a) => ({ ...a, zip: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
           <input
             type="text"
             placeholder="rua"
             value={address.street}
             onChange={(e) => setAddress((a) => ({ ...a, street: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
         </div>
         <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
@@ -236,14 +246,14 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             placeholder="número"
             value={address.number}
             onChange={(e) => setAddress((a) => ({ ...a, number: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
           <input
             type="text"
             placeholder="complemento"
             value={address.complement}
             onChange={(e) => setAddress((a) => ({ ...a, complement: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
         </div>
         <input
@@ -251,7 +261,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
           placeholder="bairro"
           value={address.neighborhood}
           onChange={(e) => setAddress((a) => ({ ...a, neighborhood: e.target.value }))}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+          className={FUNDO_INPUT_CLASS}
         />
         <div className="grid gap-3 sm:grid-cols-[1fr_100px]">
           <input
@@ -259,12 +269,12 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             placeholder="cidade"
             value={address.city}
             onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           />
           <select
             value={address.state}
             onChange={(e) => setAddress((a) => ({ ...a, state: e.target.value }))}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+            className={FUNDO_INPUT_CLASS}
           >
             <option value="">uf</option>
             {BR_STATES.map((uf) => (
@@ -279,20 +289,20 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
 
       <fieldset>
         <legend className="sr-only">frete</legend>
-        <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-        <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>frete</p>
+        <div className={`flex flex-col gap-3 ${CARD_CLASS}`}>
+        <p className={SECTION_LABEL_CLASS} aria-hidden>frete</p>
         <input
           type="number"
           step="0.01"
           placeholder="deixe em branco pra cotar automaticamente"
           value={shippingOverride}
           onChange={(e) => setShippingOverride(e.target.value)}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+          className={FUNDO_INPUT_CLASS}
         />
         </div>
       </fieldset>
 
-      {error && <p className="text-sm text-rose-500">{error}</p>}
+      {error && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
 
       <div className="flex flex-wrap gap-3">
         <button
@@ -307,7 +317,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
           type="button"
           onClick={() => submit("link")}
           disabled={submitting}
-          className="rounded-full border-2 border-potinho-bege px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40"
+          className="rounded-full border-2 border-potinho-bege px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           gerar link de pagamento
         </button>

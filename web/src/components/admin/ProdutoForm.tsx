@@ -50,6 +50,14 @@ const EMPTY_NEW_VARIANT = {
   weightKg: "",
 };
 
+const CARD_CLASS = "rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao";
+const SECTION_LABEL_CLASS = "mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo";
+const FIELD_LABEL_CLASS = "flex flex-col gap-1 text-xs text-potinho-texto/60 dark:text-potinho-bege/60";
+const FUNDO_INPUT_CLASS = "rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+const WHITE_INPUT_CLASS = "rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege";
+const OUTLINE_BUTTON_CLASS = "rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5";
+const SOLID_BUTTON_CLASS = "rounded-full bg-potinho-chocolate px-5 py-2 text-sm font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40";
+
 /** Edição de preço/desconto/envio por tamanho, cadastro de tamanho e cor novos, estoque de cores (9.5). */
 export default function ProdutoForm({ product }: { product: Product }) {
   const router = useRouter();
@@ -256,16 +264,16 @@ export default function ProdutoForm({ product }: { product: Product }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <fieldset>
           <legend className="sr-only">status do produto</legend>
-          <div className="flex flex-col gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">
-            <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>
+          <div className={`flex flex-col gap-3 ${CARD_CLASS}`}>
+            <p className={SECTION_LABEL_CLASS} aria-hidden>
               status do produto
             </p>
-            <label className="flex w-fit flex-col gap-1 text-xs text-potinho-texto/60">
+            <label className={`w-fit ${FIELD_LABEL_CLASS}`}>
               status
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ProductStatus)}
-                className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm"
+                className={FUNDO_INPUT_CLASS}
               >
                 <option value="draft">rascunho</option>
                 <option value="published">publicado</option>
@@ -276,72 +284,74 @@ export default function ProdutoForm({ product }: { product: Product }) {
 
         <fieldset>
           <legend className="sr-only">preço, desconto e envio por tamanho</legend>
-          <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-            <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>
+          <div className={`flex flex-col gap-4 ${CARD_CLASS}`}>
+            <p className={SECTION_LABEL_CLASS} aria-hidden>
               preço, desconto e envio por tamanho
             </p>
             {variants.map((variant) => (
-              <div key={variant.ref} className="flex flex-col gap-3 rounded-2xl bg-potinho-fundo p-4">
+              <div key={variant.ref} className="flex flex-col gap-3 rounded-2xl bg-potinho-fundo p-4 dark:bg-potinho-noite">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   <div className="col-span-2 flex items-center justify-between gap-2 self-center sm:col-span-1">
-                    <span className="text-sm font-semibold text-potinho-texto">{variant.label}</span>
+                    <span className="text-sm font-semibold text-potinho-texto dark:text-potinho-bege">
+                      {variant.label}
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleDeleteVariant(variant.ref, variant.label)}
                       disabled={deletingKey === `variant:${variant.ref}`}
-                      className="text-xs text-rose-500 hover:underline disabled:opacity-40"
+                      className="text-xs text-rose-500 hover:underline disabled:opacity-40 dark:text-rose-400"
                     >
                       {deletingKey === `variant:${variant.ref}` ? "removendo…" : "remover"}
                     </button>
                   </div>
-                  <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                  <label className={FIELD_LABEL_CLASS}>
                     preço (R$)
                     <input
                       type="number"
                       step="0.01"
                       value={variant.price}
                       onChange={(e) => updateVariant(variant.ref, { price: e.target.value })}
-                      className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                      className={WHITE_INPUT_CLASS}
                     />
                   </label>
-                  <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                  <label className={FIELD_LABEL_CLASS}>
                     largura (cm)
                     <input
                       type="number"
                       value={variant.widthCm}
                       onChange={(e) => updateVariant(variant.ref, { widthCm: e.target.value })}
-                      className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                      className={WHITE_INPUT_CLASS}
                     />
                   </label>
-                  <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                  <label className={FIELD_LABEL_CLASS}>
                     altura (cm)
                     <input
                       type="number"
                       value={variant.heightCm}
                       onChange={(e) => updateVariant(variant.ref, { heightCm: e.target.value })}
-                      className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                      className={WHITE_INPUT_CLASS}
                     />
                   </label>
-                  <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                  <label className={FIELD_LABEL_CLASS}>
                     peso (kg)
                     <input
                       type="number"
                       step="0.1"
                       value={variant.weightKg}
                       onChange={(e) => updateVariant(variant.ref, { weightKg: e.target.value })}
-                      className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                      className={WHITE_INPUT_CLASS}
                     />
                   </label>
                 </div>
-                <div className="flex flex-wrap items-end gap-3 border-t border-potinho-bege pt-3">
-                  <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                <div className="flex flex-wrap items-end gap-3 border-t border-potinho-bege pt-3 dark:border-potinho-cinza/20">
+                  <label className={FIELD_LABEL_CLASS}>
                     desconto
                     <select
                       value={variant.discountType}
                       onChange={(e) =>
                         updateVariant(variant.ref, { discountType: e.target.value as DiscountType, discountValue: "" })
                       }
-                      className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                      className={WHITE_INPUT_CLASS}
                     >
                       <option value="">sem desconto</option>
                       <option value="percent">porcentagem</option>
@@ -349,26 +359,29 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     </select>
                   </label>
                   {variant.discountType && (
-                    <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                    <label className={FIELD_LABEL_CLASS}>
                       {variant.discountType === "percent" ? "% de desconto" : "desconto (R$)"}
                       <input
                         type="number"
                         step={variant.discountType === "percent" ? "1" : "0.01"}
                         value={variant.discountValue}
                         onChange={(e) => updateVariant(variant.ref, { discountValue: e.target.value })}
-                        className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                        className={WHITE_INPUT_CLASS}
                       />
                     </label>
                   )}
-                  <p className="text-xs text-potinho-texto/60">
-                    preço final: <span className="font-semibold text-potinho-chocolate">{formatBRL(computeFinalCents(variant))}</span>
+                  <p className="text-xs text-potinho-texto/60 dark:text-potinho-bege/60">
+                    preço final:{" "}
+                    <span className="font-semibold text-potinho-chocolate dark:text-potinho-caramelo">
+                      {formatBRL(computeFinalCents(variant))}
+                    </span>
                   </p>
                 </div>
               </div>
             ))}
 
             {addingVariant ? (
-              <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-potinho-bege p-4">
+              <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-potinho-bege p-4 dark:border-potinho-cinza/30">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
                     required
@@ -376,7 +389,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="referência (ex.: gg)"
                     value={newVariant.ref}
                     onChange={(e) => setNewVariant((v) => ({ ...v, ref: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                   <input
                     required
@@ -384,7 +397,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="rótulo (ex.: GG — 20cm)"
                     value={newVariant.label}
                     onChange={(e) => setNewVariant((v) => ({ ...v, label: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                 </div>
                 <input
@@ -393,7 +406,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                   placeholder="dimensões (ex.: 20cm de altura)"
                   value={newVariant.dimensions}
                   onChange={(e) => setNewVariant((v) => ({ ...v, dimensions: e.target.value }))}
-                  className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                  className={WHITE_INPUT_CLASS}
                 />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <input
@@ -403,7 +416,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="preço (R$)"
                     value={newVariant.price}
                     onChange={(e) => setNewVariant((v) => ({ ...v, price: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                   <input
                     required
@@ -411,7 +424,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="largura (cm)"
                     value={newVariant.widthCm}
                     onChange={(e) => setNewVariant((v) => ({ ...v, widthCm: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                   <input
                     required
@@ -419,7 +432,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="altura (cm)"
                     value={newVariant.heightCm}
                     onChange={(e) => setNewVariant((v) => ({ ...v, heightCm: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                   <input
                     required
@@ -428,33 +441,29 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     placeholder="peso (kg)"
                     value={newVariant.weightKg}
                     onChange={(e) => setNewVariant((v) => ({ ...v, weightKg: e.target.value }))}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                 </div>
-                <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+                <label className={FIELD_LABEL_CLASS}>
                   arquivo 3D (GLB) — opcional, dá pra subir depois
                   <input
                     type="file"
                     accept=".glb,model/gltf-binary"
                     onChange={(e) => setNewVariantFile(e.target.files?.[0] ?? null)}
-                    className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                    className={WHITE_INPUT_CLASS}
                   />
                 </label>
-                {addVariantError && <p className="text-xs text-rose-500">{addVariantError}</p>}
+                {addVariantError && <p className="text-xs text-rose-500 dark:text-rose-400">{addVariantError}</p>}
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={handleAddVariant}
                     disabled={addVariantState === "saving"}
-                    className="rounded-full bg-potinho-chocolate px-5 py-2 text-sm font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
+                    className={SOLID_BUTTON_CLASS}
                   >
                     {addVariantState === "saving" ? "salvando…" : "salvar tamanho"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setAddingVariant(false)}
-                    className="rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white"
-                  >
+                  <button type="button" onClick={() => setAddingVariant(false)} className={OUTLINE_BUTTON_CLASS}>
                     cancelar
                   </button>
                 </div>
@@ -463,7 +472,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={() => setAddingVariant(true)}
-                className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo"
+                className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
               >
                 + adicionar tamanho
               </button>
@@ -473,13 +482,15 @@ export default function ProdutoForm({ product }: { product: Product }) {
 
         <fieldset>
           <legend className="sr-only">estoque de cores</legend>
-          <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-          <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate" aria-hidden>
+          <div className={`flex flex-col gap-4 ${CARD_CLASS}`}>
+          <p className={SECTION_LABEL_CLASS} aria-hidden>
             estoque de cores
           </p>
           {colorParams.map((param) => (
             <div key={param.key} className="flex flex-col gap-2">
-              <p className="text-xs uppercase tracking-widest text-potinho-texto/50">{param.label}</p>
+              <p className="text-xs uppercase tracking-widest text-potinho-texto/50 dark:text-potinho-bege/50">
+                {param.label}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {colors
                   .filter((c) => c.paramKey === param.key)
@@ -488,8 +499,8 @@ export default function ProdutoForm({ product }: { product: Product }) {
                       key={color.hex}
                       className={`flex items-center gap-2 rounded-full border-2 py-1.5 pl-3 pr-1.5 text-xs font-medium lowercase transition-colors ${
                         color.soldOut
-                          ? "border-rose-300 bg-rose-50 text-rose-600"
-                          : "border-potinho-bege text-potinho-texto/70"
+                          ? "border-rose-300 bg-rose-50 text-rose-600 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-400"
+                          : "border-potinho-bege text-potinho-texto/70 dark:border-potinho-cinza/30 dark:text-potinho-bege/70"
                       }`}
                     >
                       <button
@@ -510,7 +521,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                         onClick={() => handleDeleteColor(color.paramKey, color.hex, color.label)}
                         disabled={deletingKey === `color:${color.paramKey}:${color.hex}`}
                         aria-label={`remover ${color.label}`}
-                        className="rounded-full p-0.5 text-potinho-cinza hover:bg-white hover:text-rose-500 disabled:opacity-40"
+                        className="rounded-full p-0.5 text-potinho-cinza hover:bg-white hover:text-rose-500 disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-rose-400"
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3 w-3">
                           <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -521,15 +532,17 @@ export default function ProdutoForm({ product }: { product: Product }) {
               </div>
             </div>
           ))}
-          <p className="text-xs text-potinho-texto/50">clique numa cor pra marcar/desmarcar como esgotada.</p>
+          <p className="text-xs text-potinho-texto/50 dark:text-potinho-bege/50">
+            clique numa cor pra marcar/desmarcar como esgotada.
+          </p>
 
           {addingColor ? (
-            <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-potinho-bege p-4">
+            <div className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-potinho-bege p-4 dark:border-potinho-cinza/30">
               <div className="grid gap-3 sm:grid-cols-2">
                 <select
                   value={newColorParamKey}
                   onChange={(e) => setNewColorParamKey(e.target.value)}
-                  className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                  className={WHITE_INPUT_CLASS}
                 >
                   {colorParams.map((p) => (
                     <option key={p.key} value={p.key}>
@@ -543,10 +556,10 @@ export default function ProdutoForm({ product }: { product: Product }) {
                   placeholder="nome da cor (ex.: dourado marmorizado)"
                   value={newColorLabel}
                   onChange={(e) => setNewColorLabel(e.target.value)}
-                  className="rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                  className={WHITE_INPUT_CLASS}
                 />
               </div>
-              <label className="flex flex-col gap-1 text-xs text-potinho-texto/60">
+              <label className={FIELD_LABEL_CLASS}>
                 quantas cores tem esse filamento? (1 = cor comum, 2 a 4 = mistura)
                 <select
                   value={newColorHexes.length}
@@ -558,7 +571,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                       return next;
                     });
                   }}
-                  className="w-fit rounded-2xl border-2 border-potinho-bege bg-white px-3 py-2 text-sm"
+                  className={`w-fit ${WHITE_INPUT_CLASS}`}
                 >
                   <option value={1}>1 — cor comum</option>
                   <option value={2}>2 — mistura</option>
@@ -575,7 +588,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
                     onChange={(e) =>
                       setNewColorHexes((prev) => prev.map((h, idx) => (idx === i ? e.target.value : h)))
                     }
-                    className="h-10 w-14 rounded-xl border-2 border-potinho-bege bg-white"
+                    className="h-10 w-14 rounded-xl border-2 border-potinho-bege bg-white dark:border-potinho-cinza/30 dark:bg-potinho-noite"
                   />
                 ))}
                 <span
@@ -583,21 +596,17 @@ export default function ProdutoForm({ product }: { product: Product }) {
                   style={{ background: swatchBackground({ hex: newColorHexes[0], blend: newColorHexes.length >= 2 ? newColorHexes : undefined }) }}
                 />
               </div>
-              {addColorError && <p className="text-xs text-rose-500">{addColorError}</p>}
+              {addColorError && <p className="text-xs text-rose-500 dark:text-rose-400">{addColorError}</p>}
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={handleAddColor}
                   disabled={addColorState === "saving"}
-                  className="rounded-full bg-potinho-chocolate px-5 py-2 text-sm font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
+                  className={SOLID_BUTTON_CLASS}
                 >
                   {addColorState === "saving" ? "salvando…" : "salvar cor"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setAddingColor(false)}
-                  className="rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-white"
-                >
+                <button type="button" onClick={() => setAddingColor(false)} className={OUTLINE_BUTTON_CLASS}>
                   cancelar
                 </button>
               </div>
@@ -606,7 +615,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
             <button
               type="button"
               onClick={() => setAddingColor(true)}
-              className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo"
+              className="self-start rounded-full border-2 border-potinho-bege px-5 py-2 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
             >
               + adicionar cor
             </button>
@@ -614,7 +623,7 @@ export default function ProdutoForm({ product }: { product: Product }) {
         </div>
       </fieldset>
 
-      {error && <p className="text-sm text-rose-500">{error}</p>}
+      {error && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
 
       <button
         type="submit"

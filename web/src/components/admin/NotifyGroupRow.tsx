@@ -31,13 +31,13 @@ export default function NotifyGroupRow({ colorId, colorLabel, emails }: Props) {
   }
 
   return (
-    <li className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-potinho-fundo p-4">
+    <li className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-potinho-fundo p-4 dark:bg-potinho-noite">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="h-4 w-4 rounded-full ring-1 ring-potinho-cinza/40" style={{ backgroundColor: colorId }} />
-          <p className="font-semibold lowercase text-potinho-texto">{colorLabel}</p>
+          <p className="font-semibold lowercase text-potinho-texto dark:text-potinho-bege">{colorLabel}</p>
         </div>
-        <p className="truncate text-xs text-potinho-texto/60">{emails.join(", ")}</p>
+        <p className="truncate text-xs text-potinho-texto/60 dark:text-potinho-bege/60">{emails.join(", ")}</p>
       </div>
       <button
         type="button"
@@ -47,7 +47,7 @@ export default function NotifyGroupRow({ colorId, colorLabel, emails }: Props) {
       >
         {status === "done" ? "avisado ✓" : status === "loading" ? "avisando…" : `avisar ${emails.length}`}
       </button>
-      {status === "error" && <p className="text-xs text-rose-500">falhou</p>}
+      {status === "error" && <p className="text-xs text-rose-500 dark:text-rose-400">falhou</p>}
     </li>
   );
 }

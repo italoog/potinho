@@ -76,17 +76,19 @@ export default function OrderActions({ orderId, currentStatus, trackingCode, pay
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">ações</h2>
+    <div className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
+        ações
+      </h2>
 
       {allowed.length > 0 ? (
         <form onSubmit={handleStatusSubmit} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-potinho-texto/60">novo status</label>
+            <label className="text-xs text-potinho-texto/60 dark:text-potinho-bege/60">novo status</label>
             <select
               value={nextStatus}
               onChange={(e) => setNextStatus(e.target.value as OrderStatus)}
-              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none"
+              className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege dark:focus:border-potinho-caramelo"
             >
               <option value="">selecione</option>
               {allowed.map((s) => (
@@ -98,13 +100,13 @@ export default function OrderActions({ orderId, currentStatus, trackingCode, pay
           </div>
           {nextStatus === "shipped" && (
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-potinho-texto/60">código de rastreio</label>
+              <label className="text-xs text-potinho-texto/60 dark:text-potinho-bege/60">código de rastreio</label>
               <input
                 type="text"
                 value={tracking}
                 onChange={(e) => setTracking(e.target.value)}
                 data-testid="admin-tracking-code"
-                className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none"
+                className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-4 py-2.5 text-sm text-potinho-texto focus:border-potinho-chocolate focus:outline-none dark:border-potinho-cinza/30 dark:bg-potinho-noite dark:text-potinho-bege dark:focus:border-potinho-caramelo"
               />
             </div>
           )}
@@ -118,34 +120,38 @@ export default function OrderActions({ orderId, currentStatus, trackingCode, pay
           </button>
         </form>
       ) : (
-        <p className="text-sm text-potinho-texto/50">este pedido não tem mais transições disponíveis.</p>
+        <p className="text-sm text-potinho-texto/50 dark:text-potinho-bege/50">
+          este pedido não tem mais transições disponíveis.
+        </p>
       )}
-      {error && <p className="text-sm text-rose-500">{error}</p>}
+      {error && <p className="text-sm text-rose-500 dark:text-rose-400">{error}</p>}
 
       {currentStatus === "pending" && paymentProvider === "mercadopago" && (
-        <div className="border-t border-potinho-bege pt-4">
+        <div className="border-t border-potinho-bege pt-4 dark:border-potinho-cinza/20">
           <button
             type="button"
             onClick={handleVerifyPayment}
             disabled={verifyStatus === "loading"}
-            className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40"
+            className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
           >
             {verifyStatus === "loading" ? "verificando…" : "verificar pagamento agora"}
           </button>
           {verifyMessage && (
-            <p className={`mt-2 text-sm ${verifyStatus === "error" ? "text-rose-500" : "text-potinho-texto/60"}`}>
+            <p
+              className={`mt-2 text-sm ${verifyStatus === "error" ? "text-rose-500 dark:text-rose-400" : "text-potinho-texto/60 dark:text-potinho-bege/60"}`}
+            >
               {verifyMessage}
             </p>
           )}
         </div>
       )}
 
-      <div className="border-t border-potinho-bege pt-4">
+      <div className="border-t border-potinho-bege pt-4 dark:border-potinho-cinza/20">
         <button
           type="button"
           onClick={handleResend}
           disabled={resendStatus === "loading"}
-          className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40"
+          className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
           {resendStatus === "done" ? "e-mail reenviado ✓" : "reenviar e-mail de confirmação"}
         </button>

@@ -9,9 +9,9 @@ const PERIODS: MetricsPeriod[] = ["7d", "30d", "all"];
 
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl bg-white p-5 shadow-potinho-card">
-      <p className="text-xs uppercase tracking-widest text-potinho-texto/50">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-potinho-chocolate">{value}</p>
+    <div className="rounded-3xl bg-white p-5 shadow-potinho-card dark:bg-potinho-carvao">
+      <p className="text-xs uppercase tracking-widest text-potinho-texto/50 dark:text-potinho-bege/50">{label}</p>
+      <p className="mt-1 text-3xl font-bold text-potinho-chocolate dark:text-potinho-caramelo">{value}</p>
     </div>
   );
 }
@@ -29,14 +29,16 @@ export default async function AdminResumoPage({
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold lowercase text-potinho-chocolate">resumo</h1>
-        <div className="flex gap-1 rounded-full bg-white p-1 shadow-potinho-card">
+        <h1 className="text-xl font-bold lowercase text-potinho-chocolate dark:text-potinho-caramelo">resumo</h1>
+        <div className="flex gap-1 rounded-full bg-white p-1 shadow-potinho-card dark:bg-potinho-carvao">
           {PERIODS.map((p) => (
             <Link
               key={p}
               href={`/admin?periodo=${p}`}
               className={`rounded-full px-4 py-1.5 text-xs font-semibold lowercase transition-colors ${
-                period === p ? "bg-potinho-chocolate text-potinho-bege" : "text-potinho-texto/60 hover:bg-potinho-fundo"
+                period === p
+                  ? "bg-potinho-chocolate text-potinho-bege"
+                  : "text-potinho-texto/60 hover:bg-potinho-fundo dark:text-potinho-bege/60 dark:hover:bg-white/5"
               }`}
             >
               {PERIOD_LABEL[p]}
@@ -52,21 +54,23 @@ export default async function AdminResumoPage({
         <KpiCard label="aguardando produção" value={String(summary.awaitingActionCount)} />
       </div>
 
-      <section className="rounded-3xl bg-white p-6 shadow-potinho-card">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+      <section className="rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
           pedidos por status
         </h2>
         <div className="flex flex-col gap-2">
           {ORDER_STATUSES.map((status) => (
             <div key={status} className="flex items-center gap-3 text-sm">
-              <span className="w-32 shrink-0 lowercase text-potinho-texto/70">{STATUS_LABEL[status]}</span>
-              <div className="h-3 flex-1 overflow-hidden rounded-full bg-potinho-fundo">
+              <span className="w-32 shrink-0 lowercase text-potinho-texto/70 dark:text-potinho-bege/70">
+                {STATUS_LABEL[status]}
+              </span>
+              <div className="h-3 flex-1 overflow-hidden rounded-full bg-potinho-fundo dark:bg-potinho-noite">
                 <div
-                  className="h-full rounded-full bg-potinho-chocolate"
+                  className="h-full rounded-full bg-potinho-chocolate dark:bg-potinho-caramelo"
                   style={{ width: `${(summary.statusCounts[status] / maxStatusCount) * 100}%` }}
                 />
               </div>
-              <span className="w-8 shrink-0 text-right font-semibold text-potinho-chocolate">
+              <span className="w-8 shrink-0 text-right font-semibold text-potinho-chocolate dark:text-potinho-caramelo">
                 {summary.statusCounts[status]}
               </span>
             </div>
@@ -74,12 +78,12 @@ export default async function AdminResumoPage({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-potinho-card">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+      <section className="rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
           top combinações
         </h2>
         {summary.topCombos.length === 0 ? (
-          <p className="text-sm text-potinho-texto/50">sem dados ainda.</p>
+          <p className="text-sm text-potinho-texto/50 dark:text-potinho-bege/50">sem dados ainda.</p>
         ) : (
           <ul className="flex flex-col gap-3 text-sm">
             {summary.topCombos.map((combo, i) => (
@@ -99,30 +103,37 @@ export default async function AdminResumoPage({
                       />
                     )}
                   </span>
-                  <span className="lowercase text-potinho-texto/70">{combo.size}</span>
+                  <span className="lowercase text-potinho-texto/70 dark:text-potinho-bege/70">{combo.size}</span>
                 </span>
-                <span className="font-semibold text-potinho-chocolate">{combo.count}×</span>
+                <span className="font-semibold text-potinho-chocolate dark:text-potinho-caramelo">{combo.count}×</span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-potinho-card">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+      <section className="rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate dark:text-potinho-caramelo">
           últimos pedidos
         </h2>
         {summary.recentOrders.length === 0 ? (
-          <p className="text-sm text-potinho-texto/50">nenhum pedido ainda.</p>
+          <p className="text-sm text-potinho-texto/50 dark:text-potinho-bege/50">nenhum pedido ainda.</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-potinho-bege">
+          <ul className="flex flex-col divide-y divide-potinho-bege dark:divide-potinho-cinza/20">
             {summary.recentOrders.map((order) => (
               <li key={order.id} className="flex items-center justify-between py-3 text-sm">
-                <Link href={`/admin/pedidos/${order.id}`} className="text-potinho-texto hover:underline">
+                <Link
+                  href={`/admin/pedidos/${order.id}`}
+                  className="text-potinho-texto hover:underline dark:text-potinho-bege"
+                >
                   {new Date(order.createdAt).toLocaleDateString("pt-BR")} · {order.id.slice(0, 8)}
                 </Link>
-                <span className="lowercase text-potinho-texto/60">{STATUS_LABEL[order.status]}</span>
-                <span className="font-semibold text-potinho-chocolate">{formatBRL(order.totalAmount)}</span>
+                <span className="lowercase text-potinho-texto/60 dark:text-potinho-bege/60">
+                  {STATUS_LABEL[order.status]}
+                </span>
+                <span className="font-semibold text-potinho-chocolate dark:text-potinho-caramelo">
+                  {formatBRL(order.totalAmount)}
+                </span>
               </li>
             ))}
           </ul>

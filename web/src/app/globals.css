@@ -5,6 +5,8 @@
   --foreground: #171717;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -18,6 +20,11 @@
   --color-potinho-fundo: #faf8f5;
   --color-potinho-cinza: #b7aea5;
   --color-potinho-texto: #2d2d2d;
+
+  /* Dark mode da área admin (9.6) — escopado via classe .dark, nunca aplicado à loja */
+  --color-potinho-noite: #1e1712;
+  --color-potinho-carvao: #2b2019;
+  --color-potinho-caramelo: #d8a878;
 
   /* Sombras da marca (tom chocolate, nunca preto puro) */
   --shadow-potinho-card: 0 10px 45px -18px rgb(90 64 50 / 0.38);

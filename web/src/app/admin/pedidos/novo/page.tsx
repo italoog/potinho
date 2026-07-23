@@ -10,7 +10,7 @@ export default async function AdminNovoPedidoPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold lowercase text-potinho-chocolate">criar pedido</h1>
+      <h1 className="text-xl font-bold lowercase text-potinho-chocolate dark:text-potinho-caramelo">criar pedido</h1>
       <NovoPedidoForm product={product} />
     </div>
   );
