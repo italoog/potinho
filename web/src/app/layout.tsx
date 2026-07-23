@@ -20,10 +20,30 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+const title = "potinho — comedouro elevado com o nome do seu pet";
+const description =
+  "Comedouros elevados impressos em 3D, com o nome do pet gravado em relevo na peça — tamanho e cores na medida de cada casa, entregues na porta.";
+const ogImage = "/products/comedouro-pet/montado.png";
+
 export const metadata: Metadata = {
-  title: "potinho — comedouro elevado com o nome do seu pet",
-  description:
-    "Comedouros elevados impressos em 3D, com o nome do pet gravado em relevo na peça — tamanho e cores na medida de cada casa, entregues na porta.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: "/",
+    siteName: "potinho",
+    images: [ogImage],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [ogImage],
+  },
 };
 
 export default function RootLayout({
