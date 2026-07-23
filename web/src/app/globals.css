@@ -80,7 +80,11 @@ body {
   animation: potinho-fade-up 0.9s ease-out both;
 }
 
-/* FreeShippingBar (root layout) some no admin — ferramenta interna, não é vitrine. */
+/* FreeShippingBar (root layout) some no admin — ferramenta interna, não é vitrine.
+   Sem a barra, o espaço reservado no body (pt-9) também some. */
 body:has(#admin-root) .free-shipping-bar {
   display: none;
+}
+body:has(#admin-root) {
+  padding-top: 0;
 }

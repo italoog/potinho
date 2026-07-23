@@ -10,7 +10,7 @@ export default function FreeShippingBar() {
   if (!freeShipping.enabled) return null;
 
   return (
-    <div className="free-shipping-bar flex h-9 w-full items-center justify-center bg-potinho-chocolate px-4 text-center text-xs font-normal lowercase tracking-wide text-potinho-bege sm:text-sm">
+    <div className="free-shipping-bar fixed inset-x-0 top-0 z-40 flex h-9 w-full items-center justify-center bg-potinho-chocolate px-4 text-center text-xs font-normal lowercase tracking-wide text-potinho-bege sm:text-sm">
       <span className="font-bold">frete grátis</span>&nbsp;a partir de {freeShipping.minQuantity} potinhos
     </div>
   );
