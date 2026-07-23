@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
   // PGlite (banco dev) usa wasm + import.meta.url — não pode ser bundlado no server
   serverExternalPackages: ["@electric-sql/pglite"],
 
+  // AVIF primeiro (≈20-30% menor que WebP) para tudo que passa por next/image.
+  // Todas as imagens são locais em /public, então não há remotePatterns a declarar.
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
+
   // Higiene de segurança (6.3 AC4)
   async headers() {
     return [
