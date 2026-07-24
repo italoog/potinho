@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isFreeShippingEligible, shippingCentsFor } from "./shipping";
+import { isFreeShippingEligible, shippingCentsFor, shippingOptionsFor } from "./shipping";
 
 const PACKAGE = [{ widthCm: 20, heightCm: 18, lengthCm: 20, weightKg: 0.8 }];
 
@@ -69,6 +69,33 @@ describe("shippingCentsFor (SuperFrete configurado, 8.1 AC1-AC4)", () => {
     );
 
     expect(await shippingCentsFor("20040-020", "RJ", PACKAGE)).toBe(2000);
+  });
+
+  it("shippingOptionsFor lista as opções por serviço, mais barata primeiro, com o rótulo do id", async () => {
+    process.env.SUPERFRETE_TOKEN = "test-token";
+    process.env.STORE_ORIGIN_CEP = "01310-100";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [
+          { id: 1, price: "32.90" },
+          { id: 2, price: "18.50" },
+          { id: 17, price: "50.00", error: "serviço indisponível" },
+        ],
+      }),
+    );
+
+    expect(await shippingOptionsFor("20040-020", "RJ", PACKAGE)).toEqual([
+      { service: "SEDEX", priceCents: 1850 },
+      { service: "PAC", priceCents: 3290 },
+    ]);
+  });
+
+  it("shippingOptionsFor cai numa opção única de fallback sem SuperFrete configurado", async () => {
+    expect(await shippingOptionsFor("01234-567", "SP", PACKAGE)).toEqual([
+      { service: "frete padrão", priceCents: 2000 },
+    ]);
   });
 
   it("usa o endpoint sandbox quando SUPERFRETE_SANDBOX=true", async () => {

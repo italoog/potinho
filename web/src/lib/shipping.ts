@@ -28,14 +28,23 @@ function fallbackForState(uf: string): number {
 }
 
 interface SuperFreteQuote {
+  id?: number;
   price?: string | number;
   error?: string;
 }
 
-async function quoteSuperFrete(
+export interface ShippingOption {
+  service: string;
+  priceCents: number;
+}
+
+/** Serviços cotados mapeados pro nome exibido no admin (mesmos ids de SUPERFRETE_SERVICES). */
+const SERVICE_LABELS: Record<number, string> = { 1: "PAC", 2: "SEDEX", 17: "Mini Envios" };
+
+async function quoteSuperFreteOptions(
   destCep: string,
   packages: ShippingPackage[],
-): Promise<number | null> {
+): Promise<ShippingOption[] | null> {
   const token = process.env.SUPERFRETE_TOKEN;
   const originCep = process.env.STORE_ORIGIN_CEP;
   if (!token || !originCep || packages.length === 0) return null;
@@ -73,13 +82,17 @@ async function quoteSuperFrete(
     if (!res.ok) return null;
 
     const quotes = (await res.json()) as SuperFreteQuote[];
-    // ponytail: nomes de campo da resposta (price/error) não documentados publicamente com
+    // ponytail: nomes de campo da resposta (price/error/id) não documentados publicamente com
     // exemplo verbatim no momento desta story — confirmar contra o sandbox real antes de produção.
-    const pricesCents = quotes
+    const options = quotes
       .filter((q) => q.price !== undefined && !q.error)
-      .map((q) => Math.round(parseFloat(String(q.price)) * 100))
-      .filter((cents) => Number.isFinite(cents) && cents >= 0);
-    return pricesCents.length > 0 ? Math.min(...pricesCents) : null;
+      .map((q, i) => ({
+        service: (q.id && SERVICE_LABELS[q.id]) || `opção ${i + 1}`,
+        priceCents: Math.round(parseFloat(String(q.price)) * 100),
+      }))
+      .filter((o) => Number.isFinite(o.priceCents) && o.priceCents >= 0)
+      .sort((a, b) => a.priceCents - b.priceCents);
+    return options.length > 0 ? options : null;
   } catch (err) {
     console.warn("SuperFrete indisponível, caindo pra tabela fixa por UF:", err);
     return null;
@@ -91,12 +104,22 @@ export function isFreeShippingEligible(itemCount: number): boolean {
   return freeShipping.enabled && itemCount >= freeShipping.minQuantity;
 }
 
-/** Preço do frete em centavos: cotação real (mais barata) se configurado, senão tabela fixa por UF. */
+/** Opções de frete disponíveis (mais barata primeiro): cotação real por serviço se configurado, senão tabela fixa por UF. */
+export async function shippingOptionsFor(
+  destCep: string,
+  uf: string,
+  packages: ShippingPackage[],
+): Promise<ShippingOption[]> {
+  const real = await quoteSuperFreteOptions(destCep, packages);
+  return real ?? [{ service: "frete padrão", priceCents: fallbackForState(uf) }];
+}
+
+/** Preço do frete em centavos: a mais barata das opções disponíveis (ver shippingOptionsFor). */
 export async function shippingCentsFor(
   destCep: string,
   uf: string,
   packages: ShippingPackage[],
 ): Promise<number> {
-  const real = await quoteSuperFrete(destCep, packages);
-  return real ?? fallbackForState(uf);
+  const options = await shippingOptionsFor(destCep, uf, packages);
+  return Math.min(...options.map((o) => o.priceCents));
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getProductById } from "@/lib/products";
-import { isFreeShippingEligible, shippingCentsFor } from "@/lib/shipping";
+import { isFreeShippingEligible, shippingOptionsFor, type ShippingOption } from "@/lib/shipping";
 import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
@@ -27,10 +27,11 @@ export async function POST(request: Request) {
       .map((item, i) => products[i]?.variants.find((v) => v.ref === item.size)?.shipping)
       .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-    const shippingCents = isFreeShippingEligible(body.items.length)
-      ? 0
-      : await shippingCentsFor(body.cep, body.uf, packages);
-    return NextResponse.json({ shippingCents });
+    const options: ShippingOption[] = isFreeShippingEligible(body.items.length)
+      ? [{ service: "frete grátis", priceCents: 0 }]
+      : await shippingOptionsFor(body.cep, body.uf, packages);
+    const shippingCents = Math.min(...options.map((o) => o.priceCents));
+    return NextResponse.json({ shippingCents, options });
   } catch (err) {
     console.error("Cotação de frete falhou:", err);
     const message = err instanceof z.ZodError ? "Dados inválidos" : "Não foi possível cotar o frete";

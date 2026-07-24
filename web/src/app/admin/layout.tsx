@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }}
       />
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 lg:flex-row">
-        <nav className="flex items-center gap-1 overflow-x-auto rounded-2xl bg-white p-2 shadow-potinho-card dark:bg-potinho-carvao lg:w-56 lg:flex-col lg:items-stretch">
+        <nav className="flex items-center gap-1 overflow-x-auto rounded-2xl bg-white p-2 shadow-potinho-card dark:bg-potinho-carvao lg:w-56 lg:flex-col lg:items-stretch lg:sticky lg:top-8 lg:self-start">
           {NAV.map((item) => (
             <Link
               key={item.href}

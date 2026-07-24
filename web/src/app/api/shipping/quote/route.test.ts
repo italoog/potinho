@@ -49,13 +49,19 @@ describe("POST /api/shipping/quote", () => {
     process.env.SHIPPING_TABLE_JSON = JSON.stringify({ SP: 1500, "*": 2500 });
     const res = await POST(req({ cep: "01310-100", uf: "SP", items: [{ productId, size: "15cm" }] }));
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ shippingCents: 1500 });
+    expect(await res.json()).toEqual({
+      shippingCents: 1500,
+      options: [{ service: "frete padrão", priceCents: 1500 }],
+    });
   });
 
   it("cai no fallback '*' pra UF sem entrada específica", async () => {
     process.env.SHIPPING_TABLE_JSON = JSON.stringify({ SP: 1500, "*": 2500 });
     const res = await POST(req({ cep: "60000-000", uf: "CE", items: [{ productId, size: "15cm" }] }));
-    expect(await res.json()).toEqual({ shippingCents: 2500 });
+    expect(await res.json()).toEqual({
+      shippingCents: 2500,
+      options: [{ service: "frete padrão", priceCents: 2500 }],
+    });
   });
 
   it("frete grátis a partir de 2 unidades no carrinho, independente da tabela", async () => {
@@ -70,7 +76,10 @@ describe("POST /api/shipping/quote", () => {
         ],
       }),
     );
-    expect(await res.json()).toEqual({ shippingCents: 0 });
+    expect(await res.json()).toEqual({
+      shippingCents: 0,
+      options: [{ service: "frete grátis", priceCents: 0 }],
+    });
   });
 
   it("ignora item com productId inexistente (sem pacote, não derruba a cotação)", async () => {

@@ -76,14 +76,46 @@ describe("NovoPedidoForm — submit", () => {
     expect(body.outcome).toBe("link");
   });
 
-  it("respeita o override de frete quando informado", async () => {
+  it("respeita o override de frete quando informado manualmente", async () => {
     render(<NovoPedidoForm product={product()} />);
-    fireEvent.change(screen.getByPlaceholderText(/cotar automaticamente/), { target: { value: "30" } });
+    fireEvent.change(screen.getByPlaceholderText(/valor em R\$/), { target: { value: "30" } });
     fireEvent.click(screen.getByRole("button", { name: "marcar como pago" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
     expect(body.shippingCentsOverride).toBe(3000);
+  });
+
+  it("cota o frete ao sair do campo de cep e permite selecionar uma opção", async () => {
+    fetchMock = vi.fn(async (url: string) => {
+      if (String(url).includes("viacep.com.br")) {
+        return { ok: true, json: async () => ({ logradouro: "Rua A", bairro: "Centro", localidade: "SP", uf: "SP" }) };
+      }
+      if (String(url).includes("/api/shipping/quote")) {
+        return {
+          ok: true,
+          json: async () => ({
+            shippingCents: 1850,
+            options: [
+              { service: "SEDEX", priceCents: 1850 },
+              { service: "PAC", priceCents: 3290 },
+            ],
+          }),
+        };
+      }
+      return { ok: true, json: async () => ({ orderId: "order-1" }) };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<NovoPedidoForm product={product()} />);
+    fireEvent.change(screen.getByPlaceholderText("cep"), { target: { value: "01310-100" } });
+    fireEvent.blur(screen.getByPlaceholderText("cep"));
+
+    await waitFor(() => expect(screen.getByText("SEDEX")).toBeInTheDocument());
+    expect(screen.getByText("PAC")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("SEDEX"));
+    expect(screen.getByText(/R\$ 117,50/)).toBeInTheDocument(); // 99,00 (item) + 18,50 (frete)
   });
 
   it("mostra erro quando a criação falha", async () => {
