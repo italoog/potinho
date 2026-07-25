@@ -24,6 +24,7 @@ export async function fillCheckoutForm(page: Page, customer: CheckoutCustomer) {
   await page.getByPlaceholder("nome completo").fill(customer.name);
   await page.getByPlaceholder("e-mail").fill(customer.email);
   await page.getByPlaceholder("telefone / whatsapp").fill(customer.phone);
+  await page.getByTestId("checkout-document").fill("12345678901");
   await page.getByTestId("checkout-cep").fill("01310-100");
   await page.getByPlaceholder("rua").fill("Avenida Paulista");
   await page.getByPlaceholder("número").fill("1000");

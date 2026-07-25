@@ -99,6 +99,11 @@ export const customerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(8),
+  /** CPF (11 dígitos) ou CNPJ (14 dígitos) — exigido pra etiqueta de envio (SuperFrete) e nota fiscal. */
+  document: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .refine((v) => v.length === 11 || v.length === 14, "CPF ou CNPJ inválido"),
   address: z.object({
     street: z.string().min(1),
     number: z.string().min(1),

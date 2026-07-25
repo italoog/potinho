@@ -18,6 +18,7 @@ const CUSTOMER = (email: string) => ({
   name: "Cliente",
   email,
   phone: "11999990000",
+  document: "12345678901",
   address: { street: "A", number: "1", neighborhood: "B", city: "C", state: "SP", zip: "01234-567" },
 });
 

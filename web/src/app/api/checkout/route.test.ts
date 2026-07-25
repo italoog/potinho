@@ -32,6 +32,7 @@ const CUSTOMER = {
   name: "Mariana Silva",
   email: "mariana@example.com",
   phone: "+5511999990000",
+  document: "12345678901",
   address: {
     street: "Rua das Flores",
     number: "123",

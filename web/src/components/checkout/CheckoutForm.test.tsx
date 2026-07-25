@@ -150,6 +150,7 @@ describe("CheckoutForm — com itens", () => {
     fireEvent.change(screen.getByPlaceholderText("nome completo"), { target: { value: "Mariana Silva" } });
     fireEvent.change(screen.getByPlaceholderText("e-mail"), { target: { value: "mariana@example.com" } });
     fireEvent.change(screen.getByPlaceholderText("telefone / whatsapp"), { target: { value: "11999990000" } });
+    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "12345678901" } });
     fireEvent.change(screen.getByTestId("checkout-cep"), { target: { value: "01310100" } });
     fireEvent.change(screen.getByPlaceholderText("rua"), { target: { value: "Avenida Paulista" } });
     fireEvent.change(screen.getByPlaceholderText("número"), { target: { value: "1000" } });
@@ -176,6 +177,7 @@ describe("CheckoutForm — com itens", () => {
     fireEvent.change(screen.getByPlaceholderText("nome completo"), { target: { value: "Mariana Silva" } });
     fireEvent.change(screen.getByPlaceholderText("e-mail"), { target: { value: "mariana@example.com" } });
     fireEvent.change(screen.getByPlaceholderText("telefone / whatsapp"), { target: { value: "11999990000" } });
+    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "12345678901" } });
     fireEvent.change(screen.getByTestId("checkout-cep"), { target: { value: "01310100" } });
     fireEvent.change(screen.getByPlaceholderText("rua"), { target: { value: "Avenida Paulista" } });
     fireEvent.change(screen.getByPlaceholderText("número"), { target: { value: "1000" } });

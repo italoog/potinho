@@ -57,7 +57,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
       <ShippingLabelActions
         orderId={order.id}
-        recipientDocument={order.recipientDocument}
+        recipientDocument={order.recipientDocument ?? customer.document}
         shippingOrderId={order.shippingOrderId}
         shippingLabelUrl={order.shippingLabelUrl}
         shippingLabelPriceCents={order.shippingLabelPriceCents}
@@ -80,6 +80,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <div>
             <dt className="text-potinho-texto/50 dark:text-potinho-bege/50">telefone</dt>
             <dd className="text-potinho-texto dark:text-potinho-bege">{customer.phone}</dd>
+          </div>
+          <div>
+            <dt className="text-potinho-texto/50 dark:text-potinho-bege/50">cpf/cnpj</dt>
+            <dd className="text-potinho-texto dark:text-potinho-bege">{customer.document}</dd>
           </div>
           <div>
             <dt className="text-potinho-texto/50 dark:text-potinho-bege/50">endereço</dt>

@@ -44,6 +44,19 @@ function maskCep(value: string): string {
   return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
 }
 
+/** CPF (11) enquanto o usuário digita até 11 dígitos, vira CNPJ (14) se digitar mais. */
+function maskDocument(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  if (digits.length <= 11) {
+    return digits.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1/$2")
+    .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+}
+
 interface ViaCepResponse {
   erro?: boolean;
   logradouro?: string;
@@ -58,6 +71,7 @@ export default function CheckoutForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [document, setDocument] = useState("");
   const [address, setAddress] = useState<Address>(EMPTY_ADDRESS);
   const [consentLgpd, setConsentLgpd] = useState(false);
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -185,7 +199,7 @@ export default function CheckoutForm() {
             configuration: i.configuration,
             snapshotDataUrl: i.snapshotDataUrl,
           })),
-          customer: { name, email, phone, address },
+          customer: { name, email, phone, document, address },
           consentLgpd: true,
           couponCode: couponApplied ? appliedCoupon!.code : undefined,
         }),
@@ -307,6 +321,16 @@ export default function CheckoutForm() {
             className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
           />
         </div>
+        <input
+          required
+          type="text"
+          inputMode="numeric"
+          placeholder="cpf ou cnpj"
+          data-testid="checkout-document"
+          value={document}
+          onChange={(e) => setDocument(maskDocument(e.target.value))}
+          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+        />
       </fieldset>
 
       {/* Endereço */}

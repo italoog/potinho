@@ -50,6 +50,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [document, setDocument] = useState("");
   const [address, setAddress] = useState({
     street: "",
     number: "",
@@ -134,7 +135,7 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
               size: item.size,
             },
           })),
-          customer: { name, email, phone, address },
+          customer: { name, email, phone, document, address },
           shippingCentsOverride: shippingOverride ? Math.round(parseFloat(shippingOverride) * 100) : undefined,
           outcome,
         }),
@@ -277,6 +278,13 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
             className={FUNDO_INPUT_CLASS}
           />
         </div>
+        <input
+          type="text"
+          placeholder="cpf ou cnpj"
+          value={document}
+          onChange={(e) => setDocument(e.target.value)}
+          className={FUNDO_INPUT_CLASS}
+        />
         <div className="grid gap-3 sm:grid-cols-[140px_1fr]">
           <input
             type="text"

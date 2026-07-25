@@ -28,6 +28,7 @@ async function createGuestOrder(email: string) {
         name: "Guest",
         email,
         phone: "11999990000",
+        document: "12345678901",
         address: {
           street: "A",
           number: "1",
