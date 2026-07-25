@@ -246,6 +246,16 @@ export const coupons = pgTable(
   (t) => [uniqueIndex("coupons_code_idx").on(t.code)],
 );
 
+/** Singleton (id fixo "main") — contador de urgência por visitante, editável no admin. */
+export const urgencyCountdown = pgTable("urgency_countdown", {
+  id: text("id").primaryKey().default("main"),
+  enabled: boolean("enabled").notNull().default(true),
+  /** Duração da contagem regressiva de cada visitante, em minutos (não é um prazo global). */
+  durationMinutes: integer("duration_minutes").notNull().default(167),
+  label: text("label").notNull().default("oferta por tempo limitado"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 export type OrderRow = typeof orders.$inferSelect;
@@ -260,3 +270,4 @@ export type NotifyRequestRow = typeof notifyRequests.$inferSelect;
 export type NewNotifyRequestRow = typeof notifyRequests.$inferInsert;
 export type CouponRow = typeof coupons.$inferSelect;
 export type NewCouponRow = typeof coupons.$inferInsert;
+export type UrgencyCountdownRow = typeof urgencyCountdown.$inferSelect;

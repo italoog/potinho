@@ -37,6 +37,7 @@ async function createDevDb(): Promise<Db> {
   // seed idempotente do produto-piloto
   const { comedouroPet } = await import("./seed-data");
   await db.insert(schema.products).values(comedouroPet).onConflictDoNothing();
+  await db.insert(schema.urgencyCountdown).values({ id: "main" }).onConflictDoNothing();
 
   return db as unknown as Db;
 }

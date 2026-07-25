@@ -1,4 +1,4 @@
-import { getDb, products } from "./index";
+import { getDb, products, urgencyCountdown } from "./index";
 import { comedouroPet } from "./seed-data";
 
 async function main() {
@@ -19,6 +19,9 @@ async function main() {
       },
     });
   console.log("✅ Seed aplicado: comedouro-pet");
+
+  await db.insert(urgencyCountdown).values({ id: "main" }).onConflictDoNothing();
+  console.log("✅ Seed aplicado: urgency-countdown");
   process.exit(0);
 }
 

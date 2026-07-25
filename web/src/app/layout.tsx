@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import BackToStoreButton from "@/components/potinho/BackToStoreButton";
 import FreeShippingBar from "@/components/potinho/FreeShippingBar";
+import { getUrgencyCountdown } from "@/lib/urgency-countdown";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,18 +47,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const urgencyCountdown = await getUrgencyCountdown();
+
   return (
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col pt-9">
-        <FreeShippingBar />
+      <body className="min-h-full flex flex-col">
+        <FreeShippingBar urgencyCountdown={urgencyCountdown} />
         <BackToStoreButton />
         {children}
       </body>
