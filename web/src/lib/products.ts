@@ -24,8 +24,9 @@ export interface ColorSoldOutUpdate {
 
 /**
  * Busca produto publicado por slug (C-04/C-06).
- * Cacheada 60s (poucos produtos, muda raro) — reduz carga no banco em picos de tráfego de anúncio;
- * writes de admin chamam revalidateTag(PRODUCTS_TAG) pra refletir na hora.
+ * Cacheada 5min (poucos produtos, muda raro) — reduz carga no banco em picos de tráfego de anúncio;
+ * writes de admin chamam revalidateTag(PRODUCTS_TAG) pra refletir na hora, então o TTL só afeta
+ * mudanças feitas fora do app (SQL manual, seed).
  */
 export const getPublishedProductBySlug = unstable_cache(
   async (slug: string): Promise<Product | null> => {
@@ -35,7 +36,7 @@ export const getPublishedProductBySlug = unstable_cache(
     return row;
   },
   ["published-product-by-slug"],
-  { tags: [PRODUCTS_TAG], revalidate: 60 },
+  { tags: [PRODUCTS_TAG], revalidate: 300 },
 );
 
 export async function getProductById(id: string): Promise<Product | null> {

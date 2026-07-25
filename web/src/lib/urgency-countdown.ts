@@ -18,8 +18,12 @@ const URGENCY_COUNTDOWN_TAG = "urgency-countdown";
 
 /**
  * Config do contador de urgência (não é um prazo global — cada visitante tem o próprio,
- * guardado no localStorage do navegador dele). Cacheada 60s (muda raro, roda em toda
- * pageview) — writes do admin invalidam na hora com revalidateTag.
+ * guardado no localStorage do navegador dele).
+ *
+ * Cacheada 5min: esta é a query de maior tráfego do site (roda no root layout, ou seja em
+ * TODA pageview) e o valor muda raríssimo — segurar o cache economiza consulta no Neon.
+ * O TTL não atrasa o painel: writes do admin chamam revalidateTag e refletem na hora. Ele só
+ * limita o atraso de mudanças feitas FORA do app (SQL manual, seed) — essas levam até 5min.
  */
 export const getUrgencyCountdown = unstable_cache(
   async (): Promise<UrgencyCountdownConfig> => {
@@ -28,7 +32,7 @@ export const getUrgencyCountdown = unstable_cache(
     return row ? { enabled: row.enabled, durationMinutes: row.durationMinutes, label: row.label } : DEFAULTS;
   },
   ["urgency-countdown-settings"],
-  { tags: [URGENCY_COUNTDOWN_TAG], revalidate: 60 },
+  { tags: [URGENCY_COUNTDOWN_TAG], revalidate: 300 },
 );
 
 export async function updateUrgencyCountdown(config: UrgencyCountdownConfig): Promise<void> {
