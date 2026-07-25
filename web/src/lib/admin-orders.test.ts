@@ -46,7 +46,7 @@ function customer(name: string, email: string) {
     name,
     email,
     phone: "11999990000",
-    document: "12345678901",
+    document: "11144477735",
     address: { street: "A", number: "1", neighborhood: "B", city: "C", state: "SP", zip: "01234-567" },
   };
 }
@@ -187,7 +187,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
 
   it("quoteShippingLabel: erro quando o pedido não existe", async () => {
     const result = await quoteShippingLabel(crypto.randomUUID(), {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "sedex",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 10000,
@@ -200,7 +200,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-1", priceCents: 2350 });
 
     const result = await quoteShippingLabel(order.id, {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "sedex",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 14900,
@@ -208,7 +208,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     expect(result).toEqual({ ok: true, priceCents: 2350 });
 
     const [after] = await testDb.select().from(schema.orders).where(eq(schema.orders.id, order.id));
-    expect(after.recipientDocument).toBe("12345678901");
+    expect(after.recipientDocument).toBe("11144477735");
     expect(after.shippingOrderId).toBe("sf-order-1");
   });
 
@@ -217,7 +217,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     createCartOrder.mockRejectedValue(new Error("CEP inválido"));
 
     const result = await quoteShippingLabel(order.id, {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "pac",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 9900,
@@ -235,7 +235,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     const order = await createOrder("OLIVER", "Nara", "nara@example.com", "pending");
     createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-2", priceCents: 2000 });
     await quoteShippingLabel(order.id, {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "sedex",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 14900,
@@ -266,7 +266,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     const order = await createOrder("QUINN", "Pati", "pati@example.com", "pending");
     createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-3", priceCents: 2000 });
     await quoteShippingLabel(order.id, {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "sedex",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 14900,
@@ -289,7 +289,7 @@ describe("etiqueta de envio (quote -> purchase -> cancel)", () => {
     const order = await createOrder("ROXY", "Quel", "quel@example.com", "pending");
     createCartOrder.mockResolvedValue({ superfreteOrderId: "sf-order-4", priceCents: 2000 });
     await quoteShippingLabel(order.id, {
-      recipientDocument: "12345678901",
+      recipientDocument: "11144477735",
       service: "sedex",
       package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1 },
       declaredValueCents: 14900,

@@ -21,7 +21,7 @@ function ctx(id = "order-1") {
 }
 
 const validBody = {
-  recipientDocument: "12345678901",
+  recipientDocument: "11144477735",
   service: "sedex",
   package: { widthCm: 20, heightCm: 15, lengthCm: 20, weightKg: 1.2 },
   declaredValueCents: 14900,

@@ -93,9 +93,14 @@ describe("CheckoutForm — com itens", () => {
     await waitFor(() => expect(screen.queryByText("THOR")).not.toBeInTheDocument());
   });
 
-  it("botão de enviar fica desabilitado sem aceitar o consentimento LGPD", async () => {
+  // O botão fica sempre habilitado (decisão de UX): quem barra pedido sem consentimento é o
+  // `required` do checkbox no navegador e, na ponta, o z.literal(true) da rota de checkout.
+  it("botão de enviar fica habilitado, e o consentimento LGPD segue obrigatório", async () => {
     await renderWithCart([cartItem()]);
-    expect(screen.getByTestId("checkout-submit")).toBeDisabled();
+    expect(screen.getByTestId("checkout-submit")).toBeEnabled();
+    const consent = screen.getByRole("checkbox");
+    expect(consent).toBeRequired();
+    expect(consent).not.toBeChecked();
   });
 
   it("cotar CEP: preenche endereço via ViaCEP e cota o frete", async () => {
@@ -150,7 +155,7 @@ describe("CheckoutForm — com itens", () => {
     fireEvent.change(screen.getByPlaceholderText("nome completo"), { target: { value: "Mariana Silva" } });
     fireEvent.change(screen.getByPlaceholderText("e-mail"), { target: { value: "mariana@example.com" } });
     fireEvent.change(screen.getByPlaceholderText("telefone / whatsapp"), { target: { value: "11999990000" } });
-    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "12345678901" } });
+    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "11144477735" } });
     fireEvent.change(screen.getByTestId("checkout-cep"), { target: { value: "01310100" } });
     fireEvent.change(screen.getByPlaceholderText("rua"), { target: { value: "Avenida Paulista" } });
     fireEvent.change(screen.getByPlaceholderText("número"), { target: { value: "1000" } });
@@ -177,7 +182,7 @@ describe("CheckoutForm — com itens", () => {
     fireEvent.change(screen.getByPlaceholderText("nome completo"), { target: { value: "Mariana Silva" } });
     fireEvent.change(screen.getByPlaceholderText("e-mail"), { target: { value: "mariana@example.com" } });
     fireEvent.change(screen.getByPlaceholderText("telefone / whatsapp"), { target: { value: "11999990000" } });
-    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "12345678901" } });
+    fireEvent.change(screen.getByTestId("checkout-document"), { target: { value: "11144477735" } });
     fireEvent.change(screen.getByTestId("checkout-cep"), { target: { value: "01310100" } });
     fireEvent.change(screen.getByPlaceholderText("rua"), { target: { value: "Avenida Paulista" } });
     fireEvent.change(screen.getByPlaceholderText("número"), { target: { value: "1000" } });

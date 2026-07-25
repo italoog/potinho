@@ -17,7 +17,7 @@ const BASE_PROPS = {
 };
 
 function fillQuoteForm() {
-  fireEvent.change(screen.getByLabelText(/cpf\/cnpj/), { target: { value: "123.456.789-01" } });
+  fireEvent.change(screen.getByLabelText(/cpf\/cnpj/), { target: { value: "111.444.777-35" } });
   fireEvent.change(screen.getByLabelText(/largura/), { target: { value: "20" } });
   fireEvent.change(screen.getByLabelText(/altura/), { target: { value: "15" } });
   fireEvent.change(screen.getByLabelText(/comprimento/), { target: { value: "20" } });
@@ -60,7 +60,7 @@ describe("ShippingLabelActions — sem etiqueta", () => {
       expect.objectContaining({ method: "POST" }),
     );
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
-    expect(body.recipientDocument).toBe("12345678901");
+    expect(body.recipientDocument).toBe("11144477735");
   });
 
   it("mostra erro quando a cotação falha", async () => {
@@ -73,7 +73,7 @@ describe("ShippingLabelActions — sem etiqueta", () => {
 });
 
 describe("ShippingLabelActions — cotado, aguardando compra", () => {
-  const quotedProps = { ...BASE_PROPS, recipientDocument: "12345678901", shippingOrderId: "sf-1" };
+  const quotedProps = { ...BASE_PROPS, recipientDocument: "11144477735", shippingOrderId: "sf-1" };
 
   it("mostra confirmar compra / cancelar cotação", () => {
     render(<ShippingLabelActions {...quotedProps} />);
@@ -112,7 +112,7 @@ describe("ShippingLabelActions — cotado, aguardando compra", () => {
 describe("ShippingLabelActions — etiqueta comprada", () => {
   const labelProps = {
     ...BASE_PROPS,
-    recipientDocument: "12345678901",
+    recipientDocument: "11144477735",
     shippingOrderId: "sf-1",
     shippingLabelUrl: "https://superfrete.example/label.pdf",
     shippingLabelPriceCents: 2350,

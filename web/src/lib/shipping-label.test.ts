@@ -18,7 +18,7 @@ function setOriginEnv(overrides: Partial<typeof ORIGIN_ENV> = {}) {
 const SHIPMENT_INPUT = {
   to: {
     name: "Cliente Teste",
-    document: "12345678900",
+    document: "11144477735",
     address: { street: "Av Paulista", number: "1000", neighborhood: "Bela Vista", city: "São Paulo", state: "SP", zip: "01310-100" },
   },
   service: 1 as const,

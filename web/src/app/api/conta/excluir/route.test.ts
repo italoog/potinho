@@ -49,7 +49,7 @@ describe("POST /api/conta/excluir", () => {
           name: "Maria",
           email: "maria@example.com",
           phone: "11999990000",
-          document: "12345678901",
+          document: "11144477735",
           address: { street: "A", number: "1", neighborhood: "B", city: "C", state: "SP", zip: "01234-567" },
         },
       })

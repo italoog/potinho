@@ -44,7 +44,7 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
       name: "Mariana Silva",
       email: "mariana@example.com",
       phone: "+5511999990000",
-      document: "12345678901",
+      document: "11144477735",
       address: {
         street: "Rua das Flores",
         number: "123",
@@ -87,7 +87,7 @@ describe("modelo de dados (migrations reproduzíveis do zero)", () => {
         name: "Teste",
         email: "t@t.com",
         phone: "11999990000",
-        document: "12345678901",
+        document: "11144477735",
         address: {
           street: "A",
           number: "1",

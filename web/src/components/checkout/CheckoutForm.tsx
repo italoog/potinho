@@ -5,6 +5,7 @@ import { useState } from "react";
 import { formatBRL } from "@/lib/money";
 import { calculateTotalCents } from "@/lib/pricing";
 import { useCart, type CartEntry } from "@/components/potinho/CartContext";
+import { isValidDocument } from "@/lib/document-validation";
 import { PawIcon } from "@/components/potinho/Marquee";
 
 const BR_STATES = [
@@ -203,7 +204,9 @@ export default function CheckoutForm() {
             snapshotDataUrl: i.snapshotDataUrl,
           })),
           customer: { name, email, phone, document, address },
-          consentLgpd: true,
+          // Manda o estado real do checkbox, nunca `true` fixo: o botão fica sempre habilitado,
+          // então o servidor (z.literal(true)) é quem garante que não entra pedido sem consentimento.
+          consentLgpd,
           couponCode: couponApplied ? appliedCoupon!.code : undefined,
         }),
       });
@@ -332,7 +335,13 @@ export default function CheckoutForm() {
           placeholder="cpf ou cnpj"
           data-testid="checkout-document"
           value={document}
-          onChange={(e) => setDocument(maskDocument(e.target.value))}
+          onChange={(e) => {
+            const masked = maskDocument(e.target.value);
+            setDocument(masked);
+            const digits = masked.replace(/\D/g, "");
+            const complete = digits.length === 11 || digits.length === 14;
+            e.target.setCustomValidity(complete && !isValidDocument(digits) ? "CPF ou CNPJ inválido" : "");
+          }}
           className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
         />
       </fieldset>
@@ -503,7 +512,7 @@ export default function CheckoutForm() {
 
         <button
           type="submit"
-          disabled={submitting || !consentLgpd}
+          disabled={submitting}
           data-testid="checkout-submit"
           className="w-full rounded-full bg-potinho-chocolate py-4 text-base font-semibold lowercase text-potinho-bege transition-colors enabled:hover:bg-potinho-texto disabled:cursor-not-allowed disabled:opacity-40"
         >

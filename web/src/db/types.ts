@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidDocument } from "@/lib/document-validation";
 
 /**
  * param_schema — fonte única de verdade da personalização (PRD §8).
@@ -103,7 +104,7 @@ export const customerSchema = z.object({
   document: z
     .string()
     .transform((v) => v.replace(/\D/g, ""))
-    .refine((v) => v.length === 11 || v.length === 14, "CPF ou CNPJ inválido"),
+    .refine(isValidDocument, "CPF ou CNPJ inválido"),
   address: z.object({
     street: z.string().min(1),
     number: z.string().min(1),
