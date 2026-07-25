@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Altura real da FreeShippingBar (varia: pode quebrar linha no mobile) — atualizada via JS
+     (ResizeObserver em FreeShippingBar.tsx). Fallback = altura típica antes da 1ª medição. */
+  --fsb-h: 48px;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

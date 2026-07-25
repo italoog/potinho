@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { freeShipping } from "@/lib/site-config";
 import type { UrgencyCountdownConfig } from "@/lib/urgency-countdown";
 
@@ -49,13 +49,17 @@ function useUrgencyRemaining(config: UrgencyCountdownConfig): number | null {
  * Barra fixa no topo destacando a promoção de frete grátis (site-config.ts) e o contador de
  * urgência (configurável em /admin/configuracoes). Some no admin via CSS puro — regra
  * `body:has(#admin-root) .free-shipping-bar` em globals.css.
- * Começa um pouco maior (h-12) e encolhe pro tamanho padrão (h-9) ao rolar a página. O wrapper
- * fora do `fixed` reserva o mesmo espaço no fluxo normal, então o conteúdo da página nunca fica
- * por baixo dela nem precisa de um padding-top manual sincronizado à mão.
+ * Começa um pouco maior e encolhe ao rolar. Como o texto quebra linha em telas estreitas
+ * (mobile é a maioria do tráfego), a altura não pode ser um valor fixo: o wrapper renderiza
+ * o MESMO conteúdo duas vezes — uma via `visibility:hidden` no fluxo normal (só pra reservar
+ * o espaço certo, inclusive quando quebra linha) e outra fixa por cima, visível. Como as duas
+ * cópias têm exatamente as mesmas classes/conteúdo, elas sempre quebram linha juntas, sem
+ * precisar medir altura via JS.
  */
 export default function FreeShippingBar({ urgencyCountdown }: { urgencyCountdown: UrgencyCountdownConfig }) {
   const [scrolled, setScrolled] = useState(false);
   const remaining = useUrgencyRemaining(urgencyCountdown);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onScroll() {
@@ -66,24 +70,47 @@ export default function FreeShippingBar({ urgencyCountdown }: { urgencyCountdown
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Botões fixos (carrinho, conta, voltar) ancoram em --fsb-h pra nunca ficar por baixo da
+  // barra nem flutuar longe demais dela quando o texto quebra linha (CartUI.tsx, BackToStoreButton.tsx).
+  useEffect(() => {
+    const el = barRef.current;
+    // Sem barra na tela (promoção desligada), a âncora tem que ser 0 — senão os botões
+    // ficariam deslocados pelo fallback do CSS como se a barra existisse.
+    if (!el) {
+      document.documentElement.style.setProperty("--fsb-h", "0px");
+      return;
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      document.documentElement.style.setProperty("--fsb-h", `${entry.contentRect.height}px`);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   if (!freeShipping.enabled) return null;
 
-  const heightClass = scrolled ? "h-9" : "h-12";
+  const paddingClass = scrolled ? "py-2.5" : "py-4";
+  const content = (
+    <>
+      <span>
+        <span className="font-bold">frete grátis</span>&nbsp;a partir de {freeShipping.minQuantity} potinhos
+      </span>
+      {urgencyCountdown.enabled && remaining !== null && (
+        <span>
+          · {urgencyCountdown.label}: <span className="font-bold tabular-nums">{formatRemaining(remaining)}</span>
+        </span>
+      )}
+    </>
+  );
+  const barClass = `flex w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-4 text-center text-xs font-normal lowercase leading-snug tracking-wide transition-[padding] duration-300 sm:text-sm ${paddingClass}`;
 
   return (
-    <div className={`free-shipping-bar w-full ${heightClass} transition-[height] duration-300`}>
-      <div
-        className={`fixed inset-x-0 top-0 z-40 flex w-full items-center justify-center gap-2 bg-potinho-chocolate px-4 text-center text-xs font-normal lowercase tracking-wide text-potinho-bege transition-[height] duration-300 sm:text-sm ${heightClass}`}
-      >
-        <span>
-          <span className="font-bold">frete grátis</span>&nbsp;a partir de {freeShipping.minQuantity} potinhos
-        </span>
-        {urgencyCountdown.enabled && remaining !== null && (
-          <span className="whitespace-nowrap">
-            · {urgencyCountdown.label}:{" "}
-            <span className="font-bold tabular-nums">{formatRemaining(remaining)}</span>
-          </span>
-        )}
+    <div className="free-shipping-bar w-full">
+      <div aria-hidden className={`invisible ${barClass}`}>
+        {content}
+      </div>
+      <div ref={barRef} className={`fixed inset-x-0 top-0 z-40 bg-potinho-chocolate text-potinho-bege ${barClass}`}>
+        {content}
       </div>
     </div>
   );

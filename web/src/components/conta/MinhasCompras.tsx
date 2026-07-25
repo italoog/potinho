@@ -61,7 +61,7 @@ export default function MinhasCompras({ userName, orders }: Props) {
               <li key={order.id}>
                 <Link
                   href={`/conta/pedidos/${order.id}`}
-                  className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition-shadow hover:shadow-potinho-card"
+                  className="flex flex-wrap items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition-shadow hover:shadow-potinho-card"
                 >
                   <div className="flex -space-x-1">
                     {swatches.map((hex, i) => (
@@ -81,11 +81,11 @@ export default function MinhasCompras({ userName, orders }: Props) {
                     </p>
                   </div>
                   <span
-                    className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold lowercase ${STATUS_BADGE_CLASS[status]}`}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold lowercase ${STATUS_BADGE_CLASS[status]}`}
                   >
                     {STATUS_LABEL[status]}
                   </span>
-                  <span className="font-bold text-potinho-chocolate">{formatBRL(order.totalAmount)}</span>
+                  <span className="shrink-0 font-bold text-potinho-chocolate">{formatBRL(order.totalAmount)}</span>
                 </Link>
               </li>
             );
