@@ -79,6 +79,9 @@ export default function CheckoutForm() {
   const [shippingStatus, setShippingStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  /** Borda vermelha só depois da 1ª tentativa de envio com campo obrigatório vazio (evita alarmar antes do usuário digitar). */
+  const invalidClass = attemptedSubmit ? " invalid:border-rose-500" : "";
 
   const [couponInput, setCouponInput] = useState("");
   const [couponStatus, setCouponStatus] = useState<"idle" | "loading" | "applied" | "error">("idle");
@@ -233,6 +236,7 @@ export default function CheckoutForm() {
   return (
     <form
       onSubmit={handleSubmit}
+      onInvalidCapture={() => setAttemptedSubmit(true)}
       className="mx-auto flex max-w-3xl flex-col gap-6 rounded-3xl bg-white p-6 shadow-potinho-card sm:p-8"
     >
       <header>
@@ -301,7 +305,7 @@ export default function CheckoutForm() {
           placeholder="nome completo"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+          className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <input
@@ -310,7 +314,7 @@ export default function CheckoutForm() {
             placeholder="e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
           <input
             required
@@ -318,7 +322,7 @@ export default function CheckoutForm() {
             placeholder="telefone / whatsapp"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
         </div>
         <input
@@ -329,7 +333,7 @@ export default function CheckoutForm() {
           data-testid="checkout-document"
           value={document}
           onChange={(e) => setDocument(maskDocument(e.target.value))}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+          className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
         />
       </fieldset>
 
@@ -348,7 +352,7 @@ export default function CheckoutForm() {
             value={address.zip}
             onChange={(e) => setField("zip", maskCep(e.target.value))}
             onBlur={handleCepBlur}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
           <input
             required
@@ -356,7 +360,7 @@ export default function CheckoutForm() {
             placeholder="rua"
             value={address.street}
             onChange={(e) => setField("street", e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
         </div>
         {cepStatus === "loading" && <p className="text-xs text-potinho-texto/50">buscando endereço…</p>}
@@ -368,7 +372,7 @@ export default function CheckoutForm() {
             placeholder="número"
             value={address.number}
             onChange={(e) => setField("number", e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
           <input
             type="text"
@@ -384,7 +388,7 @@ export default function CheckoutForm() {
           placeholder="bairro"
           value={address.neighborhood}
           onChange={(e) => setField("neighborhood", e.target.value)}
-          className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+          className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
         />
         <div className="grid gap-3 sm:grid-cols-[1fr_100px]">
           <input
@@ -393,13 +397,13 @@ export default function CheckoutForm() {
             placeholder="cidade"
             value={address.city}
             onChange={(e) => setField("city", e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           />
           <select
             required
             value={address.state}
             onChange={(e) => setField("state", e.target.value)}
-            className="rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto focus:border-potinho-chocolate focus:outline-none"
+            className={`rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base text-potinho-texto focus:border-potinho-chocolate focus:outline-none${invalidClass}`}
           >
             <option value="">uf</option>
             {BR_STATES.map((uf) => (
@@ -410,24 +414,6 @@ export default function CheckoutForm() {
           </select>
         </div>
       </fieldset>
-
-      {/* LGPD */}
-      <label className="flex items-start gap-3 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs leading-relaxed text-potinho-texto/70">
-        <input
-          required
-          type="checkbox"
-          checked={consentLgpd}
-          onChange={(e) => setConsentLgpd(e.target.checked)}
-          className="mt-0.5 h-5 w-5 shrink-0 accent-potinho-chocolate"
-        />
-        <span>
-          autorizo o uso dos meus dados para processar este pedido, conforme a{" "}
-          <Link href="/privacidade" className="underline">
-            política de privacidade
-          </Link>
-          .
-        </span>
-      </label>
 
       {/* Cupom de desconto */}
       <fieldset className="flex flex-col gap-2">
@@ -496,6 +482,24 @@ export default function CheckoutForm() {
         </div>
 
         {error && <p className="text-sm text-rose-500">{error}</p>}
+
+        {/* LGPD */}
+        <label className="flex items-start gap-3 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs leading-relaxed text-potinho-texto/70">
+          <input
+            required
+            type="checkbox"
+            checked={consentLgpd}
+            onChange={(e) => setConsentLgpd(e.target.checked)}
+            className={`mt-0.5 h-5 w-5 shrink-0 rounded accent-potinho-chocolate${attemptedSubmit ? " invalid:outline invalid:outline-2 invalid:outline-offset-2 invalid:outline-rose-500" : ""}`}
+          />
+          <span>
+            autorizo o uso dos meus dados para processar este pedido, conforme a{" "}
+            <Link href="/privacidade" className="underline">
+              política de privacidade
+            </Link>
+            .
+          </span>
+        </label>
 
         <button
           type="submit"
