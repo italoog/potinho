@@ -78,7 +78,8 @@ beforeEach(() => {
 afterEach(() => {
   delete process.env.MERCADOPAGO_ACCESS_TOKEN;
   delete process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  delete process.env.NODE_ENV;
+  // NODE_ENV não é opcional em ProcessEnv (delete é erro de tipo) e o stubEnv abaixo já
+  // devolve o valor esperado, então não há o que apagar antes.
   vi.stubEnv("NODE_ENV", "test");
 });
 

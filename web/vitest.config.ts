@@ -15,7 +15,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json-summary"],
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}", "src/db/migrate.ts", "src/db/seed.ts"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/test/**", "src/db/migrate.ts", "src/db/seed.ts"],
     },
   },
   resolve: {

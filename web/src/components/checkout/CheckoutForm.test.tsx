@@ -7,6 +7,7 @@ import { CartProvider } from "@/components/potinho/CartContext";
 import { writeCart, clearCart, type CartCheckoutItem } from "@/lib/cart-storage";
 import type { CartEntry } from "@/components/potinho/CartContext";
 import { comedouroPet } from "@/db/seed-data";
+import { stubLocation } from "@/test/stub-location";
 
 /**
  * CheckoutForm (6.1): a lógica de derivar total/desconto/frete vive no componente, não em lib —
@@ -147,9 +148,7 @@ describe("CheckoutForm — com itens", () => {
 
   it("submit com sucesso limpa o carrinho e redireciona", async () => {
     const originalLocation = window.location;
-    // @ts-expect-error -- jsdom não permite navegação real; substitui por um objeto gravável
-    delete window.location;
-    window.location = { ...originalLocation, href: "" } as Location;
+    stubLocation({ ...originalLocation, href: "" });
 
     await renderWithCart([cartItem()]);
     fireEvent.change(screen.getByPlaceholderText("nome completo"), { target: { value: "Mariana Silva" } });
@@ -169,7 +168,7 @@ describe("CheckoutForm — com itens", () => {
     await waitFor(() => expect(window.location.href).toBe("/pedido/abc-123"));
     expect(JSON.parse(sessionStorage.getItem("forja3d:checkout-cart") ?? "[]")).toEqual([]);
 
-    window.location = originalLocation;
+    stubLocation(originalLocation);
   });
 
   it("submit com erro do servidor mostra a mensagem e reabilita o botão", async () => {

@@ -12,8 +12,14 @@ function applyTheme(dark: boolean) {
 export default function DarkModeToggle() {
   const [dark, setDark] = useState(false);
 
+  // Sincroniza com a classe que o script inline do layout já aplicou antes do 1º paint.
+  // Tick assíncrono: setState direto no corpo do effect viola o lint de cascata (mesmo
+  // padrão de Countdown.tsx).
   useEffect(() => {
-    setDark(document.getElementById("admin-root")?.classList.contains("dark") ?? false);
+    const raf = requestAnimationFrame(() => {
+      setDark(document.getElementById("admin-root")?.classList.contains("dark") ?? false);
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   function toggle() {

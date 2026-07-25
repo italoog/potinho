@@ -5,6 +5,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/re
 import MinhasCompras from "./MinhasCompras";
 import type { OrderRow } from "@/db/schema";
 import type { OrderItemWithProduct } from "@/lib/orders";
+import { stubLocation } from "@/test/stub-location";
 
 const signOut = vi.fn();
 vi.mock("@/lib/auth-client", () => ({ authClient: { signOut: (...args: unknown[]) => signOut(...args) } }));
@@ -34,15 +35,13 @@ beforeEach(() => {
   fetchMock = vi.fn(async () => ({ ok: true }));
   vi.stubGlobal("fetch", fetchMock);
   originalLocation = window.location;
-  // @ts-expect-error -- jsdom não permite navegação real
-  delete window.location;
-  window.location = { ...originalLocation, href: "" } as Location;
+  stubLocation({ ...originalLocation, href: "" });
 });
 
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
-  window.location = originalLocation;
+  stubLocation(originalLocation);
 });
 
 describe("MinhasCompras", () => {
