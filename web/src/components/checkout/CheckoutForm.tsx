@@ -418,7 +418,7 @@ export default function CheckoutForm() {
           type="checkbox"
           checked={consentLgpd}
           onChange={(e) => setConsentLgpd(e.target.checked)}
-          className="mt-0.5"
+          className="mt-0.5 h-5 w-5 shrink-0 accent-potinho-chocolate"
         />
         <span>
           autorizo o uso dos meus dados para processar este pedido, conforme a{" "}
@@ -442,7 +442,7 @@ export default function CheckoutForm() {
             onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
             disabled={couponApplied}
             data-testid="checkout-coupon-input"
-            className="flex-1 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base uppercase tracking-wider text-potinho-texto placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none disabled:opacity-60"
+            className="min-w-0 flex-1 rounded-2xl border-2 border-potinho-bege bg-potinho-fundo px-5 py-3.5 text-base uppercase tracking-wider text-potinho-texto placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-potinho-cinza focus:border-potinho-chocolate focus:outline-none disabled:opacity-60"
           />
           {couponApplied ? (
             <button

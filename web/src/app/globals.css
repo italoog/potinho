@@ -44,6 +44,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* fieldset tem min-width: min-content por padrão do navegador — dentro de um flex/grid
+   isso impede o formulário de encolher no mobile e o conteúdo estoura a largura da tela. */
+fieldset {
+  min-width: 0;
+}
+
 /* ===== Home cinematográfica potinho ===== */
 
 @keyframes potinho-marquee {
