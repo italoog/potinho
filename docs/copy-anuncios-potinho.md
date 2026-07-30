@@ -153,16 +153,21 @@ Subir os três ao mesmo tempo, orçamento igual, mesmo público. O gancho é a �
 
 Sem imperativo. O próximo passo aparece como fato, não como ordem.
 
+O **slogan da marca** (`carinho em cada potinho`) entra colado ao logotipo, acima da linha de copy. É assinatura, não argumento — por isso não abre nem fecha a cartela, fica junto do nome.
+
 ### Versão SITE
 
-> **potinho** 🐾
+> 🐾 *(logo)*
+> **potinho**
+> carinho em cada potinho
 > o nome dele, gravado no corpo da peça
 > *potinho.pet — link na bio*
 
 ### Versão PERFIL
 
-> **potinho** 🐾
-> feito peça por peça, com o nome dele
+> 🐾 *(logo)*
+> **potinho**
+> carinho em cada potinho
 > *@potinho.pet*
 
 ---
@@ -343,10 +348,12 @@ Segundo ângulo completo, para o dono comparar com o Ângulo A (pertencimento) a
 |---|---|---|
 | 0–3 | Camisa de futebol pendurada, nome nas costas. | "Nome nas costas é de jogador." |
 | 3–6 | Placa de porta de consultório. | "Nome na placa é de doutor." |
-| 6–9 | Macro do nome no pote, tilt lento. | "Nome no pote…" *(pausa)* "…é dele." |
+| 6–9 | Macro do nome no pote, tilt lento. | "Esse nome no pote…" *(pausa)* "…é dele." |
 | 9–12 | Pet comendo. Cartela. | — |
 
 *Mecanismo:* setup + punch em três batidas. O punch precisa da pausa — ver direção de voz na seção 11.
+
+*Nota de produção:* na locução (TTS), "pote" é escrito como "poti" só no prompt de geração de áudio — truque fonético pra corrigir a pronúncia da IA. O texto acima ("pote") é a grafia correta pra leitura humana da copy.
 
 ### Meta Ads — Conjunto C (Ângulo B)
 
@@ -381,3 +388,244 @@ Segundo ângulo completo, para o dono comparar com o Ângulo A (pertencimento) a
 | Melhor roteiro | 3 — "O despertador" | B3 — "A assinatura" (punch mais limpo, planos mais fáceis de gerar) |
 
 Nota de produção: B3 é o mais barato de errar — camisa pendurada e placa de porta são planos estáticos simples, quase impossíveis de a IA estragar. O risco de geração fica concentrado num único plano (o macro do nome).
+
+---
+
+## 13. Ângulo C — "o ritual, não o gesto" (terceiro ângulo, 2026-07-29)
+
+Terceiro ângulo completo, para avaliação do dono junto com A (pertencimento, 5 roteiros produzidos) e B (exclusividade, 3 roteiros produzidos). Mesmo método, mesma Tríade, **emoção diferente das outras duas**: A vende afeto de família, B vende orgulho de exclusividade, **C vende a prova silenciosa de compromisso** — o amor que não é gesto grande, é rotina que nunca falha.
+
+### A cadeia de premissas
+
+> **Premissa 1** — Ninguém prova amor todo dia com discurso ou gesto grande. A prova de verdade é o que se repete sem ninguém filmando, sem story, sem antes-e-depois — na mesma hora, todo santo dia, mesmo cansado, mesmo sem vontade.
+>
+> **Premissa 2** — Encher o pote é esse gesto. Chove, faz sol, é feriado, mudou o emprego, mudou até o bairro — o horário da comida não falha. É o compromisso mais antigo e menos comentado da casa.
+>
+> **Conclusão inevitável** — Esse comedouro com o nome dele marca justamente esse compromisso: não é sobre o que é novo, é sobre o que nunca falhou.
+
+### QFD do Ângulo C
+
+| | |
+|---|---|
+| **Quadro** | Que aquele ritual diário e invisível tenha, enfim, um símbolo físico — algo que reconheça "esse compromisso é nosso" |
+| **Furadeira** | Peça impressa sob encomenda que passa a fazer parte do próprio ritual — a partir de agora é ESSA a peça que participa do horário, com o nome dele |
+| **Decorado** | O orgulho quieto de ser confiável mesmo sem ninguém saber. A satisfação de ver que o hábito banal virou algo bonito |
+
+### Por que este ângulo não repete A nem B
+
+| | Ângulo A | Ângulo B | Ângulo C |
+|---|---|---|---|
+| Eixo | Ele já é da família | Ninguém mais tem igual | O compromisso nunca falhou |
+| Prova | Objetos que a família nomeia | Tiragem única, feita à mão | Repetição diária, invisível |
+| Tempo verbal predominante | Presente ("ele já tem") | Presente/comparativo | Passado→presente ("nunca mudou") |
+
+### Ganchos (3 primeiros segundos)
+
+**C-1 (crônica):** "Tem uma coisa que essa casa faz todo santo dia, na mesma hora, há anos — e ninguém nunca comentou sobre isso."
+
+**C-2 (deboche/setup+punch):** "Ninguém tira foto da hora de encher o pote. Não tem story, não tem curtida. Mas é a coisa mais fiel que essa casa tem."
+
+**C-3 (sentir no corpo — relógio interno, não som, pra não repetir o Roteiro 3):** "Ele não usa relógio. Mas sabe a hora exata, todo dia, sem exceção."
+
+### Roteiro C1 — "O relógio dele" (13s)
+
+| Seg | Imagem | Locução / Texto na tela |
+|---|---|---|
+| 0–3 | Relógio de parede da cozinha em foco leve, luz da tarde avançando sutilmente. | **Loc:** "Ele não usa relógio." |
+| 3–6 | O pet se levanta sozinho do sofá, sem ninguém chamar, e caminha até a cozinha. | **Loc:** "Mas sabe a hora exata, todo santo dia." |
+| 6–9 | Mão enche a tigela de inox e desce o potinho no chão. | **Loc:** "Chova, faça sol, seja segunda ou feriado — o horário não muda." |
+| 9–11 | Macro lento do nome em alto-relevo entrando em foco. | **Texto:** o nome dele, no corpo da peça |
+| 11–13 | Ele come. Cartela final. | **Texto:** cartela final (ver seção 6) |
+
+*Mecanismo:* a passagem de tempo (luz mudando) some sob a única constante (o horário). O produto entra como o objeto físico dessa constância.
+
+### Roteiro C2 — "A coisa mais fiel dessa casa" (12s)
+
+| Seg | Imagem | Locução / Texto na tela |
+|---|---|---|
+| 0–3 | Cortes rápidos de fotos no celular: festa, viagem, bolo de aniversário desabando. | **Loc:** "Aqui tem foto de aniversário, de viagem, até de bolo que desabou." |
+| 3–6 | Corte seco pra cozinha, silêncio, mão enchendo o pote sem ninguém por perto. | **Loc:** "Só não tem foto da hora de encher o pote dele." |
+| 6–8 | Pet chegando e comendo. | **Loc:** "Ninguém filma o que é rotina." |
+| 8–10 | Macro do nome em foco. | **Loc:** "Mas é isso que não falhou nenhum dia." |
+| 10–12 | Cartela final. | **Texto:** cartela final |
+
+*Mecanismo:* contraste entre o que é fotografado (eventos raros) e o que nunca é (o gesto diário). O produto vira o símbolo do que não tem registro, mas sustenta tudo.
+
+### Roteiro C3 — "Desde que ele chegou" (14s)
+
+| Seg | Imagem | Locução / Texto na tela |
+|---|---|---|
+| 0–3 | Cena comum de manhã, luz suave, casa acordando. | **Loc:** "Desde o dia que ele chegou nessa casa, teve uma coisa que nunca mudou." |
+| 3–6 | Cortes rápidos sugerindo tempo passando: sofá diferente, estação do ano mudando. | **Loc:** "Mudou o sofá, mudou o emprego, mudou até o bairro." |
+| 6–9 | Mão enche o potinho, mesma cena de sempre. | **Loc:** "Só não mudou a hora de encher esse pote." |
+| 9–11 | Macro do nome em alto-relevo. | **Texto:** o nome dele, no corpo da peça |
+| 11–14 | Pet comendo. Cartela final. | **Texto:** cartela final |
+
+*Mecanismo:* lista de mudanças acumulando até a única exceção. É o mesmo mecanismo do Roteiro 2 (negações), mas aplicado ao tempo, não a objetos — por isso não repete.
+
+### CTA (site / perfil)
+
+Mesmo formato da seção 6, slogan colado ao logo.
+
+**SITE:** 🐾 potinho — carinho em cada potinho — o nome dele, na peça que participa da rotina todo dia — potinho.pet, link na bio
+
+**PERFIL:** 🐾 potinho — carinho em cada potinho — @potinho.pet
+
+### Legendas de feed (4, casáveis com posts existentes ou novos)
+
+**C-a. Produto no chão da cozinha, luz de manhã**
+
+> Sete da manhã ou sete da noite, chova ou faça sol — esse horário aqui nunca mudou. O pote é novo. O compromisso, não.
+
+**C-b. Macro do nome em alto-relevo**
+
+> O nome ficou gravado na peça agora. O hábito já tava gravado bem antes disso.
+
+**C-c. Pet comendo**
+
+> Ninguém tira foto desse momento. É repetido demais pra parecer especial. Mas é o que nunca falhou.
+
+**C-d. Cartela de marca**
+
+> Amor não é só o gesto grande. Às vezes é só não faltar, todo santo dia, na mesma hora. 🐾
+
+### Meta Ads — Conjunto D (Ângulo C)
+
+**Primary text**
+
+> Desde o dia que ele chegou nessa casa, teve uma coisa que nunca mudou. Mudou o sofá, mudou o emprego, mudou até o bairro — a hora de encher o pote dele, não.
+>
+> Não tem story disso. Não tem curtida. É rotina demais pra virar conteúdo. Mas é a coisa mais fiel que essa casa tem.
+>
+> O potinho é a versão física desse compromisso: comedouro elevado, impresso peça por peça, com o nome do pet em alto-relevo no corpo. Tigela de inox que sai pra lavar, duas cores por peça, três tamanhos.
+>
+> Não é sobre o que é novo. É sobre o que nunca falhou. *(A partir de 2 unidades o frete fica por nossa conta.)*
+
+**Headline:** o nome dele, na rotina que nunca falhou
+**Description:** comedouro elevado, feito peça por peça
+
+### Checagem contra a Tríade (Ângulo C)
+
+| Regra | Status |
+|---|---|
+| Não prometer | ✅ Nenhuma promessa de saúde ou transformação; só descrição de rotina e produto |
+| Não abrir com pergunta | ✅ Todos os ganchos e roteiros abrem com fato ou cena |
+| Não usar imperativo | ✅ CTAs em forma de fato, nenhum "descubra"/"garanta"/"compre" |
+| **Sem culpa** | ✅ "Ninguém filma/fotografa" descreve um fato universal, não uma falha do tutor — o tom é de admiração pela fidelidade, não de cobrança. Revisado especificamente para não soar como "você nunca notou isso" |
+| Frete fora do vídeo | ✅ Zero menção nos 3 roteiros e nas 4 legendas; aparece só no primary text do Conjunto D |
+
+### Comparação A / B / C
+
+| | Ângulo A — pertencimento | Ângulo B — um de um | Ângulo C — o ritual |
+|---|---|---|---|
+| Emoção | Afeto: "ele é da família" | Orgulho: "ninguém tem igual" | Admiração quieta: "isso nunca falhou" |
+| Força | Identificação imediata, universal | Justifica o preço sem falar de preço | Emocionalmente mais sutil, pode gerar mais comentários de identificação ("literalmente minha casa") |
+| Risco | Mais suave — pode não parar o dedo | "Fábrica" abre frio; depende do contraste funcionar | Ritmo mais lento nos 3 primeiros segundos — gancho C-2 (deboche) é o que mais compensa isso |
+| Melhor roteiro | 3 — "O despertador" | B3 — "A assinatura" | C2 — "A coisa mais fiel dessa casa" (contraste fotografado/não-fotografado é o gancho mais forte) |
+
+Nota de produção: C2 é o mais barato de gerar — cortes de "fotos no celular" podem reaproveitar telas de UI simples ou fotos reais existentes, sem depender de vídeo novo pros primeiros 3s. O risco de geração concentra no plano da cozinha vazia (simples, estático) e no macro do nome (já resolvido nas levas anteriores via foto real ou tipografia).
+
+---
+
+## 14. Ângulo D — "a bagunça que a casa perdoa" (quarto ângulo, nativo de vídeo, 2026-07-29)
+
+Diferente dos três primeiros (todos contemplativos, pensados pra plano parado + ken burns), este ângulo só funciona com **movimento real**. A emoção não está numa cena para contemplar — está numa ação física que só o vídeo carrega: a corrida descontrolada do pet na hora da comida.
+
+### A cadeia de premissas
+
+> **Premissa 1** — Todo pet aprende modos: senta quando manda, espera quando pede, não pula no sofá (quase sempre). A casa treinou isso com paciência, meses, repetição.
+>
+> **Premissa 2** — Só existe uma hora do dia em que ninguém cobra nada disso: quando a ração bate na tigela. Aí ele esquece tudo que aprendeu, corre, derrapa, quase perde o equilíbrio — e a casa não corrige, ri.
+>
+> **Conclusão inevitável** — O potinho é o gatilho da única bagunça que essa casa aceita de bom grado, porque é a alegria mais sincera que existe ali dentro.
+
+### QFD do Ângulo D
+
+| | |
+|---|---|
+| **Quadro** | Ver o pet inteiro, sem filtro, empolgado ao ponto de perder a compostura |
+| **Furadeira** | O potinho com nome — o objeto que dispara essa reação, todo dia, no mesmo ponto da casa |
+| **Decorado** | O riso de quem assiste, o orgulho de ver tanta alegria por causa de uma coisa tão simples |
+
+### Por que este ângulo não repete A, B ou C
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| Eixo | Pertencimento | Exclusividade | Rotina invisível | Empolgação física |
+| Ritmo | Contemplativo | Contemplativo | Contemplativo, lento | **Rápido, cinético** |
+| Formato ideal | Plano parado + ken burns | Plano parado + ken burns | Plano parado + ken burns | **Vídeo com movimento real** |
+
+### Ganchos (3 primeiros segundos)
+
+**D-1 (crônica/setup+punch):** "Ele senta quando manda. Espera quando pede. Só não consegue fingir educação numa hora: quando a ração bate na tigela."
+
+**D-2 (deboche):** "Ensinei ele a não pular no sofá. Não ensinei a não derrapar até a cozinha — porque nem eu ia conseguir."
+
+### Roteiro D1 — "A correria de sempre" (12s)
+
+Cada plano descrito já pensando em movimento — o que se move, de onde pra onde, em que velocidade.
+
+| Seg | Movimento | Locução / Texto na tela |
+|---|---|---|
+| 0–2 | Pet parado/deitado; orelha levanta e cabeça vira rápido, reagindo a um som fora de quadro (saco de ração balançando) | **Loc:** "Ele senta quando manda. Espera quando pede." |
+| 2–5 | Corte: pet dispara em corrida pela casa, atravessando o quadro em disparada, quase perdendo o equilíbrio numa curva | **Loc:** "Só não consegue isso na hora que a ração bate na tigela." |
+| 5–7 | Pet chega derrapando perto do potinho, patas escorregando no piso, corpo seguindo o movimento por inércia até frear | *(sem locução — o som da derrapada carrega o momento)* |
+| 7–9 | Pet já comendo com gula, rabo balançando descontrolado, corpo inteiro em movimento de empolgação | **Loc:** "Bagunça permitida. Só essa." |
+| 9–11 | Macro do nome em alto-relevo entrando em foco (plano parado, ok aqui — é o único respiro) | **Texto:** o nome dele, no corpo da peça |
+| 11–12 | Cartela final | **Texto:** cartela final |
+
+*Mecanismo:* a lista de modos aprendidos (senta, espera) cria expectativa de disciplina — quebrada pela corrida descontrolada. O único plano estático do roteiro é o macro, de propósito: depois de tanto movimento, o corte seco pro parado é que faz o nome "grudar".
+
+*Nota de produção:* os segundos 2–9 são os únicos desta campanha inteira que dependem de geração de vídeo real (não dá pra fingir corrida e derrapada com ken burns). Fidelidade do produto é secundária nesses planos — o que importa é o movimento do pet. A fidelidade do produto se recupera no macro (seg. 9–11), que pode usar plano parado com a foto real do produto.
+
+### CTA (site / perfil)
+
+**SITE:** 🐾 potinho — carinho em cada potinho — o nome dele, no meio da bagunça que a casa perdoa — potinho.pet, link na bio
+
+**PERFIL:** 🐾 potinho — carinho em cada potinho — @potinho.pet
+
+### Legendas de feed (2)
+
+**D-a.** Ensinamos ele a não pular no sofá. Ninguém ensinou a não derrapar até a cozinha — nem eu ia conseguir.
+
+**D-b.** É a única bagunça que essa casa aplaude.
+
+### Meta Ads — Conjunto E (Ângulo D)
+
+**Primary text**
+
+> Ele senta quando manda. Espera quando pede. Não pula no sofá — quase sempre.
+>
+> Só existe uma hora do dia em que a educação dele vai pro espaço: quando a ração bate na tigela. Aí ele corre, derrapa, quase perde o equilíbrio — e ninguém corrige, porque é a alegria mais sincera que essa casa tem.
+>
+> O potinho é o gatilho dessa bagunça: comedouro elevado, impresso peça por peça, com o nome do pet em alto-relevo no corpo. Tigela de inox removível, duas cores, três tamanhos.
+>
+> A única desculpa que essa casa aceita de bom grado.
+
+**Headline:** a única bagunça que a casa aplaude
+**Description:** comedouro elevado, feito peça por peça
+
+### Checagem contra a Tríade (Ângulo D)
+
+| Regra | Status |
+|---|---|
+| Não prometer | ✅ Só descrição de comportamento e produto |
+| Não abrir com pergunta | ✅ Gancho abre com fato/cena |
+| Não usar imperativo | ✅ Nenhum "corra", "veja", "garanta" |
+| **Sem culpa** | ✅ A falta de "educação" na hora da comida é celebrada, não corrigida — não há cobrança ao tutor nem ao pet |
+| Frete fora do vídeo | ✅ Zero menção no roteiro e nas legendas; só no primary text do Conjunto E |
+
+### Roteiro D2 — "Nem eu ia conseguir" (11s, 2026-07-29)
+
+Segundo roteiro do Ângulo D, a partir do gancho D-2 (deboche). Mesma emoção de D1 (empolgação física descontrolada), cena física diferente: em vez de correr, o pet **não consegue ficar parado** — pula/gira no lugar feito pipoca, sem conseguir esperar.
+
+| Seg | Movimento | Locução / Texto na tela |
+|---|---|---|
+| 0–3 | Pet parado perto do sofá, quieto, comportado — pequena respiração, olhar manso | **Loc:** "Ensinei ele a não pular no sofá." |
+| 3–7 | Corte: o mesmo pet, agora perto da cozinha, pulando no lugar sem conseguir se conter — patas saltando do chão feito pipoca, corpo girando, orelhas balançando, incapaz de ficar parado | **Loc:** "Não ensinei a não pular que nem pipoca na hora da ração." |
+| 7–9 | Pet já com a cabeça no potinho BILLY, comendo, rabo ainda balançando forte de tanta empolgação (plano parado, ok aqui) | *(sem locução)* |
+| 9–11 | Macro do nome + cartela final | **Loc:** "Aqui, a bagunça é aplaudida." |
+
+*Mecanismo:* mesmo setup + punch do gancho — "ensinei X" cria expectativa de disciplina total, "não ensinei Y" quebra com humor físico. Diferente de D1 (correria linear, ponto A→B), aqui a comédia é a falta de deslocamento: o pet pula no mesmo lugar, sem conseguir se mover — ainda mais engraçado visualmente.
+
+*Nota de produção:* mesma estratégia de D1 — planos de movimento (0–7s) gerados via IA em texto puro, sem exigir fidelidade de produto; plano final (7–11s) reaproveita o hero shot estático real do BILLY já validado.

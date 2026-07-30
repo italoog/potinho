@@ -39,6 +39,7 @@ Comedouro elevado impresso em 3D, formato de cilindro/balde com base cônica lev
 
 Fonte: `.claude/skills/potinho-design/SKILL.md`
 
+- **Slogan:** `carinho em cada potinho` — assinatura da marca, sempre minúscula, sempre colada ao logotipo na cartela final. Não é gancho de anúncio nem substitui a linha de copy: é assinatura, entra depois do nome da marca.
 - **Voz:** afetuosa, caseira, direta. Fala com o tutor sobre "ele" (o pet).
 - **lowercase é identidade.** A marca é sempre `potinho`, minúsculo. **Exceção:** o NOME DO PET é sempre MAIÚSCULO E ESPAÇADO — é referência direta à gravação na peça. Essa regra vale para legendas, textos na tela dos vídeos e miniaturas.
 - **Paleta (para overlays, cartelas e grafismos):**

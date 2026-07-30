@@ -2,6 +2,289 @@
 
 **Criado:** 2026-07-19 · **Status:** ✅ PRODUZIDO (corte bruto em `docs/midia-gerada/corte-bruto-despertador.mp4`)
 
+---
+
+## LEVA 4 — Ângulo C, Roteiro C2 "A coisa mais fiel dessa casa" (2026-07-29)
+
+**Copy aprovada em `docs/copy-anuncios-potinho.md` seção 13, GATE 1 aprovado pelo dono.** Prioridade confirmada: C2 primeiro.
+**Restrição de crédito:** Higgsfield em 6,85 cr — insuficiente pra vídeo novo (mín. 12,5 cr/clipe). Segue a estratégia de `ai-media-free-alternatives`: Gemini/Nano Banana (imagem, grátis) + Dreamina Seedance free (vídeo, grátis) via browser. Higgsfield só pra locução (~0,3 cr/linha).
+
+**Pet/produto novo (variedade, ver `ad_dog_variety_preference`):** nome **BILLY**, combo marrom/roxo — ainda não usado em nenhum anúncio anterior (CHARLIE, ZEUS, LUNA já usados). Referência real: `docs/fotos-reais-comedouros/Screenshot_2026-06-03-20-02-30-425_com.instagram.android.jpg`.
+
+### Plano a plano
+
+| Seg | Plano | Fonte | Ferramenta |
+|---|---|---|---|
+| 0–3 | Cortes rápidos de "fotos no celular": festa, viagem, bolo de aniversário desabando — genéricas, sem produto | Imagem gerada | Gemini/Nano Banana |
+| 3–6 | Cozinha vazia e silenciosa, mão enchendo a tigela de inox do potinho (marrom/roxo, BILLY) | Vídeo gerado (image-to-video a partir da imagem-mestra) | Dreamina Seedance free |
+| 6–8 | Cachorro chegando e comendo no potinho | Vídeo gerado | Dreamina Seedance free |
+| 8–10 | Macro do nome BILLY em alto-relevo entrando em foco | Foto real animada (`Screenshot_2026-06-03-20-02-30-425...jpg` como start frame) ou imagem gerada + ken burns se o vídeo falhar | Dreamina Seedance free / ffmpeg |
+| 10–12 | Cartela final (site/perfil) | Tipografia Poppins + logo | ffmpeg (reaproveita `montar.sh`) |
+
+Bíblia Visual (seção 3.1 do plano de mídias) embutida em todo prompt de imagem/vídeo. Nome do pet MAIÚSCULO ESPAÇADO nos textos na tela; marca sempre `potinho` minúscula.
+
+### Locução (3 linhas, ~0,9 cr)
+
+| # | Linha | Entra sobre |
+|---|---|---|
+| 1 | "Aqui tem foto de aniversário, de viagem, até de bolo que desabou." | Seg 0–3 |
+| 2 | "Só não tem foto da hora de encher o pote dele." | Seg 3–6 |
+| 3 | "Mas é isso que não falhou nenhum dia." | Seg 8–10 |
+
+Voz: Arthur (mesma das levas anteriores, `voice_id 30fc8796-ceb6-4a66-b3a7-4a145ef7f346`).
+
+### Checklist de qualidade (seção 4.4 do plano) aplica normalmente antes de aceitar qualquer plano gerado.
+
+### Execução real — desvios do plano
+
+- **Upload de referência no Gemini:** inviável via automação de browser (exige diálogo nativo de arquivo do Windows, que o Claude in Chrome não controla). Contornado gerando a imagem-mestra do produto no **Higgsfield** (`nano_banana_pro`, 2 cr, referência real via upload direto) em vez do Gemini — ainda assim dentro do orçamento (6,85cr iniciais).
+- **Dreamina descartado:** o seletor de proporção trava em "Default" e herda 21:9 de gerações anteriores da sessão sempre que uma imagem de referência é anexada (bug confirmado: tooltip "aspect ratio is set to 21:9 based on the reference image" — ele lê o aspect ratio do PRÓPRIO ARQUIVO enviado, e um screenshot de página cheia sai sempre ~21:9, nunca 9:16). Sem forma confiável de remover o anexo pela UI (thread persiste entre navegações). **Pivotado pra ken burns em ffmpeg** sobre as imagens estáticas — mesma técnica já validada nas levas anteriores, custo zero, sem risco de proporção errada.
+- **Reveal do nome:** em vez de vídeo animado, macro estático via crop+zoompan na própria imagem-mestra (`c2-s5`), já validada com o nome BILLY perfeitamente legível.
+- **Controle de qualidade pós-geração:** a primeira imagem de "festa" saiu com pessoas de rosto visível ao fundo (quebra a regra de marca "nunca rosto"), mesmo com "no visible faces" no prompt. Regenerada com instrução mais explícita ("no people, no humans, no silhouettes, no faces, no bodies") — resultado sem nenhuma pessoa em quadro.
+
+### Entrega
+
+`docs/midia-gerada/ANUNCIOS-PRONTOS/C2-a-coisa-mais-fiel-{site,perfil}.mp4` — 1080×1920, 16,17s, H.264/AAC.
+Segmentos em `docs/midia-gerada/v2/seg/c2-s{1..5}.mp4`, locução em `v2/voz/c2-{1,2,3}.mp3`.
+Pet/produto: **BILLY**, combo marrom/roxo — nome inédito nos anúncios do potinho.
+Saldo Higgsfield final: **4,25 cr** (imagem-mestra 2cr + locução ~0,6cr).
+
+---
+
+## LEVA 5 — C1 "O relógio dele" (2026-07-29)
+
+Segundo roteiro do Ângulo C. Reaproveita a imagem-mestra do produto BILLY vazio (`c2-04-master-billy-cozinha.png`) da Leva 4 pro beat "mão enche o pote" — sem gasto extra. Duas imagens novas via Gemini (relógio de parede, cachorro entrando na cozinha) e uma via Higgsfield com referência real (cachorro comendo no BILLY, `nano_banana_pro`, 2cr) — essa é a única com produto+pet juntos, então usa a foto real como referência de fidelidade.
+
+**Cachorro:** vira-lata preto e caramelo (bicolor), consistente entre as duas imagens que o mostram — nome ainda não revelado explicitamente no roteiro (é o BILLY do pote).
+
+### Plano a plano
+
+| Seg | Plano | Fonte | Duração |
+|---|---|---|---|
+| 1 | Relógio de parede, cozinha aconchegante | Gemini (novo) | 2,16s |
+| 2 | Cachorro entrando pela porta da cozinha | Gemini (novo) | 2,96s |
+| 3 | Produto BILLY vazio, no chão | Reaproveitado da Leva 4 | 6,56s |
+| 4 | Macro do nome BILLY (crop na foto do cachorro comendo) | Higgsfield (mesma imagem do seg. 5) | 2,0s |
+| 5 | Cachorro comendo no BILLY (hero shot) | Higgsfield, `nano_banana_pro` c/ referência real, 2cr | 2,4s |
+| — | Cartela final | Reaproveitada (`card-site`/`card-perfil`) | 2,9s |
+
+Locução (3 linhas, Arthur): "Ele não usa relógio." / "Mas sabe a hora exata, todo santo dia." / "Chova, faça sol, seja segunda ou feriado. O horário não muda." (~0,45cr)
+
+### Entrega
+
+`docs/midia-gerada/ANUNCIOS-PRONTOS/C1-o-relogio-dele-{site,perfil}.mp4` — 1080×1920, 19,0s, H.264/AAC.
+Segmentos em `v2/seg/c1-s{1..5}.mp4`, locução em `v2/voz/c1-{1,2,3}.mp3`.
+Saldo Higgsfield final: **1,65 cr** — insuficiente pra outra imagem produto+pet (precisa de 2cr).
+
+---
+
+## LEVA 6 — C3 "Desde que ele chegou" (2026-07-29)
+
+Terceiro e último roteiro do Ângulo C. Dono esclareceu que não tem conta Higgsfield paga (o saldo usado nas Levas 4-5 era o que restava) — pediu pra seguir só com ferramentas grátis. Produzido **sem gastar nenhum crédito de imagem**: as duas cenas novas (quarto de manhã, parede de retratos sugerindo o tempo passando) saíram do Gemini grátis; os beats de produto e cachorro comendo **reaproveitam integralmente** os assets já gerados nas Levas 4 e 5 (`c2-04-master-billy-cozinha.png`, `c2-s5.mp4`, `c1-s5.mp4`) — mesmo produto BILLY, mesmo cachorro, sem gerar nada novo.
+
+### Plano a plano
+
+| Seg | Plano | Fonte | Duração |
+|---|---|---|---|
+| 1 | Quarto de manhã, cama desarrumada, luz suave | Gemini (novo) | 4,32s |
+| 2 | Parede de retratos acumulados, planta crescida — passagem do tempo | Gemini (novo) | 4,56s |
+| 3 | Produto BILLY vazio, no chão | Reaproveitado (Leva 4) | 2,88s |
+| 4 | Macro do nome BILLY | Reaproveitado (`c2-s5.mp4`, Leva 4) | 2,0s |
+| 5 | Cachorro comendo no BILLY | Reaproveitado (`c1-s5.mp4`, Leva 5) | 2,4s |
+| — | Cartela final | Reaproveitada | 2,9s |
+
+Locução (3 linhas, Arthur): "Desde o dia que ele chegou nessa casa, teve uma coisa que nunca mudou." / "Mudou o sofá, mudou o emprego, mudou até o bairro." / "Só não mudou a hora de encher esse pote." (~0,45cr — único gasto desta leva).
+
+### Entrega
+
+`docs/midia-gerada/ANUNCIOS-PRONTOS/C3-desde-que-ele-chegou-{site,perfil}.mp4` — 1080×1920, 19,08s, H.264/AAC.
+Com esta leva, os **3 roteiros do Ângulo C estão completos**: C1, C2 e C3, todos com o mesmo produto (BILLY, marrom/roxo) e o mesmo cachorro protagonista — consistência de personagem em toda a sub-campanha do ângulo "o ritual, não o gesto".
+
+---
+
+## LEVA 7 — D1 "A correria de sempre" (Ângulo D, vídeo real, 2026-07-29)
+
+Dono pediu explicitamente vídeo de verdade, não só ken burns. Como os Ângulos A/B/C foram escritos pra planos contemplativos (parados), foi criado um **quarto ângulo nativo de vídeo**: a empolgação física descontrolada do pet na hora da comida — a única ação que só existe em movimento real (correr, derrapar, sacudir o rabo). Copy completa na seção 14 de `docs/copy-anuncios-potinho.md`.
+
+### Descoberta técnica: Dreamina funciona em 9:16 sem referência de imagem
+
+O bug de aspect ratio das Levas 4-5 (sempre 21:9) só acontece quando uma imagem de referência é anexada — o Dreamina lê as dimensões do arquivo enviado, e qualquer screenshot de página cheia sai ~21:9 (limite do viewport da extensão, não ajustável). **Em modo texto-puro (sem anexo), o seletor 9:16 fica livre e funciona normalmente.** Contorno: gerar os clipes de ação via texto puro (aceitando risco de fidelidade do produto nesses planos) e reservar a fidelidade real pro plano estático do hero shot (já validado nas levas anteriores). Ver `browser_automation_ai_media_limits.md` na memória, atualizado com esse achado.
+
+**Pegadinha nova:** o Dreamina embute uma marca d'água "Dreamina AI" no canto inferior direito de todo vídeo gratuito — mesmo contorno já conhecido (`dreamina_free_model_gate`): cortar a faixa inferior do frame antes de reenquadrar pro 9:16 final.
+
+### O que foi gerado
+
+| Clipe | Ferramenta | Conteúdo | Uso no anúncio |
+|---|---|---|---|
+| Reação | Dreamina Seedance 1.0 Fast, texto puro, 9:16 | Cachorro deitado, orelha reage a som, levanta rápido | Seg. 1 (2,5s, cortado do fim do clipe) |
+| Correndo | Dreamina Seedance 1.0 Fast, texto puro, 9:16 | Cachorro correndo em disparada por corredor até a câmera | Seg. 2 (4,0s) |
+| Comendo (descartado) | Dreamina Seedance 1.0 Fast, texto puro, 9:16 | Cachorro chegando e comendo — mas o pote saiu genérico (sem a referência real, a IA inventou uma tigela comum) | Não usado — substituído pelo hero shot estático do BILLY já validado |
+
+Produto+cachorro na parte final do anúncio reaproveitam os assets já gerados (`c1-04-cachorro-comendo-billy.png`, `c1-s4.mp4`) — garantindo que o BILLY apareça fiel no clímax, mesmo com os planos de ação sendo genéricos.
+
+### Plano a plano
+
+| Seg | Conteúdo | Fonte | Duração |
+|---|---|---|---|
+| 1 | Cachorro reage e levanta (vídeo real) | Dreamina, recorte do clipe "reação" | 2,5s |
+| 2 | Cachorro correndo pelo corredor (vídeo real) | Dreamina, clipe "correndo" | 4,0s |
+| 3 | Cachorro comendo no BILLY (estático, push-in) | Reaproveitado (Leva 5) | 3,0s |
+| 4 | Macro do nome BILLY | Reaproveitado (`c1-s4.mp4`, Leva 5) | 2,0s |
+| — | Cartela final | Reaproveitada | 2,9s |
+
+Locução (3 linhas, Arthur): "Ele senta quando manda. Espera quando pede." / "Só não consegue isso na hora que a ração bate na tigela." / "Bagunça permitida. Só essa." (~0,45cr).
+
+### Entrega
+
+`docs/midia-gerada/ANUNCIOS-PRONTOS/D1-a-correria-de-sempre-{site,perfil}.mp4` — 1080×1920, 14,4s, H.264/AAC. Primeiro anúncio da campanha com movimento real gerado por IA (não ken burns).
+
+### Correção pós-entrega (2026-07-29) — deformações de IA no vídeo
+
+Dono revisou e apontou deformações/anomalias visuais nos clipes de vídeo real (Dreamina): nas transições bruscas (o cachorro levantando rápido, a virada na esquina), o corpo do cachorro encolhe/deforma de forma anômala por 1-2 frames — artefato clássico de vídeo de IA em movimento brusco, visível principalmente em still-frame mas perceptível no playback também.
+
+**Correção:** substituído os 2 clipes de vídeo (reação + correndo) por **imagens estáticas com ken burns** — mesma técnica comprovada em C1/C2/C3, zero risco de deformação:
+- Segmento 1: reaproveitada `c1-02-cachorro-chegando.png` (já validada, mesmo cachorro)
+- Segmento 2: nova imagem gerada via Gemini — cachorro capturado em pose de corrida com motion blur nas patas (sugere velocidade num frame só, sem precisar de vídeo)
+- Segmentos 3-4 e cartela: inalterados (já eram estáticos)
+
+A copy/locução foi mantida integralmente (o dono aprovou o texto). Duração ajustada de 14,4s para **17,25s** pra caber as durações reais da locução sem cortes. Vídeo com deformação arquivado em `docs/midia-gerada/v2/_backup/AD-d1-9x16-{site,perfil}-COM-DEFORMACAO.mp4` (não usar).
+
+**Lição:** Dreamina Seedance 1.0 Fast (grátis) tem qualidade inconsistente em transições de movimento brusco — bom pra movimento contínuo e suave (aproximação, corrida em linha reta vista de longe), ruim pra mudanças rápidas de pose (levantar de repente, virar esquina, saltar). Preferir imagem estática com pose dinâmica (motion blur pintado na própria imagem) quando o orçamento ou a qualidade do modelo de vídeo não permitir múltiplas tentativas de geração.
+
+---
+
+## LEVA 8 — D2 "Nem eu ia conseguir" (2026-07-29)
+
+Segundo roteiro do Ângulo D. Depois da correção do D1, produzido **direto em imagens estáticas com ken burns** — dono confirmou que vídeo real do Dreamina não vale o risco de deformação neste orçamento. Copy na seção "Roteiro D2" de `docs/copy-anuncios-potinho.md`.
+
+### Plano a plano
+
+| Seg | Conteúdo | Fonte | Duração |
+|---|---|---|---|
+| 1 | Cachorro sentado, calmo, comportado, perto do sofá | Gemini (novo) | 3,36s |
+| 2 | Cachorro pulando no ar de empolgação, patas fora do chão | Gemini (novo) | 4,0s |
+| 3 | Cachorro comendo no BILLY, com texto na tela sobrepondo a locução final | Reaproveitado (Leva 5) + `drawtext` ffmpeg | 3,0s |
+| 4 | Macro do nome BILLY | Reaproveitado (`c1-s4.mp4`) | 2,0s |
+| — | Cartela final | Reaproveitada | 2,9s |
+
+### Crédito esgotou no meio da locução
+
+A 3ª linha ("Aqui, a bagunça é aplaudida.") falhou por falta de crédito no Higgsfield (0,45cr cobriam só 2 das 3 linhas a 0,15cr cada). Em vez de parar ou pedir recarga pra uma linha só, a frase virou **texto na tela** (Poppins bold, caixa chocolate translúcida, mesmo padrão visual da marca) sobre o plano do cachorro comendo — resolve sem gastar nada.
+
+### Entrega
+
+`docs/midia-gerada/ANUNCIOS-PRONTOS/D2-nem-eu-ia-conseguir-{site,perfil}.mp4` — 1080×1920, 15,27s, H.264/AAC. Nenhum crédito de vídeo gasto (Dreamina) e crédito mínimo de locução (Higgsfield, ~0,3cr pelas 2 linhas que saíram).
+
+Com D1 corrigido e D2 entregue, os dois roteiros escritos do Ângulo D estão completos, ambos 100% em imagem estática — a decisão definitiva desta fase da campanha foi abandonar vídeo real gerado por IA em favor de ken burns sobre fotos, por confiabilidade.
+
+---
+
+## LEVA 2 — 4 anúncios adicionais (2026-07-28)
+
+**Restrição:** saldo Higgsfield de 12,35 cr — não cobria nem um clipe de 5s (12,5). Produzido em **modo custo-zero de vídeo**: nenhum plano novo foi gerado. Só locução (14 linhas × 0,15 = **2,40 cr**). Saldo final: **9,95**.
+
+### Estratégia: banco de planos + tipografia
+
+Os 4 roteiros já tinham copy aprovada no GATE 1. Em vez de gerar os planos que faltavam, cada um foi remontado com:
+
+| Fonte | Origem | Uso |
+|---|---|---|
+| `V1-corredor` | `clipe1-v2.mp4` reescalado 1080×1920 | cachorro chegando, comedouro em 1º plano |
+| `V2-comendo` | `clipe2-v2.mp4` | cachorro caramelo comendo |
+| `V3-macro` | `clipe3-v2.mp4` | reveal do nome CHARLIE |
+| `I1-impressora` | `feed-05-impressora.png` + ken burns | ZEUS na impressora (frio→quente) |
+| `I2-macro-nome` | `macro-nome-cinematografico.png` + ken burns | CHARLIE em alto-relevo |
+| `I3-gato` | `feed-gato-luna.png` + ken burns | gato LUNA comendo |
+| Cartelas | Poppins + paleta da marca, via ffmpeg | planos que não existiam em footage |
+
+**Princípio:** os planos que a IA não tinha gerado (camisa pendurada, placa de porta, esteira industrial, sofá) viraram **tipografia da marca** — o que é melhor que gerar, porque elimina o risco de a IA errar texto e mantém o conceito legível no mudo.
+
+### Os 4 anúncios
+
+| # | Roteiro | Ângulo | Dur. | Construção |
+|---|---|---|---|---|
+| 1 | **B3 "A assinatura"** | B — um de um | 14,4s | 2 cartelas de setup (jogador/doutor, com push-in) → macro CHARLIE no punch → comendo → CTA |
+| 2 | **B1 "Dez mil iguais"** | B — um de um | 16,6s | cartela FRIA com contador subindo até 10.000 → impressora ZEUS (quente) → macro → comendo → CTA |
+| 3 | **R2 "O que é só dele"** | A — pertencimento | 17,6s | corredor → cartela de negações riscadas uma a uma no tempo da voz → macro → gato LUNA → CTA |
+| 4 | **R1 "O inventário dele"** | A — pertencimento | 12,7s | corredor → comendo → macro do nome → CTA |
+
+O contraste frio→quente do B1 é a única exceção autorizada à regra de luz quente — é a argumentação do roteiro, não um desvio.
+
+### Entrega
+
+`docs/midia-gerada/v2/AD-{b3,b1,r2,r1}-9x16-{site,perfil}.mp4` — 8 arquivos, 1080×1920, H.264, AAC 192k.
+Remontagem reproduzível: `docs/midia-gerada/v2/montar.sh`.
+
+**Cartela final** traz o slogan da marca `carinho em cada potinho` colado ao logotipo, acima da linha de copy (informado pelo dono em 2026-07-28). Durações incluem os 2,9s da cartela.
+
+### Especificações verificadas
+
+- Áudio normalizado: média −14 dB, pico −0,5 a −1,7 dB (compatível com a normalização do Meta)
+- Locução Arthur (mesma voz do despertador), trilha a 13% com fade in/out
+- Selo da logo em `x=68, y=1450` — fora dos 350px inferiores de zona segura
+- Nenhum texto gerado por IA; toda tipografia é Poppins real
+
+### Pendências herdadas (inalteradas)
+
+- [ ] ⚠️ Licença comercial da voz sintética — **o dono providencia** (vale para esta leva também)
+- [ ] Pixel do Meta em potinho.pet
+
+---
+
+## LEVA 3 — B2 novo + planos reais no B3 (2026-07-28)
+
+**Mudança de estratégia:** em vez do banco de planos já produzido, esta leva gera mídia genuinamente nova usando as alternativas gratuitas ao Higgsfield (ver `ai-media-free-alternatives` na memória) — Gemini/Nano Banana pra imagem, Dreamina (Seedance) pra vídeo. Só a locução continua saindo do Higgsfield (custo baixo).
+
+### O que foi gerado
+
+| Plano | Ferramenta | Uso |
+|---|---|---|
+| Camisa de futebol "CHARLIE 10" pendurada | Gemini (Nano Banana) | B3, segmento 0–2,8s — substitui a cartela tipográfica antiga |
+| Placa "DR. CHARLIE / CRM 48219" | Gemini (Nano Banana) | B3, segmento 2,8–5,6s — substitui a cartela tipográfica antiga |
+| Calçada com cachorros de raças variadas (golden, vira-lata) | Dreamina, modelo Seedance 1.0 Fast, modo "Primeiro e último quadro" | B2, segmento 0–3,7s — único plano do storyboard sem correspondência no banco de footage |
+| Locução B2 (3 linhas) | Higgsfield ElevenLabs (voz Arthur) | ~0,45 cr total |
+
+**Pegadinha do Dreamina:** o modo "Referência Omni" (ativo por padrão na aba de vídeo) desabilita todos os modelos gratuitos (1.5 Pro, 1.0, 1.0 Fast) e só libera modelos pagos. Trocar pra "Primeiro e último quadro" ou "Multiframes" libera os modelos grátis mesmo sem anexar nenhum frame de referência. O clipe da calçada saiu com marca d'água "Dreamina AI" no canto inferior direito (remover exige assinatura); resolvido cortando a faixa inferior do vídeo antes de reenquadrar pro 9:16, o que também eliminou a marca.
+
+**Reaproveitamento sem geração:** o plano "cachorro em casa olhando câmera" do B2 não precisou de geração nova — encontrado em `clipe1-v1.mp4` (footage bruto da Leva 1, ainda não usado em nenhum anúncio), cachorro sentado olhando direto pra câmera.
+
+### B2 "O xará" (13,07s)
+
+| Segmento | Fonte | Duração |
+|---|---|---|
+| Calçada (raças variadas) | Dreamina Seedance, gerado | 3,7s |
+| Cachorro olhando câmera | `clipe1-v1.mp4` (reaproveitado, corte 1,9–3,9s) | 2,0s |
+| Macro do nome CHARLIE | `V3-macro.mp4` (reaproveitado) | 2,5s |
+| Comendo | `V2-comendo.mp4` (reaproveitado) | 2,0s |
+| Cartela final | Poppins + slogan | 2,9s |
+
+Entrega: `docs/midia-gerada/v2/AD-b2-9x16-{site,perfil}.mp4`.
+
+### B3 atualizado
+
+Os segmentos `b3-s1.mp4` e `b3-s2.mp4` (camisa e placa) foram substituídos in-place pelas imagens reais acima, via ken burns (push-in leve, mesma receita do pipeline). Duração e timing de voz inalterados — `AD-b3-9x16-{site,perfil}.mp4` foi remontado com o `montar.sh` existente sem mudanças de script nessa parte.
+
+### Especificações verificadas (B2)
+
+- Áudio: −13,9 dB RMS, −1,18 dB pico (dentro do alvo)
+- Locução Arthur, mesmo padrão de trilha e logo das levas anteriores
+- Frames-chave inspecionados visualmente em todos os 5 pontos do roteiro (calçada, olhar, macro, comendo, cartela)
+
+### Pendências herdadas (inalteradas)
+
+- [ ] ⚠️ Licença comercial da voz sintética — **o dono providencia**
+- [ ] Pixel do Meta em potinho.pet
+
+### Correções pós-entrega (2026-07-29)
+
+- **Cartela PERFIL:** removida a linha "feito peça por peça, com o nome dele" (frase sem sentido) de todos os anúncios versão perfil. Card refeito via ffmpeg (`v2/CARD-perfil.mp4`), versão antiga preservada em `v2/_backup/CARD-perfil-com-frase-antiga.mp4`.
+- **Bug crítico de áudio cortado:** `montar.sh` usava `amix=duration=first`, que travava a duração do áudio no tamanho do primeiro clipe de voz — silenciando o resto do anúncio (outras falas + trilha) sem erro visível. Corrigido pra `duration=longest`. Afetava **todos** os anúncios da Leva 2/3 (B1, B2, B3, R1, R2). Todos remontados após o fix. Ver `video_assembly_ffmpeg_pipeline` na memória.
+- **B1 "Dez mil iguais" descartado** — dono considerou o resultado ruim; não faz parte da entrega final.
+
+### Entrega final
+
+10 vídeos (5 roteiros × site/perfil) em `docs/midia-gerada/ANUNCIOS-PRONTOS/`: R3 despertador, R1 inventário, R2 só dele, B2 xará, B3 assinatura.
+
 ## Resultado da produção (2026-07-19)
 
 | Item | Status | Tentativas | Custo real |
