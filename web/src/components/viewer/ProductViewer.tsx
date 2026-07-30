@@ -60,12 +60,14 @@ export function LoadingOverlay() {
 export function CameraRig({ manifest }: { manifest: AssetManifest | null }) {
   const camera = useThree((s) => s.camera);
   const controls = useThree((s) => s.controls) as { target?: THREE.Vector3; update?: () => void } | null;
-  const applied = useRef(false);
+  // guarda por variante: reaplica ao trocar de tamanho, mas não briga com o usuário
+  // orbitando manualmente na mesma variante (manifest é refetchado a cada troca de modelUrl).
+  const appliedFor = useRef<string | null>(null);
 
   useEffect(() => {
     // espera manifest E controls prontos — OrbitControls registra async no store
-    if (!manifest?.anchor || !controls?.target || applied.current) return;
-    applied.current = true;
+    if (!manifest?.anchor || !controls?.target || appliedFor.current === manifest.variantRef) return;
+    appliedFor.current = manifest.variantRef;
     // Direção RADIAL da âncora (a peça é de revolução centrada na origem) — a outwardNormal
     // do manifest desvia ~16° da radial e deixava a câmera de viés em relação ao nome gravado.
     const [ax, , az] = manifest.anchor.position;

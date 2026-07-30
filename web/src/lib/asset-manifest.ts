@@ -29,9 +29,9 @@ export const assetManifestSchema = z.object({
 
 export type AssetManifest = z.infer<typeof assetManifestSchema>;
 
-/** URL do manifest ao lado do GLB: /models/<slug>/asset-manifest.json */
+/** URL do manifest ao lado do GLB: /models/<slug>/<variante>.asset-manifest.json */
 export function manifestUrlFor(modelUrl: string): string {
-  return modelUrl.replace(/\/[^/]+\.glb$/, "/asset-manifest.json");
+  return modelUrl.replace(/\.glb$/, ".asset-manifest.json");
 }
 
 export async function fetchAssetManifest(modelUrl: string): Promise<AssetManifest> {

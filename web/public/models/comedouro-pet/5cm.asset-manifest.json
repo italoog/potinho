@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-30T03:58:06.958Z",
+  "source3mf": "../assets/models/comedouro-pet/5cm.3mf",
+  "variantRef": "5cm",
+  "units": "meters",
+  "coordinateSystem": "gltf (Y-up)",
+  "dimensions": [
+    0.18593846261501312,
+    0.07816439867019653,
+    0.185939222574234
+  ],
+  "meshes": [
+    {
+      "name": "base_mesh",
+      "originalName": "CINZA"
+    },
+    {
+      "name": "bowl_mesh",
+      "originalName": "AZUL"
+    }
+  ],
+  "anchor": {
+    "node": "name_slot",
+    "position": [
+      -0.07903777830808952,
+      0.07297889515757561,
+      -0.0008835157330665848
+    ],
+    "outwardNormal": [
+      -0.8570076365185468,
+      0.5146829644548032,
+      -0.009579972342730284
+    ],
+    "up": [
+      0.514912374184218,
+      0.8570611792172093,
+      -0.017646019119868076
+    ],
+    "sampleText": "CHARLIE",
+    "sampleTextSize": [
+      0.021924011409282684,
+      0.008507810533046722,
+      0.09995836764574051
+    ],
+    "engraveDepthM": 0.002
+  },
+  "fonts": {
+    "production": "Impact",
+    "productionSize": 28.00003433227539,
+    "web": "Anton",
+    "webFile": "/fonts/Anton-Regular.ttf"
+  }
+}

@@ -16,7 +16,7 @@ cd web
 npx tsx scripts/convert-3mf-to-glb.ts "caminho/do/arquivo.3mf" public/models/<slug-do-produto> <ref-da-variante>
 # ex.: npx tsx scripts/convert-3mf-to-glb.ts ../assets/models/comedouro-pet/15cm.3mf public/models/comedouro-pet 15cm
 ```
-Saídas: `<ref>.glb` (malhas `base_mesh`, `bowl_mesh`, `part_N`… + node `name_slot`) e `asset-manifest.json`.
+Saídas: `<ref>.glb` (malhas `base_mesh`, `bowl_mesh`, `part_N`… + node `name_slot`) e `<ref>.asset-manifest.json` — um manifest por variante, já que dimensões e âncora do nome mudam por tamanho.
 
 O script:
 - usa a visão **montada** (não a de impressão), converte mm/Z-up → m/Y-up

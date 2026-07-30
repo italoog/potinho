@@ -21,11 +21,14 @@ interface Props {
   /** Nome do pet vive no pai para alimentar o preview 3D ao vivo. */
   petName: string;
   onPetNameChange: (name: string) => void;
+  /** Tamanho selecionado vive no pai — troca o modelo 3D exibido no preview. */
+  sizeValue: string;
+  onSizeChange: (size: string) => void;
 }
 
 /** Bloco de personalização: tamanho, 2 cores, nome do pet, preço e carrinho — dados do produto real. */
 const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
-  { product, selection, onSelectionChange, petName, onPetNameChange },
+  { product, selection, onSelectionChange, petName, onPetNameChange, sizeValue, onSizeChange },
   ref,
 ) {
   const { addItem } = useCart();
@@ -38,7 +41,6 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
   ) as ColorParam;
   const sizeParam = product.paramSchema.find((p) => p.type === "select") as SelectParam;
 
-  const [sizeValue, setSizeValue] = useState(sizeParam.options[sizeParam.options.length - 1].value);
   const [slot, setSlot] = useState<"base" | "band">("base");
   const [added, setAdded] = useState(false);
   const [notifyHex, setNotifyHex] = useState<string | null>(null);
@@ -109,7 +111,7 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setSizeValue(opt.value)}
+                onClick={() => onSizeChange(opt.value)}
                 aria-pressed={sizeValue === opt.value}
                 className={`flex flex-col items-center gap-0.5 rounded-2xl border-2 px-3 py-3 transition-colors ${
                   sizeValue === opt.value

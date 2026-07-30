@@ -23,8 +23,10 @@ const validManifest = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("manifestUrlFor", () => {
-  it("troca o nome do arquivo .glb por asset-manifest.json no mesmo diretório", () => {
-    expect(manifestUrlFor("/models/comedouro-pet/15cm.glb")).toBe("/models/comedouro-pet/asset-manifest.json");
+  it("troca a extensão .glb por .asset-manifest.json mantendo o nome da variante", () => {
+    expect(manifestUrlFor("/models/comedouro-pet/15cm.glb")).toBe(
+      "/models/comedouro-pet/15cm.asset-manifest.json",
+    );
   });
 });
 

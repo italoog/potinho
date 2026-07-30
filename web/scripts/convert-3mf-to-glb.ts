@@ -5,9 +5,9 @@
  * Ex.:  npx tsx scripts/convert-3mf-to-glb.ts "../ARQUIVO....3mf" public/models/comedouro-pet 15cm
  *
  * Saídas:
- *  - {outDir}/{variantRef}.glb           — malhas nomeadas + node vazio `name_slot`
- *  - {outDir}/asset-manifest.json        — contrato consumido pelo visualizador (Épico 1)
- *                                           e pelo gerador de produção (Épico 5)
+ *  - {outDir}/{variantRef}.glb                       — malhas nomeadas + node vazio `name_slot`
+ *  - {outDir}/{variantRef}.asset-manifest.json        — contrato consumido pelo visualizador (Épico 1)
+ *                                                       e pelo gerador de produção (Épico 5)
  *
  * O 3MF de PRODUÇÃO nunca é alterado — este script só lê.
  */
@@ -318,7 +318,7 @@ async function main() {
       webFile: "/fonts/Anton-Regular.ttf",
     },
   };
-  const manifestPath = join(outDir, "asset-manifest.json");
+  const manifestPath = join(outDir, `${variantRef}.asset-manifest.json`);
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(`✅ Manifest: ${manifestPath}`);
 }

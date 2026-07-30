@@ -165,7 +165,7 @@ Checagem em duas camadas: `app/admin/layout.tsx` (server-side, 404 se não-admin
 
 Pipeline completa, do arquivo de produção ao preview no navegador:
 
-1. **`scripts/convert-3mf-to-glb.ts`** (offline, manual) — converte o 3MF do Bambu Studio (mm, Z-up) num GLB comprimido (Draco/meshopt) + `asset-manifest.json`, mantendo o 3MF original intacto como fonte pro futuro gerador de produção.
+1. **`scripts/convert-3mf-to-glb.ts`** (offline, manual) — converte o 3MF do Bambu Studio (mm, Z-up) num GLB comprimido (Draco/meshopt) + `<variante>.asset-manifest.json`, mantendo o 3MF original intacto como fonte pro futuro gerador de produção. Um GLB + manifest por tamanho (`variantRef`).
 2. **`lib/asset-manifest.ts`** — contrato zod do manifest (malhas, âncora de gravação, fontes de produção vs. web).
 3. **`components/potinho/PotinhoViewer.tsx`** / **`components/viewer/ProductViewer.tsx`** — Canvas R3F: carrega o GLB, aplica cores por nome de malha, controla câmera/loading.
 4. **`components/viewer/NameText.tsx`** — o nome digitado vira geometria 3D real (opentype.js → extrude), é envolvido ao redor da peça e **subtraído via CSG** (`three-bvh-csg`) da malha, simulando a gravação real do produto físico (que também é removida por corte, não impressa em relevo colado).

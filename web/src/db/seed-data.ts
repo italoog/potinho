@@ -35,8 +35,8 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
     {
       ref: "5cm",
       label: "P — 5cm",
-      // ponytail: reaproveita o GLB de 15cm até o arquivo real de 5cm chegar (2 novos tamanhos a caminho)
-      modelUrl: "/models/comedouro-pet/15cm.glb",
+      modelUrl: "/models/comedouro-pet/5cm.glb",
+      productionFile: "assets/models/comedouro-pet/5cm.3mf",
       price: 9900, // R$ 99,00
       discountType: null,
       discountValue: null,
@@ -47,8 +47,8 @@ export const comedouroPet: Omit<NewProductRow, "id" | "createdAt" | "updatedAt">
     {
       ref: "10cm",
       label: "M — 10cm",
-      // ponytail: idem — placeholder até o GLB de 10cm chegar
-      modelUrl: "/models/comedouro-pet/15cm.glb",
+      modelUrl: "/models/comedouro-pet/10cm.glb",
+      productionFile: "assets/models/comedouro-pet/10cm.3mf",
       price: 11900, // R$ 119,00
       discountType: null,
       discountValue: null,

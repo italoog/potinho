@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/products";
+import type { SelectParam } from "@/db/types";
 import { getColor, heroVideo, macroVideo, stockColors, turntableClips, type TurntableClip } from "@/lib/site-config";
 import { CartProvider } from "./CartContext";
 import CartUI from "./CartUI";
@@ -57,6 +58,10 @@ export default function PotinhoHome({
       : { colorBaseHex: hexForLabel(product, "color_base", "Bege") ?? "#E8D9C8", colorBandHex: hexForLabel(product, "color_band", "Marrom") ?? "#5A4032" };
   });
   const [petName, setPetName] = useState("");
+  const sizeParam = product.paramSchema.find((p) => p.type === "select") as SelectParam;
+  const [sizeValue, setSizeValue] = useState(() => sizeParam.options[sizeParam.options.length - 1].value);
+  const modelUrl =
+    product.variants.find((v) => v.ref === sizeValue)?.modelUrl ?? product.variants[0].modelUrl;
   const customizerRef = useRef<HTMLDivElement>(null);
 
   // Deep link com cor pré-selecionada: rola até o customizer já com a combinação certa.
@@ -144,7 +149,12 @@ export default function PotinhoHome({
           {/* preview 3D à esquerda no desktop; no celular fica ACIMA do formulário */}
           <div className="mt-14 grid items-start gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
             <div className="flex flex-col gap-2 lg:sticky lg:top-24">
-              <PotinhoViewer topHex={selection.colorBaseHex} bottomHex={selection.colorBandHex} petName={petName} />
+              <PotinhoViewer
+                modelUrl={modelUrl}
+                topHex={selection.colorBaseHex}
+                bottomHex={selection.colorBandHex}
+                petName={petName}
+              />
               <p className="text-center text-xs text-potinho-texto/55">
                 prévia em tempo real: as cores e o nome que você escolher aparecem aqui na hora.
               </p>
@@ -157,6 +167,8 @@ export default function PotinhoHome({
               onSelectionChange={setSelection}
               petName={petName}
               onPetNameChange={setPetName}
+              sizeValue={sizeValue}
+              onSizeChange={setSizeValue}
             />
           </div>
 

@@ -7,7 +7,7 @@ import { MeshoptDecoder } from "meshoptimizer";
 import { applyTransform, composeTransforms, parseTransform } from "./lib3mf";
 
 const GLB_PATH = resolve(__dirname, "../public/models/comedouro-pet/15cm.glb");
-const MANIFEST_PATH = resolve(__dirname, "../public/models/comedouro-pet/asset-manifest.json");
+const MANIFEST_PATH = resolve(__dirname, "../public/models/comedouro-pet/15cm.asset-manifest.json");
 
 describe("transforms 3MF", () => {
   it("aplica translação e escala (convenção row-vector do 3MF)", () => {

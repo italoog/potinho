@@ -9,10 +9,9 @@ import { fetchAssetManifest, type AssetManifest } from "@/lib/asset-manifest";
 import NameText from "@/components/viewer/NameText";
 import { CameraRig, ColoredModel, LoadingOverlay } from "@/components/viewer/ProductViewer";
 
-/** GLB do comedouro usado no preview da home (mesmo asset da loja 3D). */
-const MODEL_URL = "/models/comedouro-pet/15cm.glb";
-
 interface Props {
+  /** GLB do tamanho selecionado (troca junto com o select de tamanho no Customizer). */
+  modelUrl: string;
   /** Cor de cima (corpo da peça, onde o nome é gravado). */
   topHex: string;
   /** Cor da base (faixa inferior). */
@@ -22,13 +21,21 @@ interface Props {
 }
 
 /**
- * Preview 3D ao vivo do "monte o seu potinho": toda troca de cor ou letra digitada
+ * Preview 3D ao vivo do "monte o seu potinho": toda troca de cor, tamanho ou letra digitada
  * reflete imediatamente na peça. Reusa as peças do visualizador da loja (/p/{slug}),
  * mas dirigido por props em vez do store de personalização.
  */
-export default function PotinhoViewer({ topHex, bottomHex, petName }: Props) {
+export default function PotinhoViewer({ modelUrl, topHex, bottomHex, petName }: Props) {
   const [manifest, setManifest] = useState<AssetManifest | null>(null);
   const [debouncedName, setDebouncedName] = useState("");
+
+  // Reset durante a renderização (não no effect, evita cascading render) — zera o manifest do
+  // tamanho anterior assim que o modelUrl muda, pra não casar a âncora antiga com a malha nova.
+  const [manifestUrl, setManifestUrl] = useState(modelUrl);
+  if (manifestUrl !== modelUrl) {
+    setManifestUrl(modelUrl);
+    setManifest(null);
+  }
 
   // parte de cima = base_mesh (corpo, recebe a gravação) · base = bowl_mesh (faixa inferior)
   const colors = useMemo(
@@ -51,14 +58,14 @@ export default function PotinhoViewer({ topHex, bottomHex, petName }: Props) {
 
   useEffect(() => {
     let alive = true;
-    fetchAssetManifest(MODEL_URL)
+    fetchAssetManifest(modelUrl)
       .then((m) => alive && setManifest(m))
       .catch(() => alive && setManifest(null));
-    useGLTF.preload(MODEL_URL);
+    useGLTF.preload(modelUrl);
     return () => {
       alive = false;
     };
-  }, []);
+  }, [modelUrl]);
 
   const frame =
     "relative h-[46vh] min-h-72 w-full overflow-hidden rounded-3xl bg-gradient-to-b from-white to-potinho-bege/60 shadow-[0_10px_50px_-20px_rgba(90,64,50,0.4)] lg:h-[62vh]";
@@ -77,7 +84,7 @@ export default function PotinhoViewer({ topHex, bottomHex, petName }: Props) {
           <ambientLight intensity={0.45} />
           <directionalLight position={[2, 4, 3]} intensity={1.8} />
           <directionalLight position={[-3, 2, -2]} intensity={0.9} />
-          <ColoredModel url={MODEL_URL} colors={colors} />
+          <ColoredModel url={modelUrl} colors={colors} />
           {manifest?.anchor && (
             <NameText manifest={manifest} text={debouncedName || "NOME"} />
           )}
