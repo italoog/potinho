@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Product } from "@/lib/products";
 import type { SelectParam } from "@/db/types";
 import { getColor, heroVideo, macroVideo, stockColors, turntableClips, type TurntableClip } from "@/lib/site-config";
@@ -63,19 +63,28 @@ export default function PotinhoHome({
   const modelUrl =
     product.variants.find((v) => v.ref === sizeValue)?.modelUrl ?? product.variants[0].modelUrl;
   const customizerRef = useRef<HTMLDivElement>(null);
+  // Envolve o preview 3D + o customizer: no mobile, rolar até aqui (block: "start")
+  // mostra o modelo no topo e ao menos parte dos controles logo abaixo — em vez de
+  // centralizar no formulário e deixar o modelo 3D escondido acima da dobra.
+  const previewRef = useRef<HTMLDivElement>(null);
 
-  // Deep link com cor pré-selecionada: rola até o customizer já com a combinação certa.
+  // Deep link com cor pré-selecionada: rola até o preview já com a combinação certa.
   useEffect(() => {
     if (!turntableClips.some((c) => c.id === initialComboId)) return;
     const t = setTimeout(() => {
-      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 400);
     return () => clearTimeout(t);
   }, [initialComboId]);
 
   function customizeFromClip(clip: TurntableClip) {
     setSelection(selectionForClip(product, clip));
-    customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function scrollToPreview(e: MouseEvent) {
+    e.preventDefault();
+    previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -114,6 +123,7 @@ export default function PotinhoHome({
             <Countdown />
             <a
               href="#produto"
+              onClick={scrollToPreview}
               className="mt-2 flex items-center gap-2 rounded-full bg-white px-8 py-4 text-base font-semibold lowercase text-potinho-chocolate shadow-lg transition-transform hover:scale-105"
             >
               <PawIcon className="h-5 w-5" />
@@ -147,7 +157,7 @@ export default function PotinhoHome({
           </div>
 
           {/* preview 3D à esquerda no desktop; no celular fica ACIMA do formulário */}
-          <div className="mt-14 grid items-start gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
+          <div ref={previewRef} className="mt-14 grid items-start gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
             <div className="flex flex-col gap-2 lg:sticky lg:top-24">
               <PotinhoViewer
                 modelUrl={modelUrl}
@@ -183,7 +193,7 @@ export default function PotinhoHome({
               </p>
               <button
                 type="button"
-                onClick={() => customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                onClick={scrollToPreview}
                 className="w-fit rounded-full border-2 border-potinho-chocolate px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege"
               >
                 montar o meu potinho →
