@@ -1,0 +1,5 @@
+file 'd1fix-s1.mp4'
+file 'd1fix-s2.mp4'
+file 'd1fix-s3.mp4'
+file 'c1-s4.mp4'
+file 'card-perfil.mp4'

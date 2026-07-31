@@ -5,6 +5,11 @@ import { freeShipping } from "@/lib/site-config";
 import type { UrgencyCountdownConfig } from "@/lib/urgency-countdown";
 
 const STORAGE_KEY = "potinho-urgency-start";
+// Depois de zerar, o contador fica parado (pressão visual, ver comentário abaixo) — só
+// renova numa visita nova (mount), nunca ao vivo na tela: senão o timer voltaria a contar
+// na frente do usuário e pareceria bug. Esse cooldown é o intervalo mínimo entre o fim de
+// um ciclo e o início do próximo.
+const RENEWAL_COOLDOWN_MS = 60 * 60_000;
 
 function formatRemaining(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -19,7 +24,8 @@ function formatRemaining(ms: number): string {
 /**
  * Gatilho de urgência psicológico: cada visitante ganha a própria contagem regressiva na
  * 1ª vez que abre o site, guardada no localStorage (não é um prazo real da loja). Ao zerar,
- * fica parado em 00:00:00 — não desativa nem esconde nada, é só pressão visual.
+ * fica parado em 00:00:00 durante a sessão — não desativa nem esconde nada, é só pressão
+ * visual. Só renova numa visita nova, depois de RENEWAL_COOLDOWN_MS de folga.
  */
 function useUrgencyRemaining(config: UrgencyCountdownConfig): number | null {
   const [remaining, setRemaining] = useState<number | null>(null);
@@ -29,7 +35,8 @@ function useUrgencyRemaining(config: UrgencyCountdownConfig): number | null {
     const durationMs = config.durationMinutes * 60_000;
 
     let start = Number(localStorage.getItem(STORAGE_KEY));
-    if (!start) {
+    const expired = start && Date.now() - start >= durationMs + RENEWAL_COOLDOWN_MS;
+    if (!start || expired) {
       start = Date.now();
       localStorage.setItem(STORAGE_KEY, String(start));
     }
