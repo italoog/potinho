@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatBRL } from "@/lib/money";
 import { calculateTotalCents } from "@/lib/pricing";
 import { useCart, type CartEntry } from "@/components/potinho/CartContext";
 import { isValidDocument } from "@/lib/document-validation";
 import { PawIcon } from "@/components/potinho/Marquee";
+import { trackMetaPixel } from "@/lib/meta-pixel";
 
 const BR_STATES = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG",
@@ -97,6 +98,20 @@ export default function CheckoutForm() {
   } | null>(null);
 
   const itemsTotal = items.reduce((sum, i) => sum + calculateTotalCents(i, i.configuration), 0);
+
+  const initiateCheckoutFired = useRef(false);
+  useEffect(() => {
+    if (initiateCheckoutFired.current || items.length === 0) return;
+    initiateCheckoutFired.current = true;
+    trackMetaPixel("InitiateCheckout", {
+      value: itemsTotal / 100,
+      currency: "BRL",
+      content_ids: items.map((i) => i.productId),
+      num_items: items.length,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
   const couponStale =
     appliedCoupon !== null &&
     (appliedCoupon.itemsLength !== items.length || appliedCoupon.shippingCentsAtApply !== shippingCents);

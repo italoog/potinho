@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { type CartCheckoutItem, clearCart, readCart, writeCart } from "@/lib/cart-storage";
+import { calculateTotalCents } from "@/lib/pricing";
+import { trackMetaPixel } from "@/lib/meta-pixel";
 
 export interface CartEntry extends CartCheckoutItem {
   cartId: string;
@@ -43,6 +45,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback((item: CartCheckoutItem) => {
     setItems((prev) => [...prev, { ...item, cartId: crypto.randomUUID() }]);
     setIsOpen(true);
+    trackMetaPixel("AddToCart", {
+      value: calculateTotalCents(item, item.configuration) / 100,
+      currency: "BRL",
+      content_ids: [item.productId],
+      content_name: item.productName,
+      content_type: "product",
+    });
   }, []);
 
   const removeItem = useCallback((cartId: string) => {

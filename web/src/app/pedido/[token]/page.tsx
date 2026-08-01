@@ -4,6 +4,7 @@ import { getOrderByToken } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
 import type { OrderEventType } from "@/db/types";
 import { EVENT_LABEL, STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
+import OrderPurchaseTracker from "@/components/potinho/OrderPurchaseTracker";
 
 export const metadata = { title: "seu pedido — potinho", robots: { index: false } };
 
@@ -18,6 +19,7 @@ export default async function OrderStatusPage({ params }: { params: Promise<{ to
 
   return (
     <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
+      <OrderPurchaseTracker orderId={order.id} status={order.status} totalAmountCents={order.totalAmount} />
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <header className="rounded-3xl bg-white p-6 text-center shadow-potinho-card sm:p-8">
           <p className="text-xs uppercase tracking-widest text-potinho-texto/50">
