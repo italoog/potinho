@@ -13,6 +13,9 @@ const DEFAULT_TABLE: Record<string, number> = { "*": 2000 };
 /** Serviços cotados: 1=PAC, 2=SEDEX, 17=Mini Envios (Correios) — confirmado em superfrete.readme.io. */
 const SUPERFRETE_SERVICES = "1,2,17";
 
+/** Nome do serviço que carrega a promoção de frete grátis (site-config.ts) — sempre o mais barato/lento. */
+export const FREE_SHIPPING_SERVICE = "PAC";
+
 function fallbackForState(uf: string): number {
   let table = DEFAULT_TABLE;
   const raw = process.env.SHIPPING_TABLE_JSON;
@@ -31,11 +34,15 @@ interface SuperFreteQuote {
   id?: number;
   price?: string | number;
   error?: string;
+  /** Prazo em dias úteis — confirmado em superfrete.readme.io (reference/cotacao-de-frete). */
+  delivery_time?: number;
 }
 
 export interface ShippingOption {
   service: string;
   priceCents: number;
+  /** Prazo em dias úteis. null quando a fonte não informa (ex.: tabela fixa sem SuperFrete). */
+  deliveryDays: number | null;
 }
 
 /** Serviços cotados mapeados pro nome exibido no admin (mesmos ids de SUPERFRETE_SERVICES). */
@@ -89,6 +96,7 @@ async function quoteSuperFreteOptions(
       .map((q, i) => ({
         service: (q.id && SERVICE_LABELS[q.id]) || `opção ${i + 1}`,
         priceCents: Math.round(parseFloat(String(q.price)) * 100),
+        deliveryDays: typeof q.delivery_time === "number" ? q.delivery_time : null,
       }))
       .filter((o) => Number.isFinite(o.priceCents) && o.priceCents >= 0)
       .sort((a, b) => a.priceCents - b.priceCents);
@@ -104,14 +112,24 @@ export function isFreeShippingEligible(itemCount: number): boolean {
   return freeShipping.enabled && itemCount >= freeShipping.minQuantity;
 }
 
-/** Opções de frete disponíveis (mais barata primeiro): cotação real por serviço se configurado, senão tabela fixa por UF. */
+/**
+ * Opções de frete disponíveis (mais barata primeiro): cotação real por serviço se configurado.
+ * ponytail: sem SuperFrete configurado não há como cotar SEDEX de verdade, então o fallback estima
+ * PAC pela tabela fixa por UF e SEDEX como 60% mais caro, com prazo fixo — teto: configurar
+ * SUPERFRETE_TOKEN pra cair sempre na cotação real (quoteSuperFreteOptions).
+ */
 export async function shippingOptionsFor(
   destCep: string,
   uf: string,
   packages: ShippingPackage[],
 ): Promise<ShippingOption[]> {
   const real = await quoteSuperFreteOptions(destCep, packages);
-  return real ?? [{ service: "frete padrão", priceCents: fallbackForState(uf) }];
+  if (real) return real;
+  const pacCents = fallbackForState(uf);
+  return [
+    { service: "PAC", priceCents: pacCents, deliveryDays: 8 },
+    { service: "SEDEX", priceCents: Math.round(pacCents * 1.6), deliveryDays: 3 },
+  ];
 }
 
 /** Preço do frete em centavos: a mais barata das opções disponíveis (ver shippingOptionsFor). */
@@ -122,4 +140,21 @@ export async function shippingCentsFor(
 ): Promise<number> {
   const options = await shippingOptionsFor(destCep, uf, packages);
   return Math.min(...options.map((o) => o.priceCents));
+}
+
+/**
+ * Preço do frete pra um serviço específico escolhido pelo cliente (checkout). A promoção de
+ * frete grátis (site-config.ts) vale só pro PAC — se o cliente preferir SEDEX, paga o valor real
+ * mesmo com o carrinho elegível.
+ */
+export async function shippingCentsForService(
+  destCep: string,
+  uf: string,
+  packages: ShippingPackage[],
+  service: string,
+  freeShippingEligible: boolean,
+): Promise<number> {
+  if (freeShippingEligible && service === FREE_SHIPPING_SERVICE) return 0;
+  const options = await shippingOptionsFor(destCep, uf, packages);
+  return (options.find((o) => o.service === service) ?? options[0])?.priceCents ?? 0;
 }

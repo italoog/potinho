@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isFreeShippingEligible, shippingCentsFor, shippingOptionsFor } from "./shipping";
+import { isFreeShippingEligible, shippingCentsFor, shippingCentsForService, shippingOptionsFor } from "./shipping";
 
 const PACKAGE = [{ widthCm: 20, heightCm: 18, lengthCm: 20, weightKg: 0.8 }];
 
@@ -71,7 +71,7 @@ describe("shippingCentsFor (SuperFrete configurado, 8.1 AC1-AC4)", () => {
     expect(await shippingCentsFor("20040-020", "RJ", PACKAGE)).toBe(2000);
   });
 
-  it("shippingOptionsFor lista as opções por serviço, mais barata primeiro, com o rótulo do id", async () => {
+  it("shippingOptionsFor lista as opções por serviço, mais barata primeiro, com prazo em dias", async () => {
     process.env.SUPERFRETE_TOKEN = "test-token";
     process.env.STORE_ORIGIN_CEP = "01310-100";
     vi.stubGlobal(
@@ -79,23 +79,43 @@ describe("shippingCentsFor (SuperFrete configurado, 8.1 AC1-AC4)", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => [
-          { id: 1, price: "32.90" },
-          { id: 2, price: "18.50" },
+          { id: 1, price: "32.90", delivery_time: 8 },
+          { id: 2, price: "18.50", delivery_time: 3 },
           { id: 17, price: "50.00", error: "serviço indisponível" },
         ],
       }),
     );
 
     expect(await shippingOptionsFor("20040-020", "RJ", PACKAGE)).toEqual([
-      { service: "SEDEX", priceCents: 1850 },
-      { service: "PAC", priceCents: 3290 },
+      { service: "SEDEX", priceCents: 1850, deliveryDays: 3 },
+      { service: "PAC", priceCents: 3290, deliveryDays: 8 },
     ]);
   });
 
-  it("shippingOptionsFor cai numa opção única de fallback sem SuperFrete configurado", async () => {
+  it("shippingOptionsFor cai no fallback PAC/SEDEX estimado sem SuperFrete configurado", async () => {
     expect(await shippingOptionsFor("01234-567", "SP", PACKAGE)).toEqual([
-      { service: "frete padrão", priceCents: 2000 },
+      { service: "PAC", priceCents: 2000, deliveryDays: 8 },
+      { service: "SEDEX", priceCents: 3200, deliveryDays: 3 },
     ]);
+  });
+
+  describe("shippingCentsForService", () => {
+    afterEach(() => {
+      delete process.env.SUPERFRETE_TOKEN;
+      delete process.env.STORE_ORIGIN_CEP;
+    });
+
+    it("PAC sai grátis quando o carrinho é elegível (2+ itens)", async () => {
+      expect(await shippingCentsForService("01234-567", "SP", PACKAGE, "PAC", true)).toBe(0);
+    });
+
+    it("PAC cobra o valor real quando o carrinho NÃO é elegível (1 item)", async () => {
+      expect(await shippingCentsForService("01234-567", "SP", PACKAGE, "PAC", false)).toBe(2000);
+    });
+
+    it("SEDEX cobra o valor real mesmo com o carrinho elegível a frete grátis", async () => {
+      expect(await shippingCentsForService("01234-567", "SP", PACKAGE, "SEDEX", true)).toBe(3200);
+    });
   });
 
   it("usa o endpoint sandbox quando SUPERFRETE_SANDBOX=true", async () => {

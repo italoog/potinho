@@ -54,7 +54,16 @@ beforeEach(() => {
       };
     }
     if (url.includes("/api/shipping/quote")) {
-      return { ok: true, json: async () => ({ shippingCents: 2000 }) };
+      return {
+        ok: true,
+        json: async () => ({
+          shippingCents: 2000,
+          options: [
+            { service: "PAC", priceCents: 2000, deliveryDays: 8 },
+            { service: "SEDEX", priceCents: 3200, deliveryDays: 3 },
+          ],
+        }),
+      };
     }
     if (url.includes("/api/checkout/cupom")) {
       return { ok: true, json: async () => ({ productDiscountCents: 1490, shippingDiscountCents: 0 }) };
@@ -111,9 +120,22 @@ describe("CheckoutForm — com itens", () => {
     fireEvent.blur(cepInput);
 
     await waitFor(() => expect(screen.getByDisplayValue("Avenida Paulista")).toBeInTheDocument());
-    await waitFor(() => expect(screen.getByText("R$ 20,00")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("checkout-shipping-total")).toHaveTextContent("R$ 20,00"));
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("viacep.com.br"));
     expect(fetchMock).toHaveBeenCalledWith("/api/shipping/quote", expect.any(Object));
+  });
+
+  it("PAC vem selecionado por padrão; escolher SEDEX cobra o valor do serviço mais caro", async () => {
+    await renderWithCart([cartItem()]);
+    const cepInput = screen.getByTestId("checkout-cep");
+    fireEvent.change(cepInput, { target: { value: "01310100" } });
+    fireEvent.blur(cepInput);
+    await waitFor(() => expect(screen.getByTestId("checkout-shipping-total")).toHaveTextContent("R$ 20,00"));
+
+    const sedexOption = screen.getByTestId("shipping-option-SEDEX");
+    fireEvent.click(sedexOption.querySelector("input[type=radio]")!);
+
+    await waitFor(() => expect(screen.getByTestId("checkout-shipping-total")).toHaveTextContent("R$ 32,00"));
   });
 
   it("aplica cupom e desconta do total", async () => {
@@ -121,7 +143,7 @@ describe("CheckoutForm — com itens", () => {
     const cepInput = screen.getByTestId("checkout-cep");
     fireEvent.change(cepInput, { target: { value: "01310100" } });
     fireEvent.blur(cepInput);
-    await waitFor(() => expect(screen.getByText("R$ 20,00")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("checkout-shipping-total")).toHaveTextContent("R$ 20,00"));
 
     fireEvent.change(screen.getByTestId("checkout-coupon-input"), { target: { value: "promo10" } });
     fireEvent.click(screen.getByTestId("checkout-coupon-apply"));
@@ -136,7 +158,7 @@ describe("CheckoutForm — com itens", () => {
     const cepInput = screen.getByTestId("checkout-cep");
     fireEvent.change(cepInput, { target: { value: "01310100" } });
     fireEvent.blur(cepInput);
-    await waitFor(() => expect(screen.getByText("R$ 20,00")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId("checkout-shipping-total")).toHaveTextContent("R$ 20,00"));
 
     fireEvent.change(screen.getByTestId("checkout-coupon-input"), { target: { value: "promo10" } });
     fireEvent.click(screen.getByTestId("checkout-coupon-apply"));

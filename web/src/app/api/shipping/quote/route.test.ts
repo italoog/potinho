@@ -51,7 +51,10 @@ describe("POST /api/shipping/quote", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
       shippingCents: 1500,
-      options: [{ service: "frete padrão", priceCents: 1500 }],
+      options: [
+        { service: "PAC", priceCents: 1500, deliveryDays: 8 },
+        { service: "SEDEX", priceCents: 2400, deliveryDays: 3 },
+      ],
     });
   });
 
@@ -60,11 +63,14 @@ describe("POST /api/shipping/quote", () => {
     const res = await POST(req({ cep: "60000-000", uf: "CE", items: [{ productId, size: "15cm" }] }));
     expect(await res.json()).toEqual({
       shippingCents: 2500,
-      options: [{ service: "frete padrão", priceCents: 2500 }],
+      options: [
+        { service: "PAC", priceCents: 2500, deliveryDays: 8 },
+        { service: "SEDEX", priceCents: 4000, deliveryDays: 3 },
+      ],
     });
   });
 
-  it("frete grátis a partir de 2 unidades no carrinho, independente da tabela", async () => {
+  it("frete grátis a partir de 2 unidades no carrinho zera só o PAC — SEDEX continua pago", async () => {
     process.env.SHIPPING_TABLE_JSON = JSON.stringify({ SP: 1500, "*": 2500 });
     const res = await POST(
       req({
@@ -78,8 +84,18 @@ describe("POST /api/shipping/quote", () => {
     );
     expect(await res.json()).toEqual({
       shippingCents: 0,
-      options: [{ service: "frete grátis", priceCents: 0 }],
+      options: [
+        { service: "PAC", priceCents: 0, deliveryDays: 8 },
+        { service: "SEDEX", priceCents: 2400, deliveryDays: 3 },
+      ],
     });
+  });
+
+  it("com 1 item (abaixo do mínimo de frete grátis) o PAC continua cobrando o valor real", async () => {
+    process.env.SHIPPING_TABLE_JSON = JSON.stringify({ SP: 1500, "*": 2500 });
+    const res = await POST(req({ cep: "01310-100", uf: "SP", items: [{ productId, size: "15cm" }] }));
+    const data = await res.json();
+    expect(data.options.find((o: { service: string }) => o.service === "PAC").priceCents).toBe(1500);
   });
 
   it("ignora item com productId inexistente (sem pacote, não derruba a cotação)", async () => {

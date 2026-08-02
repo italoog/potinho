@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getProductById } from "@/lib/products";
-import { isFreeShippingEligible, shippingOptionsFor, type ShippingOption } from "@/lib/shipping";
+import { FREE_SHIPPING_SERVICE, isFreeShippingEligible, shippingOptionsFor, type ShippingOption } from "@/lib/shipping";
 import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
@@ -27,9 +27,13 @@ export async function POST(request: Request) {
       .map((item, i) => products[i]?.variants.find((v) => v.ref === item.size)?.shipping)
       .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-    const options: ShippingOption[] = isFreeShippingEligible(body.items.length)
-      ? [{ service: "frete grátis", priceCents: 0 }]
-      : await shippingOptionsFor(body.cep, body.uf, packages);
+    // Frete grátis (site-config.ts) zera só o PAC — SEDEX continua com preço real pra quem
+    // preferir pagar por prazo menor (ver shippingCentsForService em order-creation.ts).
+    const eligible = isFreeShippingEligible(body.items.length);
+    const quoted = await shippingOptionsFor(body.cep, body.uf, packages);
+    const options: ShippingOption[] = quoted.map((o) =>
+      eligible && o.service === FREE_SHIPPING_SERVICE ? { ...o, priceCents: 0 } : o,
+    );
     const shippingCents = Math.min(...options.map((o) => o.priceCents));
     return NextResponse.json({ shippingCents, options });
   } catch (err) {

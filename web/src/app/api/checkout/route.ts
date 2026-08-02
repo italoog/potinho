@@ -25,6 +25,8 @@ const bodySchema = z.object({
   customer: customerSchema,
   consentLgpd: z.literal(true),
   couponCode: z.string().min(1).optional(),
+  /** Serviço de frete escolhido no checkout (PAC/SEDEX) — default PAC dentro de createOrderFromCart. */
+  shippingService: z.string().min(1).optional(),
 });
 
 /** Mensagens de erro que podem ir direto pro cliente — o resto vira o genérico (evita vazar detalhe interno). */
@@ -42,7 +44,12 @@ export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await request.json());
     const { order, shippingCents, items } = await createOrderFromCart(
-      { items: body.items, customer: body.customer, couponCode: body.couponCode },
+      {
+        items: body.items,
+        customer: body.customer,
+        couponCode: body.couponCode,
+        shippingService: body.shippingService,
+      },
       "system",
     );
 

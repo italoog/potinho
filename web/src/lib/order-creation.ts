@@ -3,7 +3,7 @@ import type { OrderRow } from "@/db/schema";
 import type { Customer, OrderConfiguration } from "@/db/types";
 import { getProductById } from "./products";
 import { validateCartItems, type CartItemInput } from "./pricing";
-import { isFreeShippingEligible, shippingCentsFor } from "./shipping";
+import { FREE_SHIPPING_SERVICE, isFreeShippingEligible, shippingCentsForService } from "./shipping";
 import { decodePngDataUrl, storeFile } from "./storage";
 import { recordOrderEvent } from "./order-events";
 import { linkOrderToAccountIfExists } from "./orders";
@@ -27,6 +27,8 @@ export interface CreateOrderInput {
   customer: Customer;
   /** Sobrescreve a cotação automática (9.4 AC1) — admin pode digitar o frete manualmente. */
   shippingCentsOverride?: number;
+  /** Serviço escolhido pelo cliente no checkout ("PAC" | "SEDEX" | ...) — default PAC (o elegível a frete grátis). */
+  shippingService?: string;
   /** Código do cupom (opcional) — SEMPRE revalidado e reprecificado aqui, nunca confia no desconto do front. */
   couponCode?: string;
 }
@@ -76,9 +78,13 @@ export async function createOrderFromCart(input: CreateOrderInput, actor: string
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const shippingCentsBeforeDiscount =
     input.shippingCentsOverride ??
-    (isFreeShippingEligible(input.items.length)
-      ? 0
-      : await shippingCentsFor(input.customer.address.zip, input.customer.address.state, packages));
+    (await shippingCentsForService(
+      input.customer.address.zip,
+      input.customer.address.state,
+      packages,
+      input.shippingService ?? FREE_SHIPPING_SERVICE,
+      isFreeShippingEligible(input.items.length),
+    ));
 
   const itemsTotal = validated.reduce((sum, v) => sum + v.unitPrice, 0);
 

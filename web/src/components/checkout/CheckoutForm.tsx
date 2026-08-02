@@ -8,6 +8,7 @@ import { useCart, type CartEntry } from "@/components/potinho/CartContext";
 import { isValidDocument } from "@/lib/document-validation";
 import { PawIcon } from "@/components/potinho/Marquee";
 import { trackMetaPixel } from "@/lib/meta-pixel";
+import type { ShippingOption } from "@/lib/shipping";
 
 const BR_STATES = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG",
@@ -77,8 +78,10 @@ export default function CheckoutForm() {
   const [address, setAddress] = useState<Address>(EMPTY_ADDRESS);
   const [consentLgpd, setConsentLgpd] = useState(false);
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [shippingCents, setShippingCents] = useState<number | null>(null);
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShipping, setSelectedShipping] = useState<string | null>(null);
   const [shippingStatus, setShippingStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const shippingCents = shippingOptions.find((o) => o.service === selectedShipping)?.priceCents ?? null;
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
@@ -171,9 +174,14 @@ export default function CheckoutForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Falha na cotação");
-      setShippingCents(data.shippingCents);
+      const options: ShippingOption[] = data.options;
+      setShippingOptions(options);
+      // PAC é sempre o default (o elegível a frete grátis); só cai pra outra opção se PAC não veio.
+      setSelectedShipping(options.find((o) => o.service === "PAC")?.service ?? options[0]?.service ?? null);
       setShippingStatus("done");
     } catch {
+      setShippingOptions([]);
+      setSelectedShipping(null);
       setShippingStatus("error");
     }
   }
@@ -223,6 +231,9 @@ export default function CheckoutForm() {
           // então o servidor (z.literal(true)) é quem garante que não entra pedido sem consentimento.
           consentLgpd,
           couponCode: couponApplied ? appliedCoupon!.code : undefined,
+          // Preço é sempre recalculado no servidor (NFR §6) — aqui só manda qual serviço o
+          // cliente escolheu (PAC/SEDEX), nunca o valor.
+          shippingService: selectedShipping ?? undefined,
         }),
       });
       const data = await res.json();
@@ -439,6 +450,57 @@ export default function CheckoutForm() {
         </div>
       </fieldset>
 
+      {/* Forma de envio */}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
+          forma de envio
+        </legend>
+        {shippingStatus === "loading" && <p className="text-xs text-potinho-texto/50">calculando frete…</p>}
+        {shippingStatus === "error" && (
+          <p className="text-xs text-rose-500">não foi possível cotar o frete — confira o cep</p>
+        )}
+        {shippingStatus === "idle" && shippingOptions.length === 0 && (
+          <p className="text-xs text-potinho-texto/50">informe o cep acima pra ver as opções de frete.</p>
+        )}
+        {shippingOptions.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {shippingOptions.map((opt) => {
+              const selected = selectedShipping === opt.service;
+              return (
+                <label
+                  key={opt.service}
+                  data-testid={`shipping-option-${opt.service}`}
+                  className={`flex cursor-pointer items-center justify-between gap-3 rounded-2xl border-2 px-5 py-3.5 text-sm transition-colors ${
+                    selected ? "border-potinho-chocolate bg-potinho-fundo" : "border-potinho-bege"
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="shipping-service"
+                      checked={selected}
+                      onChange={() => setSelectedShipping(opt.service)}
+                      className="accent-potinho-chocolate"
+                    />
+                    <span>
+                      <span className="font-semibold text-potinho-texto">{opt.service}</span>
+                      {opt.deliveryDays != null && (
+                        <span className="block text-xs text-potinho-texto/50">
+                          até {opt.deliveryDays} {opt.deliveryDays === 1 ? "dia útil" : "dias úteis"}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                  <span className="font-bold text-potinho-chocolate">
+                    {opt.priceCents === 0 ? "grátis" : formatBRL(opt.priceCents)}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        )}
+      </fieldset>
+
       {/* Cupom de desconto */}
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-semibold uppercase tracking-widest text-potinho-chocolate">
@@ -485,12 +547,14 @@ export default function CheckoutForm() {
       {/* Total + submit */}
       <div className="flex flex-col gap-4 border-t border-potinho-bege pt-5">
         <div className="flex items-center justify-between text-sm text-potinho-texto/70">
-          <span>frete</span>
-          <span>
+          <span>frete{selectedShipping ? ` (${selectedShipping})` : ""}</span>
+          <span data-testid="checkout-shipping-total">
             {shippingStatus === "loading"
               ? "calculando…"
               : shippingChargedCents !== null
-                ? formatBRL(shippingChargedCents)
+                ? shippingChargedCents === 0
+                  ? "grátis"
+                  : formatBRL(shippingChargedCents)
                 : "informe o cep"}
           </span>
         </div>
