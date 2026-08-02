@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { formatBRL } from "@/lib/money";
 import { swatchBackground } from "@/lib/color-swatch";
 import type { Product } from "@/lib/products";
@@ -628,9 +629,17 @@ export default function ProdutoForm({ product }: { product: Product }) {
       <button
         type="submit"
         disabled={saveState === "saving"}
-        className="self-start rounded-full bg-potinho-chocolate px-8 py-3 text-sm font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
+        className="inline-flex items-center gap-1.5 self-start rounded-full bg-potinho-chocolate px-8 py-3 text-sm font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
       >
-        {saveState === "saving" ? "salvando…" : saveState === "saved" ? "salvo ✓" : "salvar alterações"}
+        {saveState === "saving" ? (
+          "salvando…"
+        ) : saveState === "saved" ? (
+          <>
+            salvo <Check className="h-4 w-4" />
+          </>
+        ) : (
+          "salvar alterações"
+        )}
       </button>
     </form>
   );

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { PartyPopper } from "lucide-react";
 import { getOrderByToken } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
 import type { OrderEventType } from "@/db/types";
@@ -25,8 +26,14 @@ export default async function OrderStatusPage({ params }: { params: Promise<{ to
           <p className="text-xs uppercase tracking-widest text-potinho-texto/50">
             pedido de {new Date(order.createdAt).toLocaleDateString("pt-BR")}
           </p>
-          <h1 className="mt-2 text-2xl font-bold lowercase text-potinho-chocolate sm:text-3xl">
-            {order.status === "pending" ? "pedido recebido" : "pedido confirmado 🎉"}
+          <h1 className="mt-2 flex items-center justify-center gap-2 text-2xl font-bold lowercase text-potinho-chocolate sm:text-3xl">
+            {order.status === "pending" ? (
+              "pedido recebido"
+            ) : (
+              <>
+                pedido confirmado <PartyPopper className="h-6 w-6 sm:h-7 sm:w-7" />
+              </>
+            )}
           </h1>
           <span
             className={`mt-3 inline-block rounded-full px-4 py-1.5 text-xs font-semibold lowercase ${STATUS_BADGE_CLASS[order.status]}`}

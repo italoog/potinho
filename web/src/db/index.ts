@@ -34,9 +34,16 @@ async function createDevDb(): Promise<Db> {
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: path.resolve(process.cwd(), "drizzle") });
 
-  // seed idempotente do produto-piloto
+  // Seed do produto-piloto: upsert por slug, não "insere só se não existir" — senão o banco
+  // local (persistido em .data/pglite entre reinícios do dev server) fica com os variants/
+  // modelUrl/preços da PRIMEIRA vez que rodou, e edições em seed-data.ts (ex.: GLB novo por
+  // tamanho) nunca chegam no ambiente de dev sem apagar o diretório manualmente. Produção usa
+  // Postgres de verdade (DATABASE_URL) e não passa por aqui.
   const { comedouroPet } = await import("./seed-data");
-  await db.insert(schema.products).values(comedouroPet).onConflictDoNothing();
+  await db
+    .insert(schema.products)
+    .values(comedouroPet)
+    .onConflictDoUpdate({ target: schema.products.slug, set: { ...comedouroPet, updatedAt: new Date() } });
   await db.insert(schema.urgencyCountdown).values({ id: "main" }).onConflictDoNothing();
 
   return db as unknown as Db;

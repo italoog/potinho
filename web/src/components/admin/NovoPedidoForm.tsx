@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { calculateTotalCents } from "@/lib/pricing";
 import { formatBRL } from "@/lib/money";
 import type { Product } from "@/lib/products";
@@ -153,7 +154,9 @@ export default function NovoPedidoForm({ product }: { product: Product }) {
   if (result) {
     return (
       <div className={CARD_CLASS}>
-        <p className="font-semibold text-potinho-chocolate dark:text-potinho-caramelo">pedido criado ✓</p>
+        <p className="flex items-center gap-1.5 font-semibold text-potinho-chocolate dark:text-potinho-caramelo">
+          pedido criado <Check className="h-4 w-4" />
+        </p>
         {result.paymentLink ? (
           <div className="mt-3 flex flex-col gap-2">
             <p className="text-sm text-potinho-texto/70 dark:text-potinho-bege/70">

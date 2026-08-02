@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PawIcon } from "./Marquee";
 
 interface Props {
   colorId: string;
@@ -32,8 +33,9 @@ export default function NotifyColorForm({ colorId, colorLabel, onDone }: Props) 
 
   if (status === "done") {
     return (
-      <p className="rounded-2xl bg-potinho-fundo px-4 py-3 text-xs text-potinho-texto/70">
-        prontinho — avisamos você quando {colorLabel.toLowerCase()} voltar ao estoque 🐾
+      <p className="flex items-center gap-1.5 rounded-2xl bg-potinho-fundo px-4 py-3 text-xs text-potinho-texto/70">
+        prontinho — avisamos você quando {colorLabel.toLowerCase()} voltar ao estoque
+        <PawIcon className="h-3.5 w-3.5 shrink-0" />
       </p>
     );
   }

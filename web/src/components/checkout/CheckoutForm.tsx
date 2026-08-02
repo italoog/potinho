@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
 import { formatBRL } from "@/lib/money";
 import { calculateTotalCents } from "@/lib/pricing";
 import { useCart, type CartEntry } from "@/components/potinho/CartContext";
@@ -9,6 +10,7 @@ import { isValidDocument } from "@/lib/document-validation";
 import { PawIcon } from "@/components/potinho/Marquee";
 import { trackMetaPixel } from "@/lib/meta-pixel";
 import type { ShippingOption } from "@/lib/shipping";
+import FreeShippingProgress from "@/components/potinho/FreeShippingProgress";
 
 const BR_STATES = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG",
@@ -271,6 +273,8 @@ export default function CheckoutForm() {
       <header>
         <h1 className="text-2xl font-bold lowercase text-potinho-texto">finalizar pedido</h1>
       </header>
+
+      <FreeShippingProgress itemCount={items.length} />
 
       {/* Itens do carrinho */}
       <fieldset className="flex flex-col gap-3">
@@ -536,7 +540,11 @@ export default function CheckoutForm() {
             </button>
           )}
         </div>
-        {couponApplied && <p className="text-xs text-potinho-chocolate">cupom {appliedCoupon?.code} aplicado ✓</p>}
+        {couponApplied && (
+          <p className="flex items-center gap-1 text-xs text-potinho-chocolate">
+            cupom {appliedCoupon?.code} aplicado <Check className="h-3.5 w-3.5" />
+          </p>
+        )}
         {couponStale && <p className="text-xs text-rose-500">o carrinho mudou — aplique o cupom de novo</p>}
         {couponStatus === "error" && <p className="text-xs text-rose-500">{couponError}</p>}
         {couponStatus === "idle" && !appliedCoupon && shippingCents === null && (

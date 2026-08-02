@@ -38,7 +38,7 @@ describe("UrgencyCountdownForm (9.2 admin)", () => {
     fireEvent.change(screen.getByDisplayValue("47"), { target: { value: "30" } });
     fireEvent.click(screen.getByRole("button", { name: "salvar" }));
 
-    await waitFor(() => expect(screen.getByText("salvo ✓")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/salvo/)).toBeInTheDocument());
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/admin/configuracoes/urgencia",
       expect.objectContaining({

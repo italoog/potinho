@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useState } from "react";
+import { Check } from "lucide-react";
 import type { Product } from "@/lib/products";
 import type { ColorParam, SelectParam, TextParam } from "@/db/types";
 import { calculateTotalCents } from "@/lib/pricing";
@@ -259,9 +260,15 @@ const Customizer = forwardRef<HTMLDivElement, Props>(function Customizer(
           onClick={handleAdd}
           disabled={!canBuy}
           data-testid="add-to-cart"
-          className="rounded-full bg-potinho-chocolate px-8 py-4 text-base font-semibold lowercase text-potinho-bege transition-all enabled:hover:bg-potinho-texto disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-full bg-potinho-chocolate px-8 py-4 text-base font-semibold lowercase text-potinho-bege transition-all enabled:hover:bg-potinho-texto disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {added ? "adicionado ✓" : "adicionar ao carrinho"}
+          {added ? (
+            <>
+              adicionado <Check className="h-4 w-4" />
+            </>
+          ) : (
+            "adicionar ao carrinho"
+          )}
         </button>
       </div>
       {!nameOk && trimmed.length > 0 && (

@@ -90,6 +90,12 @@ describe("CheckoutForm — carrinho vazio", () => {
 });
 
 describe("CheckoutForm — com itens", () => {
+  it("mostra o gatilho de frete grátis faltando 1 potinho", async () => {
+    await renderWithCart([cartItem()]);
+    expect(screen.getByTestId("free-shipping-progress")).toHaveTextContent("falta 1 potinho pro frete grátis");
+  });
+
+
   it("mostra o nome do pet e o total do item", async () => {
     await renderWithCart([cartItem()]);
     expect(screen.getByText("THOR")).toBeInTheDocument();

@@ -92,4 +92,16 @@ describe("CartUI — com itens", () => {
     expect(push).not.toHaveBeenCalled();
     await waitFor(() => expect(screen.queryByText("THOR")).not.toBeInTheDocument());
   });
+
+  it("'continuar comprando' fecha a gaveta sem navegar", async () => {
+    await renderWithCart([cartItem()]);
+    fireEvent.click(screen.getByTestId("continue-shopping"));
+    expect(push).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.queryByText("THOR")).not.toBeInTheDocument());
+  });
+
+  it("mostra o gatilho de frete grátis com 1 item, faltando 1 pro mínimo", async () => {
+    await renderWithCart([cartItem()]);
+    expect(screen.getByTestId("free-shipping-progress")).toHaveTextContent("falta 1 potinho pro frete grátis");
+  });
 });

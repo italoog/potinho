@@ -6,7 +6,7 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   paid: "pago — já vai pra impressão",
   production: "sendo impresso",
   shipped: "a caminho",
-  delivered: "chegou! 🐾",
+  delivered: "chegou!",
   canceled: "cancelado",
 };
 

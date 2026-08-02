@@ -6,6 +6,7 @@ import { formatBRL } from "@/lib/money";
 import { calculateTotalCents } from "@/lib/pricing";
 import { useCart, type CartEntry } from "./CartContext";
 import { PawIcon } from "./Marquee";
+import FreeShippingProgress from "./FreeShippingProgress";
 
 /** Rótulo legível de uma cor a partir do hex escolhido (busca no próprio paramSchema do item). */
 function colorLabel(item: CartEntry, paramKey: string): string | null {
@@ -80,6 +81,12 @@ export default function CartUI() {
                 </svg>
               </button>
             </header>
+
+            {items.length > 0 && (
+              <div className="px-5 pt-4">
+                <FreeShippingProgress itemCount={items.length} />
+              </div>
+            )}
 
             <div className="flex-1 overflow-y-auto p-5">
               {items.length === 0 ? (
@@ -161,6 +168,14 @@ export default function CartUI() {
                   className="w-full rounded-full bg-potinho-chocolate py-4 text-base font-semibold lowercase text-potinho-bege hover:bg-potinho-texto"
                 >
                   finalizar pedido
+                </button>
+                <button
+                  type="button"
+                  onClick={close}
+                  data-testid="continue-shopping"
+                  className="mt-2 w-full rounded-full border-2 border-potinho-chocolate py-3.5 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege"
+                >
+                  continuar comprando
                 </button>
                 <p className="mt-2 text-center text-xs text-potinho-texto/50">
                   frete calculado no pagamento

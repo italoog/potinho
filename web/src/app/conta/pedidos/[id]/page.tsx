@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { ArrowLeft } from "lucide-react";
 import { getAuth } from "@/lib/auth";
 import { getOrderForUser } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
@@ -25,8 +26,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   return (
     <main className="min-h-screen bg-potinho-fundo px-4 pb-10 pt-24 font-[family-name:var(--font-poppins)] text-potinho-texto sm:pb-16">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
-        <Link href="/conta" className="text-sm text-potinho-texto/60 hover:underline">
-          ← voltar pra minha conta
+        <Link href="/conta" className="inline-flex w-fit items-center gap-1 text-sm text-potinho-texto/60 hover:underline">
+          <ArrowLeft className="h-4 w-4" /> voltar pra minha conta
         </Link>
 
         <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white p-6 shadow-potinho-card">

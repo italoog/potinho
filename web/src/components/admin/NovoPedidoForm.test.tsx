@@ -54,7 +54,7 @@ describe("NovoPedidoForm — submit", () => {
     fireEvent.change(screen.getAllByPlaceholderText("nome do pet")[0], { target: { value: "thor" } });
     fireEvent.click(screen.getByRole("button", { name: "marcar como pago" }));
 
-    await waitFor(() => expect(screen.getByText("pedido criado ✓")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/pedido criado/)).toBeInTheDocument());
     expect(screen.getByText("marcado como pago.")).toBeInTheDocument();
 
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { ORDER_STATUS_TRANSITIONS, STATUS_LABEL } from "@/lib/order-status";
 import type { OrderStatus } from "@/db/types";
 
@@ -151,9 +152,15 @@ export default function OrderActions({ orderId, currentStatus, trackingCode, pay
           type="button"
           onClick={handleResend}
           disabled={resendStatus === "loading"}
-          className="rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
+          className="inline-flex items-center gap-1.5 rounded-full border-2 border-potinho-bege px-6 py-2.5 text-sm font-semibold lowercase text-potinho-chocolate hover:bg-potinho-fundo disabled:opacity-40 dark:border-potinho-cinza/30 dark:text-potinho-caramelo dark:hover:bg-white/5"
         >
-          {resendStatus === "done" ? "e-mail reenviado ✓" : "reenviar e-mail de confirmação"}
+          {resendStatus === "done" ? (
+            <>
+              e-mail reenviado <Check className="h-4 w-4" />
+            </>
+          ) : (
+            "reenviar e-mail de confirmação"
+          )}
         </button>
       </div>
     </div>

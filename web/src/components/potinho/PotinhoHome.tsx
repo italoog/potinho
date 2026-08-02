@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { ArrowRight } from "lucide-react";
 import type { Product } from "@/lib/products";
 import type { SelectParam } from "@/db/types";
 import { getColor, heroVideo, macroVideo, stockColors, turntableClips, type TurntableClip } from "@/lib/site-config";
@@ -194,9 +195,9 @@ export default function PotinhoHome({
               <button
                 type="button"
                 onClick={scrollToPreview}
-                className="w-fit rounded-full border-2 border-potinho-chocolate px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege"
+                className="inline-flex w-fit items-center gap-1.5 rounded-full border-2 border-potinho-chocolate px-6 py-3 text-sm font-semibold lowercase text-potinho-chocolate transition-colors hover:bg-potinho-chocolate hover:text-potinho-bege"
               >
-                montar o meu potinho →
+                montar o meu potinho <ArrowRight className="h-4 w-4" />
               </button>
             </div>
             <ul className="flex flex-col gap-3 text-sm font-medium text-potinho-texto/80">

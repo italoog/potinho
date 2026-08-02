@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Check } from "lucide-react";
 
 interface Props {
   colorId: string;
@@ -43,9 +44,17 @@ export default function NotifyGroupRow({ colorId, colorLabel, emails }: Props) {
         type="button"
         onClick={handleNotify}
         disabled={status === "loading" || status === "done"}
-        className="whitespace-nowrap rounded-full bg-potinho-chocolate px-5 py-2 text-xs font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
+        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-potinho-chocolate px-5 py-2 text-xs font-semibold lowercase text-potinho-bege hover:bg-potinho-texto disabled:opacity-40"
       >
-        {status === "done" ? "avisado ✓" : status === "loading" ? "avisando…" : `avisar ${emails.length}`}
+        {status === "done" ? (
+          <>
+            avisado <Check className="h-3.5 w-3.5" />
+          </>
+        ) : status === "loading" ? (
+          "avisando…"
+        ) : (
+          `avisar ${emails.length}`
+        )}
       </button>
       {status === "error" && <p className="text-xs text-rose-500 dark:text-rose-400">falhou</p>}
     </li>

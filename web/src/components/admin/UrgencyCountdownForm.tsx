@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import type { UrgencyCountdownConfig } from "@/lib/urgency-countdown";
 
 const CARD_CLASS = "rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao";
@@ -107,7 +108,11 @@ export default function UrgencyCountdownForm({ config }: { config: UrgencyCountd
         <button type="submit" disabled={saveState === "saving"} className={SOLID_BUTTON_CLASS}>
           {saveState === "saving" ? "salvando…" : "salvar"}
         </button>
-        {saveState === "saved" && <span className="text-sm text-potinho-chocolate dark:text-potinho-caramelo">salvo ✓</span>}
+        {saveState === "saved" && (
+          <span className="inline-flex items-center gap-1 text-sm text-potinho-chocolate dark:text-potinho-caramelo">
+            salvo <Check className="h-4 w-4" />
+          </span>
+        )}
       </div>
     </form>
   );

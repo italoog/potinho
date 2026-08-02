@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getOrderForAdmin, type OrderItemWithProduct } from "@/lib/orders";
 import { formatBRL } from "@/lib/money";
 import { EVENT_LABEL, STATUS_BADGE_CLASS, STATUS_LABEL } from "@/lib/order-status";
@@ -28,8 +29,11 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/admin/pedidos" className="text-sm text-potinho-texto/60 hover:underline dark:text-potinho-bege/60">
-        ← voltar pra pedidos
+      <Link
+        href="/admin/pedidos"
+        className="inline-flex w-fit items-center gap-1 text-sm text-potinho-texto/60 hover:underline dark:text-potinho-bege/60"
+      >
+        <ArrowLeft className="h-4 w-4" /> voltar pra pedidos
       </Link>
 
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-white p-6 shadow-potinho-card dark:bg-potinho-carvao">

@@ -69,7 +69,7 @@ describe("OrderStatusPage", () => {
     });
     const jsx = await OrderStatusPage(ctx());
     render(jsx);
-    expect(screen.getByText("pedido confirmado 🎉")).toBeInTheDocument();
+    expect(screen.getByText(/pedido confirmado/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "BR123456789" })).toHaveAttribute(
       "href",
       expect.stringContaining("BR123456789"),

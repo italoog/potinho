@@ -119,6 +119,16 @@ export default function NameText({ manifest, text }: NameTextProps) {
   const flatGeometry = useMemo(() => {
     if (!font || !text || !manifest.anchor) return null;
     const [, sampleH, sampleW] = manifest.anchor.sampleTextSize;
+    // ponytail: no 3MF de origem do P e do M, a caixa de texto "CHARLIE" (sampleTextSize) foi
+    // escalada bem menor, proporcionalmente à altura da peça, do que no G, mesmo a largura
+    // disponível pra gravar (a curva do corpo) sendo quase igual nos 3 tamanhos (mesmo diâmetro).
+    // Até o placeholder ser reescalado nos 3MFs de origem e os GLBs regerados
+    // (scripts/convert-3mf-to-glb.ts), corrige aqui. Primeira tentativa igualou a proporção
+    // texto/altura do G (~18,6%) — no preview real ainda ficou pequeno demais no P pra legibilidade
+    // num objeto tão pequeno, então o P foi pra ~26% da própria altura (maior proporção que o G:
+    // peça pequena precisa de texto relativamente maior pra continuar legível).
+    const TEXT_HEIGHT_OVERRIDE_M: Record<string, number> = { "5cm": 0.013, "10cm": 0.0184 };
+    const targetHeight = TEXT_HEIGHT_OVERRIDE_M[manifest.variantRef] ?? sampleH;
     const maxWidth = Math.max(sampleW, sampleH * 2) * 1.05;
     // O 3MF original grava a 2mm (thickness do Text Tool do Bambu) — a peça impressa de
     // verdade usa o 3MF original (gerador de produção — Épico 5), não esta malha do preview:
@@ -129,7 +139,7 @@ export default function NameText({ manifest, text }: NameTextProps) {
     // caía DENTRO da casca no topo das letras e a gravação saía rasa/serrilhada ali.
     const outsideMargin = 0.004;
     const geometry = buildTextGeometry(font, text, {
-      targetHeight: sampleH,
+      targetHeight,
       maxWidth,
       depth: cutDepth + outsideMargin,
     });
