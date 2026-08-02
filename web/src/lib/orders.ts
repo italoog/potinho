@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { getDb, orderEvents, orderItems, orders, products, users } from "@/db";
 import type { OrderEventRow, OrderItemRow, OrderRow } from "@/db/schema";
-import type { ProductParamSchema } from "@/db/types";
+import type { OrderStatus, ProductParamSchema } from "@/db/types";
 import { sendNewOrderNotification, sendOrderConfirmation, sendRefundNotification } from "./email";
 import { recordOrderEvent } from "./order-events";
 
@@ -103,6 +103,17 @@ export async function linkOrderToAccountIfExists(orderId: string, email: string)
     .update(orders)
     .set({ userId: account.id })
     .where(and(eq(orders.id, orderId), isNull(orders.userId)));
+}
+
+/** Só o status (P-07 polling): usado pela página de pedido pra detectar o webhook assíncrono sem repetir o select de items/events a cada tick. */
+export async function getOrderStatusByToken(token: string): Promise<OrderStatus | null> {
+  const db = await getDb();
+  const [order] = await db
+    .select({ status: orders.status })
+    .from(orders)
+    .where(eq(orders.publicToken, token))
+    .limit(1);
+  return order?.status ?? null;
 }
 
 export async function getOrderByToken(
