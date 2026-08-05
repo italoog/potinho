@@ -56,6 +56,7 @@ export default function TurntableCard({
         <video
           ref={videoRef}
           src={clip.video}
+          poster={clip.poster}
           muted
           loop
           playsInline

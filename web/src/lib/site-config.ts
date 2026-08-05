@@ -54,6 +54,8 @@ export interface TurntableClip {
   colorTopId: string;
   colorBottomId: string;
   video: string;
+  /** Frame estático exibido enquanto o vídeo carrega (evita card em branco). */
+  poster: string;
   highlight?: boolean;
 }
 
@@ -65,6 +67,7 @@ export const turntableClips: TurntableClip[] = [
     colorTopId: "bege",
     colorBottomId: "marrom",
     video: "/videos/giro-bege-marrom.mp4",
+    poster: "/videos/giro-bege-marrom-poster.webp",
     highlight: true,
   },
   {
@@ -73,6 +76,7 @@ export const turntableClips: TurntableClip[] = [
     colorTopId: "branco",
     colorBottomId: "preto",
     video: "/videos/giro-branco-preto.mp4",
+    poster: "/videos/giro-branco-preto-poster.webp",
   },
   {
     id: "rosa-branco",
@@ -80,6 +84,7 @@ export const turntableClips: TurntableClip[] = [
     colorTopId: "rosa",
     colorBottomId: "branco",
     video: "/videos/giro-rosa-branco.mp4",
+    poster: "/videos/giro-rosa-branco-poster.webp",
   },
   {
     id: "azul-cinza",
@@ -87,6 +92,7 @@ export const turntableClips: TurntableClip[] = [
     colorTopId: "azul",
     colorBottomId: "cinza",
     video: "/videos/giro-azul-cinza.mp4",
+    poster: "/videos/giro-azul-cinza-poster.webp",
   },
 ];
 
